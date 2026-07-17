@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>備えナビ｜地震から値上げまで 生活防衛の総合ナビ</title>
+<meta name="description" content="備えニキの備えナビ。30秒診断で、あなたの家に本当に必要な備えがわかる。地震・火事・水害・停電・防犯・値上げ・お金の生活防衛ナビ。">
+<style>
+:root{
+  --bg:#0B0F1A; --panel:#141B2B; --line:#232D42;
+  --yellow:#FFC400; --red:#FF4433; --green:#3DDC84;
+  --text:#F2F4F8; --mut:#8A93A6;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);
+  font-family:'Helvetica Neue','Hiragino Kaku Gothic ProN','Noto Sans JP',sans-serif;
+  -webkit-font-smoothing:antialiased}
+.wrap{max-width:430px;margin:0 auto;padding:0 20px 60px}
+.hazard{background:repeating-linear-gradient(-45deg,var(--yellow) 0 12px,#10141f 12px 24px)}
+.hz-top{height:8px;margin:0 -20px}
+.brand{padding:14px 0;display:flex;align-items:center;gap:8px}
+.brand .tag{background:var(--yellow);color:#000;font-weight:900;font-size:12px;padding:3px 8px;border-radius:4px}
+.brand .name{font-weight:900;font-size:15px;letter-spacing:1px}
+.brand a{color:inherit;text-decoration:none;display:flex;align-items:center;gap:8px}
+button{font-family:inherit;cursor:pointer}
+.eyebrow{color:var(--red);font-weight:900;font-size:13px;letter-spacing:2px;margin:26px 0 12px}
+h1{font-size:29px;font-weight:900;line-height:1.35;margin-bottom:14px}
+h1 .yl{color:var(--yellow)}
+.lead{color:var(--mut);font-size:14px;line-height:1.8;margin-bottom:24px}
+.cta{display:block;width:100%;padding:18px;border-radius:12px;border:none;background:var(--yellow);color:#000;font-size:17px;font-weight:900;text-align:center;text-decoration:none}
+.note{color:var(--mut);font-size:11px;text-align:center;margin-top:12px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.tile{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 14px;text-decoration:none;color:var(--text)}
+.tile .ic{font-size:22px;margin-bottom:8px}
+.tile .tn{font-size:15px;font-weight:900;margin-bottom:4px}
+.tile .td{font-size:11px;color:var(--mut);line-height:1.5}
+.sech{font-size:18px;font-weight:900;margin:28px 0 4px}
+.secn{color:var(--mut);font-size:12px;margin-bottom:14px}
+.moneybtns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.moneybtn{display:block;text-align:center;background:var(--panel);border:1px solid var(--yellow);color:var(--yellow);font-weight:900;font-size:13px;padding:14px 8px;border-radius:12px;text-decoration:none}
+.pbar{height:6px;background:var(--line);border-radius:3px;margin:16px 0 24px}
+.pfill{height:6px;width:0;background:var(--yellow);border-radius:3px;transition:width .3s}
+.qnum{color:var(--mut);font-size:12px;font-weight:700;margin-bottom:6px}
+h2{font-size:24px;font-weight:900;margin-bottom:6px}
+.qsub{color:var(--mut);font-size:13px;margin-bottom:20px;min-height:18px}
+.opt{width:100%;padding:16px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--text);font-size:16px;font-weight:700;text-align:left;margin-bottom:10px}
+.opt:active{border-color:var(--yellow)}
+.back{background:none;border:none;color:var(--mut);font-size:13px;margin-top:8px}
+.scanbox{padding-top:100px;text-align:center}
+.scantxt{font-size:15px;font-weight:900;color:var(--yellow);letter-spacing:3px;margin-bottom:18px}
+.scanbar{height:4px;background:var(--line);border-radius:2px;overflow:hidden}
+@keyframes scan{from{width:0}to{width:100%}}
+.scannote{color:var(--mut);font-size:12px;margin-top:16px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px;margin-bottom:14px}
+.lbl{color:var(--mut);font-size:12px;font-weight:700;margin-bottom:8px}
+.scorerow{display:flex;align-items:baseline;gap:6px}
+.score{font-size:56px;font-weight:900;color:var(--red);line-height:1}
+.scoreunit{font-size:20px;font-weight:900;color:var(--red)}
+.badge{margin-left:auto;background:var(--red);color:#fff;font-size:12px;font-weight:900;padding:4px 10px;border-radius:6px}
+.gauge{height:10px;background:var(--line);border-radius:5px;margin-top:14px;overflow:hidden}
+.gaugefill{height:10px;width:0;background:linear-gradient(90deg,var(--red),var(--yellow));border-radius:5px;transition:width 1.2s ease-out}
+.cardnote{color:var(--mut);font-size:12px;margin-top:12px;line-height:1.7}
+.section-eyebrow{color:var(--yellow);font-size:12px;font-weight:900;letter-spacing:2px;margin-bottom:6px}
+.typename{font-size:26px;font-weight:900;margin-bottom:8px}
+.typename .mod{font-size:15px;color:var(--red)}
+.typedesc{color:var(--mut);font-size:13px;line-height:1.8;margin-bottom:14px}
+.risk{display:flex;gap:8px;margin-bottom:8px;font-size:13px;line-height:1.6}
+.risk .ic{color:var(--red);font-weight:900}
+.hz-div{height:6px;border-radius:3px;margin:20px 0 10px}
+h3{font-size:18px;font-weight:900;margin-bottom:4px}
+.listnote{color:var(--mut);font-size:12px;margin-bottom:16px}
+.item{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:10px}
+.item.now{border-color:var(--yellow)}
+.itemhead{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.chip{font-size:11px;font-weight:900;padding:3px 8px;border-radius:4px;background:var(--line);color:var(--mut)}
+.item.now .chip{background:var(--yellow);color:#000}
+.itemname{font-size:16px;font-weight:900}
+.qty{font-size:13px;color:var(--yellow);font-weight:700;margin-bottom:4px}
+.why{font-size:12px;color:var(--mut);margin-bottom:12px}
+.amzbtn{display:block;text-align:center;border:1px solid var(--yellow);color:var(--yellow);background:transparent;font-weight:900;font-size:14px;padding:12px;border-radius:10px;text-decoration:none}
+.item.now .amzbtn{background:var(--yellow);color:#000}
+.ytcard{background:#1A0F0F;border:1px solid var(--red);border-radius:16px;padding:20px;margin:20px 0 14px}
+.ytcard .eb{color:var(--red);font-size:12px;font-weight:900;letter-spacing:2px;margin-bottom:8px}
+.ytcard .t{font-size:15px;font-weight:900;line-height:1.6;margin-bottom:14px}
+.ytbtn{display:block;text-align:center;background:var(--red);color:#fff;font-weight:900;font-size:14px;padding:13px;border-radius:10px;text-decoration:none}
+.ytmore{margin-top:10px}
+.ytrow{display:flex;gap:8px;align-items:flex-start;padding:11px 0;border-top:1px solid #2a1616;text-decoration:none;color:var(--text);font-size:13px;font-weight:700;line-height:1.5}
+.ytrow .pl{color:var(--red);font-weight:900;flex-shrink:0}
+.retry{display:block;width:100%;background:none;border:1px solid var(--line);color:var(--mut);font-size:13px;font-weight:700;padding:12px;border-radius:10px;text-align:center;text-decoration:none}
+.disclaimer{color:var(--mut);font-size:10px;text-align:center;margin-top:16px;line-height:1.7}
+.chk{display:flex;gap:10px;align-items:flex-start;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:8px;font-size:14px;font-weight:700;line-height:1.6}
+.chk input{width:20px;height:20px;accent-color:var(--yellow);flex-shrink:0;margin-top:1px}
+.chkresult{background:var(--panel);border:1px solid var(--yellow);border-radius:14px;padding:16px;margin:6px 0 20px;font-size:14px;font-weight:900;text-align:center}
+.chkresult .big{font-size:30px;color:var(--red)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hazard hz-top"></div>
+  <div class="brand"><a href="#"><span class="tag">備えニキ</span><span class="name">備えナビ</span></a></div>
+  <div id="app"></div>
+</div>
+
+<script>
+// ============ 設定 ============
+const AFF_TAG = "YOUR-AMAZON-TAG-22"; // ← Amazonアソシエイトタグ（検索リンク用）
+const YT_CHANNEL = "https://www.youtube.com/@sonaeniki";
+const IG_URL = "https://www.instagram.com/sonaeniki_bosai_bohan";
+const AMZN_LIST = "https://amzn.asia/d/09QQw4zM";
+const RAKUTEN_ROOM = "https://room.rakuten.co.jp/room_5fa1f5d076/items";
+// ============ 動画データ（新作はここに追加） ============
+const V = {
+  // ロング（主力）
+  bichiku50:{title:"【完全保存版】2026年最新 絶対に揃えるべき備蓄品ランキングTOP50",url:"https://youtu.be/jx67o5aDyjg"},
+  hinanjo:{title:"【閲覧注意】避難所の現実 持っていなくて後悔した物TOP20",url:"https://youtu.be/1tza3T-dtow"},
+  saisho30:{title:"【緊急】最初の30分で生死が決まる災害TOP4",url:"https://youtu.be/M1De87fEC0E"},
+  hyakkin:{title:"【保存版】100均だけで揃う！予算1万円で作る3日分の備蓄",url:"https://youtu.be/h2A1tn8KPQo"},
+  bichikuKiken:{title:"【緊急】備蓄してる人ほど実は危険な事TOP20",url:"https://youtu.be/rbVdHj9tk7Y"},
+  taenuki10:{title:"日本の崩壊 耐え抜く備蓄TOP10",url:"https://youtu.be/fUFnD-8nFsY"},
+  gouu20:{title:"【緊急】台風前に買え！ホームセンターで揃える豪雨対策TOP20",url:"https://youtu.be/4xfQTBn-A9s"},
+  teiden20:{title:"【完全保存版】停電で一瞬にして終わる物TOP20",url:"https://youtu.be/ixPGF4XVsVM"},
+  atsusa20:{title:"【緊急】電気代高騰に備えろ！夏前の最強暑さ対策TOP20",url:"https://youtu.be/M5EvSHalv0c"},
+  akisu7:{title:"備蓄の前にまずこれをやれ！空き巣に狙われやすい家TOP7",url:"https://youtu.be/1zZJwtyxtLE"},
+  neageTop20:{title:"【2026年版】値上げが止まらない生活必需品TOP20",url:"https://www.youtube.com/watch?v=t73MUqhYeWU"},
+  july:{title:"【緊急】6月中に買え！7月から価格爆上げする物TOP20",url:"https://youtu.be/O1R9JPkpIcM"},
+  june:{title:"【緊急】5月中に買え 6月値上げ確定品TOP20",url:"https://youtu.be/n44xUqFPqu8"},
+  natsumae20:{title:"【緊急】夏前に消える!? ホームセンターで今すぐ買うべき物TOP20",url:"https://youtu.be/uhoddfExooA"},
+  nafsaKieru:{title:"【衝撃】ホルムズ海峡封鎖 ナフサショックで消える物TOP20",url:"https://youtu.be/0STOzGJT5Xs"},
+  hokaiScenario:{title:"ホルムズ海峡封鎖 日本崩壊シナリオ 地獄のカウントダウンTOP10",url:"https://youtu.be/ocTiABzffRU"},
+  potechi:{title:"【終わりの始まり？】白黒ポテチの謎 海峡封鎖とナフサショック",url:"https://youtu.be/9rfUG_kj1fk"},
+  reitoTop20:{title:"【緊急】夏の値上げ前に買え！今すぐ冷凍すべき物TOP20",url:"https://www.youtube.com/watch?v=6Xmhsc8yjRI"},
+  koteihiTop20:{title:"【生活防衛】年間10万円浮く 固定費見直しTOP20",url:"https://www.youtube.com/watch?v=sAooCp5aDYo"},
+  hisaigo:{title:"【最高300万円】被災後貰えるお金と大事な手続きTOP10",url:"https://youtu.be/6T6mMUrprd4"},
+  furusato10:{title:"【実質2000円】ふるさと納税で揃える最強防災グッズTOP10",url:"https://youtu.be/9MknQKt-VDw"},
+  setsuyaku7:{title:"【実は逆】備蓄が節約になる7つの理由",url:"https://youtu.be/rHtnJ-6e6us"},
+  denki7:{title:"【補助金終了】知らないと年間2万円損 今すぐ見直す電気代7選",url:"https://www.youtube.com/watch?v=Hb5_qSlfsPs"},
+  // ショート
+  reitoTop5:{title:"【緊急】夏の値上げ前に買え！今すぐ冷凍すべき物TOP5",url:"https://www.youtube.com/shorts/KqnIofjGxWE"},
+  neageTop5:{title:"2026年も値上げ地獄TOP5",url:"https://www.youtube.com/shorts/XeC6rC8dzsc"},
+  reitoNG:{title:"【まじでやめて】冷凍した瞬間に終わる物TOP10",url:"https://www.youtube.com/shorts/yZx_8mwXxPo"},
+  reitoIgai:{title:"【保存版】冷凍できる意外な食材TOP3",url:"https://www.youtube.com/shorts/itQkanKY64k"},
+  koteihiTop5:{title:"年間10万円浮く 固定費見直しTOP5",url:"https://www.youtube.com/shorts/pWWvdZupDXc"},
+  saiene:{title:"【緊急】今すぐ見直せ電気代！再エネ賦課金の強制負担",url:"https://www.youtube.com/shorts/fKLQCxSOVGc"},
+  aircon:{title:"【永遠のテーマ】エアコンつけっぱなしの方が得論",url:"https://www.youtube.com/shorts/pbbm7ezi9OM"},
+  furusato:{title:"防災グッズはほぼタダ?! ふるさと納税でお得にゲットする方法",url:"https://www.youtube.com/shorts/K3O6UlSd0E0"},
+  necchusho:{title:"夏本番 ステルス熱中症 急増中",url:"https://www.youtube.com/shorts/0rKC2U73n4M"},
+  mizuKoraseru:{title:"【一石三鳥】夏前に水を凍らせる理由とは",url:"https://www.youtube.com/shorts/KLwkYxOoDgw"},
+  taifuHC:{title:"【緊急】ホームセンターで今すぐ買え！台風前に備えるべき物5選",url:"https://www.youtube.com/shorts/PVZ2vaA3T3M"},
+};
+// ===============================================
+
+const amz = kw => `https://www.amazon.co.jp/s?k=${encodeURIComponent(kw)}&tag=${AFF_TAG}`;
+const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+// ============ カテゴリデータ ============
+const CATS = {
+  jishin: {
+    ic:"🏚", name:"地震に備える", catch:"命を守る備えの本丸",
+    desc:"日本に住む限り避けられないリスク。発生後72時間を自力で生き延びる備えが基本です。",
+    checks:["家具・家電を固定している","水を1人3L×7日分置いている","簡易トイレを人数分×7日分持っている","寝室に懐中電灯とスリッパがある","家族と集合場所を決めている"],
+    items:[
+      {name:"長期保存水",qty:"1人あたり21L",why:"給水車は当てにできない",kw:"保存水 2L 長期保存 5年"},
+      {name:"簡易トイレ",qty:"1人35回分",why:"断水後3時間で必要になる",kw:"簡易トイレ 100回分 凝固剤"},
+      {name:"家具固定器具",qty:"背の高い家具全部",why:"死因の3〜5割は家具・建物の下敷き",kw:"家具転倒防止 突っ張り棒"},
+      {name:"長期保存食",qty:"1人21食分",why:"火を使わず食べられるものを",kw:"非常食 セット 長期保存"},
+      {name:"ヘッドライト",qty:"1人1個",why:"両手が空く。夜の地震で必須",kw:"ヘッドライト LED 防災"},
+      {name:"防災リュック",qty:"1人1個",why:"3分で家を出られる状態に",kw:"防災リュック セット"},
+    ],
+    videos:[V.bichiku50,V.hinanjo,V.saisho30,V.hyakkin,V.bichikuKiken,V.taenuki10],
+  },
+  kaji: {
+    ic:"🔥", name:"火事に備える", catch:"初期消火の60秒が家を救う",
+    desc:"住宅火災の死者の約7割は逃げ遅れ。「知らせる・消す・逃げる」の3点セットで備えます。",
+    checks:["住宅用火災警報器を全部屋に設置している","警報器の電池を10年以内に交換した","消火器（住宅用）を台所に置いている","コンセント周りのホコリを掃除している","2階以上に避難経路を確保している"],
+    items:[
+      {name:"住宅用消火器",qty:"台所＋各階に1本",why:"初期消火できるのは出火から約2分",kw:"消火器 住宅用 リサイクル"},
+      {name:"火災警報器",qty:"寝室・台所・階段",why:"逃げ遅れを防ぐ最重要装備",kw:"火災警報器 煙式 電池"},
+      {name:"感震ブレーカー",qty:"分電盤に1個",why:"地震火災の6割は電気が原因",kw:"感震ブレーカー"},
+      {name:"避難はしご",qty:"2階以上なら必須",why:"階段が使えない火災は多い",kw:"避難はしご 2階用"},
+      {name:"防炎スプレー",qty:"カーテン・寝具に",why:"燃え広がる速度を遅らせる",kw:"防炎スプレー"},
+    ],
+    videos:[V.saisho30],
+  },
+  suigai: {
+    ic:"🌊", name:"水害に備える", catch:"川・台風・ゲリラ豪雨",
+    desc:"水害は唯一「事前に予測できる災害」。ハザードマップ確認と早期避難の準備が命を守ります。",
+    checks:["自宅のハザードマップを確認した","避難先と避難タイミングを決めている","重要書類を防水ケースに入れている","スマホの防水対策をしている","浸水を防ぐ水のう・土のうの用意がある"],
+    items:[
+      {name:"水のう・土のう",qty:"玄関・排水口用",why:"逆流と浸水を数十分遅らせる",kw:"水のう 土のう 浸水対策"},
+      {name:"防水ドキュメントケース",qty:"1個",why:"通帳・保険証券・母子手帳を守る",kw:"防水 書類ケース 貴重品"},
+      {name:"レインウェア上下",qty:"1人1組",why:"傘での避難は不可能",kw:"レインウェア 上下 防水"},
+      {name:"防水スマホケース",qty:"1人1個",why:"命綱の情報源を水没させない",kw:"防水 スマホケース 首掛け"},
+      {name:"ライフジャケット",qty:"川沿い・低地なら",why:"浸水想定3m以上の地域は検討",kw:"ライフジャケット 大人 子供"},
+    ],
+    videos:[V.gouu20,V.taifuHC],
+  },
+  teiden: {
+    ic:"⚡", name:"停電に備える", catch:"雷・熱波・地震、全部これで詰む",
+    desc:"夏の停電は熱中症、冬は低体温症に直結。電源・灯り・調理の3つを電気なしで確保します。",
+    checks:["モバイルバッテリーを常に満充電にしている","電池式のランタンか懐中電灯がある","カセットコンロとボンベ6本以上ある","夏の冷却・冬の防寒グッズがある","冷蔵庫が止まった時の保冷手段がある"],
+    items:[
+      {name:"ポータブル電源",qty:"1台",why:"スマホ・扇風機・電気毛布が動く",kw:"ポータブル電源 500Wh"},
+      {name:"モバイルバッテリー",qty:"1人1個",why:"情報源＝スマホを死なせない",kw:"モバイルバッテリー 20000mAh"},
+      {name:"LEDランタン",qty:"部屋数分",why:"スマホライトは3時間で終わる",kw:"LEDランタン 電池式 防災"},
+      {name:"カセットコンロ＋ボンベ",qty:"ボンベ6本以上",why:"温かい食事が精神を守る",kw:"カセットコンロ ボンベ セット"},
+      {name:"ネッククーラー・冷却材",qty:"1人1個",why:"停電熱中症は数時間で危険域",kw:"ネッククーラー 電源不要"},
+      {name:"クーラーボックス＋保冷剤",qty:"1セット",why:"冷蔵庫の中身を1日延命",kw:"クーラーボックス 大型 保冷剤"},
+    ],
+    videos:[V.teiden20,V.atsusa20,V.necchusho,V.mizuKoraseru],
+  },
+  bouhan: {
+    ic:"🚨", name:"防犯に備える", catch:"狙われる家には理由がある",
+    desc:"空き巣は下見で家を選びます。「入りにくい・見られている・時間がかかる」を作れば狙われません。",
+    checks:["玄関・窓すべてに二重ロックがある","防犯カメラかダミーカメラを設置している","郵便物を溜めずSNSに旅行中と書かない","センサーライトが死角にある","在宅時も玄関を施錠している"],
+    items:[
+      {name:"防犯カメラ（屋外・スマホ連動）",qty:"玄関＋死角に",why:"カメラのある家は狙われにくい。外出先から確認できる",kw:"防犯カメラ 屋外 wifi スマホ"},
+      {name:"スマートドアベル",qty:"玄関に1台",why:"訪問者を録画。居留守も安全に使える",kw:"スマートドアベル 録画 工事不要"},
+      {name:"センサーライト",qty:"死角・裏口に",why:"侵入者が最も嫌うのは光",kw:"センサーライト 屋外 ソーラー"},
+      {name:"補助錠・窓ロック",qty:"全ての窓に",why:"侵入の6割は窓から。5分粘れば7割が諦める",kw:"窓 補助錠 防犯ロック"},
+      {name:"防犯フィルム",qty:"掃き出し窓に",why:"ガラス破りを数分単位で遅らせる",kw:"防犯フィルム 窓 CPマーク"},
+      {name:"ダミーカメラ＋防犯ステッカー",qty:"予算がなければまず",why:"数千円で「見られている」を演出",kw:"ダミーカメラ 防犯ステッカー"},
+    ],
+    videos:[V.akisu7],
+  },
+  neage: {
+    ic:"📈", name:"値上げに備える", catch:"買うなら値上げ前の今",
+    desc:"食品・日用品の値上げは今後も続きます。長期保存できるものを安いうちに積む＋冷凍を制する者が家計を制します。",
+    checks:["米・パスタ等の主食を1ヶ月分ストックしている","トイレットペーパーを2ヶ月分置いている","洗剤・シャンプーの予備を持っている","缶詰・レトルトを20食以上持っている","値上げ予定の情報をチェックしている"],
+    items:[
+      {name:"無洗米（長期保存）",qty:"1ヶ月分",why:"主食の値上げが家計に一番効く",kw:"無洗米 10kg 備蓄"},
+      {name:"缶詰セット",qty:"20食分〜",why:"3年もつ。防災備蓄と一石二鳥",kw:"缶詰 セット まとめ買い"},
+      {name:"冷凍保存袋・ジップロック",qty:"大量に",why:"冷凍ストックの必需品。これも値上げ対象",kw:"冷凍保存袋 ジップロック 大容量"},
+      {name:"トイレットペーパー",qty:"2ヶ月分",why:"かさばるが腐らない。箱買い一択",kw:"トイレットペーパー 長持ち 箱"},
+      {name:"洗剤・日用品まとめ買い",qty:"3ヶ月分",why:"詰め替え大容量が単価最安",kw:"洗剤 詰め替え 大容量"},
+      {name:"パスタ・乾麺",qty:"1ヶ月分",why:"保存3年・調理も簡単",kw:"パスタ 5kg 業務用"},
+    ],
+    videos:[V.neageTop20,V.july,V.june,V.natsumae20,V.nafsaKieru,V.hokaiScenario,V.potechi,V.reitoTop20,V.reitoTop5,V.neageTop5,V.reitoNG,V.reitoIgai],
+  },
+  okane: {
+    ic:"💴", name:"お金を備える", catch:"知らないと損する生活防衛",
+    desc:"固定費と電気代の見直しは即効性No.1の生活防衛。被災後にもらえるお金の知識も家計を守ります。",
+    checks:["スマホは格安SIM等で最適化している","使っていないサブスクを解約した","電気・ガスのプランを1年以内に見直した","ふるさと納税を活用している","小銭込みの現金3万円を災害用に備えている"],
+    items:[
+      {name:"手提げ金庫",qty:"1個",why:"停電時は現金しか使えない。千円札と小銭で",kw:"手提げ金庫 小型 家庭用"},
+      {name:"防水・耐火ドキュメントバッグ",qty:"1個",why:"通帳・証券・権利書を火と水から守る",kw:"耐火 防水 書類バッグ"},
+      {name:"電気代モニター（ワットチェッカー）",qty:"1個",why:"電気食い家電を特定して削る",kw:"ワットチェッカー 電気代"},
+      {name:"節電タップ・LED電球",qty:"家中",why:"待機電力と電気代を自衛",kw:"節電タップ LED電球 セット"},
+      {name:"家計防衛の本",qty:"1冊",why:"保険と固定費の見直しで年10万変わる",kw:"家計 見直し 本 節約"},
+    ],
+    videos:[V.koteihiTop20,V.hisaigo,V.furusato10,V.setsuyaku7,V.denki7,V.koteihiTop5,V.saiene,V.aircon,V.furusato],
+  },
+};
+
+// ============ 診断データ ============
+const YT_VIDEOS = { mansion:V.bichiku50, house:V.bichiku50, apart:V.hinanjo };
+const QUESTIONS = [
+  { id:"family", q:"家族は何人？", sub:"同居している人数（自分を含む）",
+    opts:[{v:1,label:"1人"},{v:2,label:"2人"},{v:4,label:"3〜4人"},{v:5,label:"5人以上"}] },
+  { id:"home", q:"住まいは？", sub:"災害時の行動が大きく変わります",
+    opts:[{v:"mansion",label:"マンション"},{v:"house",label:"戸建て"},{v:"apart",label:"アパート・その他"}] },
+  { id:"kids", q:"小さい子どもは？", sub:"",
+    opts:[{v:"baby",label:"乳幼児がいる"},{v:"kid",label:"小学生以上"},{v:"none",label:"いない"}] },
+  { id:"pet", q:"ペットは？", sub:"",
+    opts:[{v:"yes",label:"犬・猫がいる"},{v:"no",label:"いない"}] },
+  { id:"budget", q:"備えにかけられる予算は？", sub:"無理のない範囲でOK",
+    opts:[{v:1,label:"〜1万円"},{v:3,label:"1〜3万円"},{v:5,label:"3〜5万円"},{v:99,label:"5万円以上"}] },
+  { id:"stock", q:"今の備蓄は？", sub:"正直に答えるほど診断が正確になります",
+    opts:[{v:"zero",label:"ほぼゼロ"},{v:"water",label:"水くらいはある"},{v:"some",label:"ある程度そろえている"}] },
+];
+const TYPE_INFO = {
+  mansion:{ name:"垂直孤立型",
+    desc:"エレベーター停止で高層階が「陸の孤島」になるタイプ。水とトイレの確保が生死を分けます。",
+    risks:["エレベーター停止で水を上に運べない","断水と同時にトイレが使用不能になる","給水所まで階段で往復するのは現実的に不可能"]},
+  house:{ name:"自宅籠城型",
+    desc:"在宅避難が基本になるタイプ。スペースはあるのに備蓄量が追いついていない家がほとんどです。",
+    risks:["停電で冷蔵庫の食材が2日で全滅する","家族人数分の水は想像の2倍以上必要","断水時のトイレ問題は戸建てでも同じ"]},
+  apart:{ name:"即時避難型",
+    desc:"建物被害で在宅避難できない可能性があるタイプ。「持ち出せる備え」が最優先です。",
+    risks:["建物損傷で自宅に戻れなくなる可能性","持ち出し袋がないと避難所生活で詰む","収納が少なく備蓄が薄くなりがち"]},
+};
+function buildResult(a){
+  const people=a.family, days=a.home==="apart"?3:7;
+  let score=a.stock==="zero"?12:a.stock==="water"?26:44;
+  if(a.kids==="baby")score-=6;
+  if(a.pet==="yes")score-=4;
+  if(a.home==="mansion")score-=4;
+  score=Math.max(8,score);
+  const items=[];
+  items.push({name:"長期保存水",qty:`${people*3*days}L（${people}人×3L×${days}日）`,why:"命に直結。給水車は当てにできない",kw:"保存水 2L 長期保存 5年"});
+  items.push({name:"簡易トイレ",qty:`${people*5*days}回分`,why:"断水後3時間で必要になる。最も後悔する備え",kw:"簡易トイレ 100回分 凝固剤"});
+  items.push({name:"長期保存食",qty:`${people*3*days}食分`,why:"火を使わず食べられるものを中心に",kw:"非常食 セット 長期保存"});
+  if(a.kids==="baby")items.push({name:"液体ミルク・オムツ",qty:"1週間分",why:"支援物資では後回しにされる。親しか守れない",kw:"液体ミルク 常温 防災"});
+  if(a.pet==="yes")items.push({name:"ペットフード・ペットシーツ",qty:"7日分",why:"避難所にペット用の備えは無い",kw:"ペット 防災 セット"});
+  items.push({name:a.budget>=3?"ポータブル電源":"大容量モバイルバッテリー",qty:"1台",why:"停電時の情報源＝スマホを死なせない",kw:a.budget>=3?"ポータブル電源 500Wh":"モバイルバッテリー 20000mAh"});
+  items.push({name:"カセットコンロ＋ボンベ",qty:`ボンベ${Math.max(6,people*2)}本`,why:"温かい食事が精神を守る",kw:"カセットコンロ ボンベ セット"});
+  if(a.home==="mansion")items.push({name:"ウォータータンク＋キャリーカート",qty:"各1",why:"給水を階段で運ぶ唯一の手段",kw:"ウォータータンク キャリーカート 防災"});
+  if(a.home==="apart")items.push({name:"防災リュックセット",qty:`${people}人分`,why:"3分で家を出られる状態を作る",kw:"防災リュック セット 2人用"});
+  items.push({name:"LEDランタン",qty:"2個以上",why:"スマホライトは3時間で終わる",kw:"LEDランタン 防災 電池"});
+  const nowCount=a.budget<=1?3:a.budget<=3?5:a.budget<=5?7:items.length;
+  return {score,items,nowCount,type:TYPE_INFO[a.home],video:YT_VIDEOS[a.home],people,days};
+}
+
+// ============ 画面 ============
+const app=document.getElementById("app");
+let ans={};
+
+function itemsHTML(items,nowCount){
+  return items.map((it,i)=>{
+    const now=i<(nowCount??items.length);
+    return `<div class="item ${now?"now":""}">
+      <div class="itemhead"><span class="chip">${now?"今すぐ":"次に"}</span><span class="itemname">${esc(it.name)}</span></div>
+      <div class="qty">目安：${esc(it.qty)}</div>
+      <div class="why">${esc(it.why)}</div>
+      <a class="amzbtn" href="${amz(it.kw)}" target="_blank" rel="noopener noreferrer">Amazonで見る →</a>
+    </div>`;
+  }).join("");
+}
+function ytHTML(eb,videos){
+  if(!videos||videos.length===0){
+    return `<div class="ytcard"><div class="eb">▌${esc(eb)}</div>
+      <p class="t">このテーマの動画は近日公開！最新動画はチャンネルでチェック</p>
+      <a class="ytbtn" href="${YT_CHANNEL}" target="_blank" rel="noopener noreferrer">▶ 備えニキのチャンネルを見る</a></div>`;
+  }
+  const main=videos[0];
+  const rest=videos.slice(1).map(v=>
+    `<a class="ytrow" href="${v.url}" target="_blank" rel="noopener noreferrer"><span class="pl">▶</span><span>${esc(v.title)}</span></a>`
+  ).join("");
+  return `<div class="ytcard"><div class="eb">▌${esc(eb)}</div>
+    <p class="t">「${esc(main.title)}」</p>
+    <a class="ytbtn" href="${main.url}" target="_blank" rel="noopener noreferrer">▶ 動画で詳しく見る（無料）</a>
+    ${rest?`<div class="ytmore">${rest}</div>`:""}</div>`;
+}
+
+function renderHome(){
+  app.innerHTML=`
+    <div class="eyebrow">▌災害はあなたの準備を待たない</div>
+    <h1>地震から値上げまで<br><span class="yl">生活防衛</span>の総合ナビ</h1>
+    <p class="lead">あなたの家に本当に必要な備えだけを診断。まずは30秒の生存準備度チェックから。</p>
+    <a class="cta" href="#shindan">30秒で生存準備度を診断する →</a>
+    <p class="note">登録不要・個人情報の入力なし</p>
+    <div class="sech">備えたいものから選ぶ</div>
+    <div class="secn">それぞれ危険度チェックと必要リストがあります</div>
+    <div class="grid">
+      ${Object.entries(CATS).map(([id,c])=>`
+        <a class="tile" href="#c/${id}">
+          <div class="ic">${c.ic}</div>
+          <div class="tn">${esc(c.name)}</div>
+          <div class="td">${esc(c.catch)}</div>
+        </a>`).join("")}
+    </div>
+    <div class="sech">迷ったらこれを揃える</div>
+    <div class="secn">備えニキ厳選の備蓄品まとめ</div>
+    <div class="moneybtns">
+      <a class="moneybtn" href="${AMZN_LIST}" target="_blank" rel="noopener noreferrer">🛒 Amazonおすすめ<br>備蓄品まとめ</a>
+      <a class="moneybtn" href="${RAKUTEN_ROOM}" target="_blank" rel="noopener noreferrer">🛍 楽天ROOMで<br>まとめて見る</a>
+    </div>
+    ${ytHTML("今見るべき1本",[V.bichiku50])}
+    <p class="disclaimer">※商品リンクはAmazonアソシエイト・楽天ROOMを利用しています</p>`;
+  scrollTo(0,0);
+}
+
+function renderCat(id){
+  const c=CATS[id]; if(!c)return renderHome();
+  app.innerHTML=`
+    <div class="eyebrow">▌${esc(c.catch)}</div>
+    <h1>${c.ic} ${esc(c.name)}</h1>
+    <p class="lead">${esc(c.desc)}</p>
+    <h3>危険度チェック</h3>
+    <p class="listnote">当てはまるものにチェック（多いほど安全）</p>
+    ${c.checks.map((t,i)=>`<label class="chk"><input type="checkbox" onchange="chkScore('${id}')" id="chk-${id}-${i}"><span>${esc(t)}</span></label>`).join("")}
+    <div class="chkresult" id="chkres-${id}">チェックすると準備度が出ます</div>
+    <div class="hazard hz-div"></div>
+    <h3>必要なものリスト</h3>
+    <p class="listnote">優先順。チェックが少なかった人は上から順に</p>
+    ${itemsHTML(c.items)}
+    ${ytHTML(c.name+"の動画",c.videos)}
+    <a class="retry" href="#">← トップに戻る</a>
+    <p class="disclaimer">※本ページは目安です。商品リンクはAmazonアソシエイトを利用しています</p>`;
+  scrollTo(0,0);
+}
+
+function chkScore(id){
+  const c=CATS[id];
+  const n=c.checks.filter((_,i)=>document.getElementById(`chk-${id}-${i}`).checked).length;
+  const pct=Math.round(n/c.checks.length*100);
+  const msg=pct<=20?"危険水準。今日から始めましょう":pct<=60?"要警戒。穴を埋めましょう":pct<100?"あと一歩！":"完璧です。維持と点検を";
+  document.getElementById(`chkres-${id}`).innerHTML=`準備度 <span class="big">${pct}%</span><br><span style="font-size:12px;color:var(--mut)">${msg}</span>`;
+}
+
+function renderQ(i){
+  const q=QUESTIONS[i];
+  app.innerHTML=`
+    <div class="pbar"><div class="pfill" id="pf"></div></div>
+    <div class="qnum">Q${i+1} / 6</div>
+    <h2>${esc(q.q)}</h2>
+    <p class="qsub">${esc(q.sub)}</p>
+    ${q.opts.map((o,j)=>`<button class="opt" onclick="pick(${i},${j})">${esc(o.label)}</button>`).join("")}
+    ${i>0?`<button class="back" onclick="renderQ(${i-1})">← 前の質問に戻る</button>`:`<a class="back" href="#" style="display:inline-block;text-decoration:none">← トップに戻る</a>`}`;
+  requestAnimationFrame(()=>{document.getElementById("pf").style.width=((i+1)/6*100)+"%"});
+  scrollTo(0,0);
+}
+function pick(i,j){
+  ans[QUESTIONS[i].id]=QUESTIONS[i].opts[j].v;
+  i<5?renderQ(i+1):renderScan();
+}
+function renderScan(){
+  app.innerHTML=`<div class="scanbox"><div class="scantxt">診断中…</div>
+    <div class="scanbar"><div style="height:4px;background:var(--yellow);animation:scan 1.6s linear forwards"></div></div>
+    <p class="scannote">住まい・家族構成・現在の備蓄からリスクを計算しています</p></div>`;
+  setTimeout(renderResult,1700);
+}
+function renderResult(){
+  const r=buildResult(ans);
+  const judge=r.score<20?"危険水準":r.score<35?"要警戒":"あと一歩";
+  const mods=(ans.kids==="baby"?'<span class="mod"> × 乳幼児リスク</span>':"")+(ans.pet==="yes"?'<span class="mod"> × ペット同伴</span>':"");
+  app.innerHTML=`
+    <div class="card"><div class="lbl">あなたの生存準備度</div>
+      <div class="scorerow"><span class="score" id="scoreNum">0</span><span class="scoreunit">%</span><span class="badge">${judge}</span></div>
+      <div class="gauge"><div class="gaugefill" id="gf"></div></div>
+      <p class="cardnote">大規模災害の在宅・避難生活${r.days}日間を想定した充足率です</p></div>
+    <div class="card"><div class="section-eyebrow">▌あなたのタイプ</div>
+      <div class="typename">${esc(r.type.name)}${mods}</div>
+      <p class="typedesc">${esc(r.type.desc)}</p>
+      ${r.type.risks.map(x=>`<div class="risk"><span class="ic">⚠</span><span>${esc(x)}</span></div>`).join("")}</div>
+    <div class="hazard hz-div"></div>
+    <h3>あなたの家に必要な備蓄リスト</h3>
+    <p class="listnote">${r.people}人・${r.days}日分で計算。上から優先順に並んでいます</p>
+    ${itemsHTML(r.items,r.nowCount)}
+    ${ytHTML(r.type.name+"のあなたへ",[r.video])}
+    <div class="sech">他のリスクにも備える</div>
+    <div class="grid">
+      ${["bouhan","kaji","suigai","teiden","neage","okane"].map(id=>`
+        <a class="tile" href="#c/${id}"><div class="ic">${CATS[id].ic}</div>
+        <div class="tn">${esc(CATS[id].name)}</div><div class="td">${esc(CATS[id].catch)}</div></a>`).join("")}
+    </div>
+    <a class="retry" href="#shindan" onclick="ans={}" style="margin-top:14px">もう一度診断する</a>
+    <p class="disclaimer">※本診断は目安です。商品リンクはAmazonアソシエイトを利用しています</p>`;
+  scrollTo(0,0);
+  setTimeout(()=>{
+    document.getElementById("gf").style.width=r.score+"%";
+    const el=document.getElementById("scoreNum");
+    let n=0;const step=()=>{n=Math.min(r.score,n+1);el.textContent=n;if(n<r.score)requestAnimationFrame(step)};
+    requestAnimationFrame(step);
+  },300);
+}
+
+function route(){
+  const h=location.hash;
+  if(h==="#shindan"){ans={};renderQ(0);}
+  else if(h.startsWith("#c/")){renderCat(h.slice(3));}
+  else renderHome();
+}
+window.addEventListener("hashchange",route);
+route();
+</script>
+</body>
+</html>
