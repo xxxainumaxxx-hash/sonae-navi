@@ -148,8 +148,24 @@ export const rakutenNote = () =>
     <a href="${LINKS.rakutenRoom}" target="_blank" rel="noopener sponsored noreferrer">楽天ROOMのコレクション</a>
     にまとめています。ポイントを貯めたい方はこちらから。</p>`;
 
-// ── 免責
+// ── 広告表記（ページ上部・ステマ規制対応）
+export const prLabel = () =>
+  `<p class="pr">本ページにはアフィリエイト広告（Amazonアソシエイト・楽天ROOM）を含みます。</p>`;
+
+// ── 免責（ページ下部）
 export const disclaimer = (extra = "") =>
-  `<p class="disc">${extra ? extra + "<br>" : ""}※本ページの数値は一般的な目安です。避難の判断は自治体の発表とハザードマップに従ってください。<br>※商品リンクはAmazonアソシエイト・楽天ROOMを利用しています。</p>`;
+  `<div class="disc">
+    <div class="disc-t">ご利用にあたって</div>
+    <ul class="disc-l">
+      ${extra ? `<li>${extra}</li>` : ""}
+      <li>本サイトの情報は一般的な防災の目安であり、<strong>個別の状況における安全を保証するものではありません</strong>。</li>
+      <li><strong>避難するかどうか、いつ避難するかの判断は、必ず自治体の発表とハザードマップに従ってください。</strong>本サイトの記述を理由に避難を遅らせないでください。</li>
+      <li>体調や怪我に関する記述は医療行為の指示ではありません。<strong>症状があるとき、判断に迷うときは、ためらわず119番または医療機関に相談してください。</strong>持病の薬については必ず主治医にご相談ください。</li>
+      <li>掲載している数量・商品は目安です。住まい・家族構成・地域によって必要なものは変わります。<strong>最終的な判断と選択はご自身の責任でお願いします。</strong></li>
+      <li>掲載内容は作成時点の情報に基づいており、正確性・最新性を保証するものではありません。本サイトの利用によって生じた損害について、運営者は責任を負いかねます。</li>
+      <li>商品リンクはAmazonアソシエイト・楽天ROOMを利用しており、購入により運営者が収益を得る場合があります。商品の性能・効果を保証するものではありません。</li>
+    </ul>
+    <a class="disc-more" href="/disclaimer/">免責事項をすべて読む →</a>
+  </div>`;
 
 export { V, ICONS };

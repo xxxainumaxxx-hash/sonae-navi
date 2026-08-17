@@ -23,6 +23,7 @@ const FOOT_NAV = [
   { href: "/bouhan/", label: "防犯に備える" },
   { href: "/neage/", label: "値上げに備える" },
   { href: "/okane/", label: "お金を備える" },
+  { href: "/disclaimer/", label: "免責事項" },
 ];
 
 /**
@@ -119,9 +120,11 @@ ${body}
       <a href="${LINKS.instagram}" target="_blank" rel="noopener noreferrer">Instagram</a>
     </div>
     <p class="ft-fine">
-      本サイトの情報は一般的な防災の目安であり、個別の状況を保証するものではありません。
-      避難の判断は必ず自治体の発表とハザードマップに従ってください。<br>
-      当サイトはAmazonアソシエイト・楽天ROOMのアフィリエイトプログラムを利用しています。<br>
+      本サイトの情報は一般的な防災の目安であり、個別の状況における安全を保証するものではありません。
+      避難の判断は必ず自治体の発表とハザードマップに従ってください。
+      体調に関する記述は医療行為の指示ではありません。最終的な判断はご自身の責任でお願いします。<br>
+      当サイトはAmazonアソシエイト・楽天ROOMのアフィリエイトプログラムを利用しています。
+      <a href="/disclaimer/" style="color:#C9D6E3;text-decoration:underline">免責事項</a><br>
       © ${new Date().getFullYear()} 備えニキ
     </p>
   </div>

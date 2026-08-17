@@ -364,8 +364,37 @@ button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
   text-align:center;margin-top:18px;padding-top:16px;border-top:1px solid var(--line-soft)}
 .shop-note a{color:var(--navy);font-weight:700;text-underline-offset:3px}
 .shop-note a:hover{color:var(--accent)}
-.disc{font-size:11.5px;color:var(--faint);line-height:1.85;
-  margin-top:30px;padding-top:18px;border-top:1px solid var(--line-soft)}
+.pr{
+  font-size:11.5px;color:var(--faint);line-height:1.7;
+  max-width:var(--wrap);margin:0 auto;padding:10px 20px 0;
+}
+.disc{
+  border:1px solid var(--line);border-radius:12px;
+  background:var(--surface);padding:22px 24px;margin-top:44px;
+}
+.disc-t{font-family:var(--mincho);font-size:16px;font-weight:600;
+  color:var(--navy);margin-bottom:12px}
+.disc-l{list-style:none;margin:0;padding:0}
+.disc-l li{
+  font-size:12.5px;line-height:1.85;color:var(--muted);
+  padding-left:16px;position:relative;margin-bottom:9px;
+}
+.disc-l li::before{content:"・";position:absolute;left:0;color:var(--faint)}
+.disc-l strong{font-weight:700;color:var(--ink)}
+.disc-more{
+  display:inline-block;margin-top:8px;font-size:12.5px;font-weight:700;
+  color:var(--navy);text-decoration:none;border-bottom:1px solid var(--navy);
+}
+.disc-more:hover{color:var(--accent);border-bottom-color:var(--accent)}
+
+/* 免責事項ページ */
+.legal h2{font-family:var(--mincho);font-size:20px;font-weight:600;color:var(--navy);
+  margin:40px 0 12px;padding-bottom:10px;border-bottom:1px solid var(--line)}
+.legal p{font-size:14.5px;line-height:1.95;color:var(--ink);margin-bottom:14px}
+.legal ul{margin:0 0 16px;padding-left:20px}
+.legal li{font-size:14.5px;line-height:1.9;color:var(--ink);margin-bottom:8px}
+.legal strong{font-weight:700;color:var(--navy)}
+.legal .lead{font-size:15px;color:var(--muted);line-height:1.95;margin-bottom:8px}
 `;
 
 // ============================================================

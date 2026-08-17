@@ -1,7 +1,7 @@
 import { SITE, LINKS, V, AFF_TAG, amz } from "./config.mjs";
 import { page, esc } from "./layout.mjs";
 import { ICONS, CSS_DISASTER, CSS_HOME, CSS_BICHIKU } from "./theme.mjs";
-import { h2, note, videos, tiles, shops, rakutenNote, disclaimer } from "./blocks.mjs";
+import { h2, note, videos, tiles, shops, rakutenNote, prLabel, disclaimer } from "./blocks.mjs";
 import { CATS, CAT_IDS, DISASTER_IDS, LIFE_IDS } from "./content/index.mjs";
 
 // ── 備蓄ページの人数計算機
@@ -98,6 +98,7 @@ export function renderDisaster(d) {
     .join("");
 
   const body = `
+${prLabel()}
 <div class="wrap">
   <section class="hero" style="padding-bottom:0">
     ${ICONS[d.icon].replace("<svg", '<svg class="hero-icon"')}
@@ -250,6 +251,7 @@ export function renderBichiku(b) {
     .join("");
 
   const body = `
+${prLabel()}
 <div class="wrap">
   <section class="hero" style="padding-bottom:24px">
     ${ICONS[b.icon].replace("<svg", '<svg class="hero-icon"')}
@@ -378,6 +380,66 @@ const BICHIKU_JS = `
   amounts(); progress();
 })();`;
 
+
+// ============================================================
+// 免責事項ページ
+// ============================================================
+export function renderDisclaimer() {
+  const body = `
+<div class="wrap legal">
+  <section class="hero">
+    <div class="hero-eyebrow">ご利用にあたって</div>
+    <h1>免責事項</h1>
+    <p class="lead">
+      備えナビは、防災の知識をまとめた情報サイトです。
+      掲載している内容は一般的な目安であり、読んでくださる方それぞれの状況における
+      安全を保証するものではありません。以下をお読みいただいたうえでご利用ください。
+    </p>
+  </section>
+
+  <h2>情報の正確性について</h2>
+  <p>掲載内容は作成時点で確認できた一般的な防災の考え方に基づいています。<strong>正確性・完全性・最新性を保証するものではありません。</strong>制度や推奨される対応は変わることがあります。重要な判断をされる際は、必ず公的機関の最新情報をご確認ください。</p>
+
+  <h2>避難の判断について</h2>
+  <p><strong>避難するかどうか、いつ避難するかの判断は、必ずお住まいの自治体の発表とハザードマップに従ってください。</strong></p>
+  <p>本サイトに書かれた基準や数値は、平時に備えを整えるための目安です。<strong>実際の災害時に、本サイトの記述を理由として避難を遅らせたり、自治体の指示と異なる行動をとったりしないでください。</strong>現場の状況は地域ごとに大きく異なります。</p>
+
+  <h2>健康と応急処置について</h2>
+  <p>体調・怪我・応急処置に関する記述は、一般的な知識の紹介であり、<strong>医療行為の指示ではありません。</strong></p>
+  <ul>
+    <li>症状があるとき、判断に迷うときは、<strong>ためらわず119番通報または医療機関へご相談ください。</strong></li>
+    <li>持病の薬、常備薬の備蓄については、<strong>必ず主治医・かかりつけ薬局にご相談ください。</strong>自己判断で量を調整しないでください。</li>
+    <li>救急車を呼ぶかどうか迷う場合は、<strong>#7119</strong>（救急安心センター／地域により異なります）に相談できます。</li>
+  </ul>
+
+  <h2>備蓄の数量と商品について</h2>
+  <p>掲載している数量は一般的な目安です。<strong>住まいの形態、家族構成、年齢、持病、地域の特性によって、本当に必要なものは変わります。</strong>計算機の数値もあくまで出発点としてお使いください。</p>
+  <p>紹介している商品は、備えの参考として挙げているものです。<strong>特定の商品の性能・効果・安全性を保証するものではありません。</strong>購入の判断、使用方法の確認、保管や点検はご自身の責任でお願いします。使用にあたっては各製品の取扱説明書に従ってください。</p>
+
+  <h2>広告について</h2>
+  <p>本サイトは<strong>Amazonアソシエイト・プログラムおよび楽天ROOMのアフィリエイトプログラム</strong>を利用しています。サイト内の商品リンクを経由して商品が購入された場合、運営者が紹介料を受け取ることがあります。</p>
+  <p>紹介料の有無によって掲載内容を変えることはありませんが、この関係があることを前提としてお読みください。<strong>商品の価格・在庫・仕様は各販売サイトの表示が最新です。</strong></p>
+
+  <h2>責任の範囲</h2>
+  <p><strong>本サイトの情報を利用したことによって生じたいかなる損害についても、運営者は責任を負いかねます。</strong>最終的な判断と行動は、ご自身の責任でお願いいたします。</p>
+  <p>また、リンク先の外部サイトの内容についても責任を負いません。</p>
+
+  <h2>お問い合わせ</h2>
+  <p>内容の誤りにお気づきの場合は、YouTubeチャンネル「備えニキ」のコメント欄からお知らせいただけると助かります。確認のうえ修正します。</p>
+
+  ${disclaimer()}
+</div>`;
+
+  return page({
+    path: "/disclaimer/",
+    title: "免責事項",
+    description:
+      "備えナビの免責事項。掲載情報は一般的な目安であり、避難の判断は自治体の発表に従ってください。健康・応急処置に関する記述は医療行為の指示ではありません。",
+    body,
+    crumb: [{ href: "/", label: "備えナビ" }, { label: "免責事項" }],
+  });
+}
+
 // ============================================================
 // トップページ
 // ============================================================
@@ -397,6 +459,7 @@ export function renderHome() {
   }).join("");
 
   const body = `
+${prLabel()}
 <section class="thero">
   <div class="thero-in">
     <div class="thero-eb">備えニキの防災まとめ</div>
@@ -473,6 +536,7 @@ export function renderHome() {
 // ============================================================
 export function renderShindan() {
   const body = `
+${prLabel()}
 <div class="wrap">
   <section class="hero" id="shindan-root" style="padding-top:36px">
     <div class="hero-eyebrow">30秒でわかる</div>

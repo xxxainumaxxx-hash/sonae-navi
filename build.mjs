@@ -1,7 +1,7 @@
 import { mkdirSync, writeFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { SITE } from "./src/config.mjs";
-import { renderHome, renderShindan, renderDisaster, renderBichiku } from "./src/render.mjs";
+import { renderHome, renderShindan, renderDisaster, renderBichiku, renderDisclaimer } from "./src/render.mjs";
 import { CATS, CAT_IDS, DISASTER_IDS } from "./src/content/index.mjs";
 
 const OUT = "public";
@@ -18,6 +18,7 @@ const write = (path, content) => {
 // ── ページ生成
 write(".", renderHome());
 write("shindan", renderShindan());
+write("disclaimer", renderDisclaimer());
 for (const id of CAT_IDS) {
   const c = CATS[id];
   write(id, c.isBichiku ? renderBichiku(c) : renderDisaster(c));
@@ -27,6 +28,7 @@ for (const id of CAT_IDS) {
 const urls = [
   { loc: "/", pri: "1.0" },
   { loc: "/shindan/", pri: "0.9" },
+  { loc: "/disclaimer/", pri: "0.3" },
   ...CAT_IDS.map((id) => ({
     loc: `/${id}/`,
     pri: DISASTER_IDS.includes(id) ? "0.9" : "0.7",
