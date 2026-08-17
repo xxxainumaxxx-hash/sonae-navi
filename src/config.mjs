@@ -17,7 +17,7 @@ export const AFF_TAG = "a0199c-22";
 
 export const LINKS = {
   youtube: "https://www.youtube.com/@sonaeniki",
-  instagram: "https://www.instagram.com/sonaeniki_bosai_bohan",
+  instagram: "https://www.instagram.com/sonaeniki",
   amazonList: "https://amzn.asia/d/09QQw4zM",
   rakutenRoom: "https://room.rakuten.co.jp/room_5fa1f5d076/collections",
 };
