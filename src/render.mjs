@@ -1,114 +1,8 @@
 import { SITE, LINKS, V, AFF_TAG, amz } from "./config.mjs";
 import { page, esc } from "./layout.mjs";
 import { ICONS, CSS_DISASTER, CSS_HOME, CSS_BICHIKU } from "./theme.mjs";
-import {
-  h2, p, facts, note, steps, checklist, CHK_JS,
-  items, videos, tiles, shops, disclaimer,
-} from "./blocks.mjs";
+import { h2, note, videos, tiles, shops, disclaimer } from "./blocks.mjs";
 import { CATS, CAT_IDS, DISASTER_IDS, LIFE_IDS } from "./content/index.mjs";
-
-// ── data-driven なブロック指定を HTML に変換
-function blocks(list) {
-  return list
-    .map(([kind, arg]) => {
-      switch (kind) {
-        case "p": return p(arg);
-        case "facts": return facts(arg);
-        case "note": return note(...arg);
-        case "steps": return steps(arg);
-        default: throw new Error("unknown block: " + kind);
-      }
-    })
-    .join("\n");
-}
-
-// ============================================================
-// カテゴリページ
-// ============================================================
-export function renderCategory(cat) {
-  const hasGroups = Array.isArray(cat.groups);
-
-  const itemsHTML = hasGroups
-    ? cat.groups
-        .map(
-          (g) =>
-            `<h3 class="h3" style="margin-top:32px">${esc(g.name)}</h3>
-             <p class="h2-note" style="margin-bottom:0">${esc(g.note)}</p>
-             ${items(g.items, 0)}`
-        )
-        .join("")
-    : items(cat.items, cat.itemsPri ?? 3);
-
-  const body = `
-<div class="wrap">
-  <section class="hero">
-    ${ICONS[cat.icon].replace("<svg", '<svg class="hero-icon"')}
-    <div class="hero-eyebrow">${esc(cat.catch)}</div>
-    <h1>${esc(cat.name)}</h1>
-    <p class="hero-lead">${cat.lead.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")}</p>
-  </section>
-
-  ${cat.facts ? `<div class="sect-lead">${facts(cat.facts)}</div>` : ""}
-
-  ${(cat.sections || [])
-    .map(
-      (s) => `<section class="sect">
-      ${h2(s.h2, s.icon)}
-      ${blocks(s.blocks)}
-    </section>`
-    )
-    .join("")}
-
-  ${cat.calculator ? calculator() : ""}
-
-  <section class="sect">
-    ${h2(cat.checkTitle, "check", esc(cat.checkNote))}
-    ${checklist(cat.id, cat.checks)}
-  </section>
-
-  <section class="sect">
-    ${h2(cat.itemsTitle || "揃えるものリスト", "list",
-        esc(cat.itemsNote || "上から優先順に並んでいます。"))}
-    ${itemsHTML}
-    ${hasGroups ? "" : ""}
-  </section>
-
-  <section class="sect">
-    ${videos(cat.videoEyebrow || cat.name + "の動画", cat.videos)}
-  </section>
-
-  <section class="sect">
-    ${h2("迷ったらこれを揃える", "list", "備えニキが実際に選んだものをまとめています。")}
-    ${shops()}
-  </section>
-
-  <section class="sect">
-    ${h2("あわせて備える", "book")}
-    ${tiles(CATS, cat.related)}
-  </section>
-
-  ${disclaimer()}
-</div>`;
-
-  return page({
-    path: `/${cat.id}/`,
-    title: cat.seoTitle,
-    bareTitle: true,
-    description: cat.seoDesc,
-    body,
-    crumb: [{ href: "/", label: "備えナビ" }, { label: cat.name }],
-    script: CHK_JS + (cat.calculator ? CALC_JS : ""),
-    schema: {
-      "@context": "https://schema.org",
-      "@type": "Article",
-      headline: cat.seoTitle,
-      description: cat.seoDesc,
-      author: { "@type": "Person", name: SITE.author },
-      publisher: { "@type": "Organization", name: SITE.name },
-      mainEntityOfPage: SITE.origin + `/${cat.id}/`,
-    },
-  });
-}
 
 // ── 備蓄ページの人数計算機
 function calculator() {
@@ -167,6 +61,12 @@ const CALC_JS = `
 export function renderDisaster(d) {
   const gearCount = d.gear.reduce((n, g) => n + g.items.length, 0);
 
+  // STEP名はページごとに差し替え可能（防犯・お金・値上げは「逃げる」が実態に合わない）
+  const S = d.steps || {};
+  const s1 = S.s1 || { nav: "防ぐ", t: "未然に防ぐ", sub: "平時にやっておくこと。ここが一番、効果が大きい" };
+  const s2 = S.s2 || { nav: "逃げる", t: "起きたらどうする", sub: "その瞬間に迷わないために。先に読んでおく" };
+  const s3 = S.s3 || { nav: "備える", t: "備えるモノ", sub: null };
+
   const acts = (list, warn) =>
     `<div class="acts${warn ? " warn" : ""}">${list
       .map(
@@ -212,41 +112,41 @@ export function renderDisaster(d) {
 </div>
 
 <nav class="stepnav"><div class="stepnav-in">
-  <a href="#prevent"><em>STEP 1</em>防ぐ</a>
-  <a href="#respond"><em>STEP 2</em>逃げる</a>
-  <a href="#gear"><em>STEP 3</em>備える</a>
+  <a href="#prevent"><em>STEP 1</em>${esc(s1.nav)}</a>
+  <a href="#respond"><em>STEP 2</em>${esc(s2.nav)}</a>
+  <a href="#gear"><em>STEP 3</em>${esc(s3.nav)}</a>
 </div></nav>
 
 <div class="wrap">
   <div class="steph" id="prevent">
     <span class="steph-n">1</span>
-    <div><div class="steph-t">未然に防ぐ</div>
-    <div class="steph-s">平時にやっておくこと。ここが一番、効果が大きい</div></div>
+    <div><div class="steph-t">${esc(s1.t)}</div>
+    <div class="steph-s">${esc(s1.sub)}</div></div>
   </div>
   ${acts(d.prevent, false)}
 
   <div class="steph warn" id="respond">
     <span class="steph-n">2</span>
-    <div><div class="steph-t">起きたらどうする</div>
-    <div class="steph-s">その瞬間に迷わないために。先に読んでおく</div></div>
+    <div><div class="steph-t">${esc(s2.t)}</div>
+    <div class="steph-s">${esc(s2.sub)}</div></div>
   </div>
   ${acts(d.respond, true)}
 
   <div class="steph buy" id="gear">
     <span class="steph-n">3</span>
-    <div><div class="steph-t">備えるモノ</div>
-    <div class="steph-s">${esc(d.name.replace("に備える", ""))}に関係する備えを${gearCount}点、目的別にまとめました</div></div>
+    <div><div class="steph-t">${esc(s3.t)}</div>
+    <div class="steph-s">${esc(s3.sub || d.name.replace("に備える","").replace("を備える","") + "に関係する備えを" + gearCount + "点、目的別にまとめました")}</div></div>
   </div>
   ${gear}
 
-  <div class="tobichiku">
+  ${d.noBichikuLink ? "" : `<div class="tobichiku">
     <div class="tobichiku-t">水・食料・トイレは、備蓄ページで必要量を計算できます</div>
     <p class="tobichiku-d">
       どの災害でも共通して要る基本の備えは、10分野にまとめてあります。
       家族の人数を入れると、最低ラインと理想ラインの数量が出ます。
     </p>
     <a class="tobichiku-b" href="/bichiku/">備蓄リストを見る →</a>
-  </div>
+  </div>`}
 
   <section class="sect">
     ${videos(d.videoEyebrow || d.name + "の動画", d.videos)}

@@ -1,7 +1,7 @@
 import { mkdirSync, writeFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { SITE } from "./src/config.mjs";
-import { renderHome, renderShindan, renderCategory, renderDisaster, renderBichiku } from "./src/render.mjs";
+import { renderHome, renderShindan, renderDisaster, renderBichiku } from "./src/render.mjs";
 import { CATS, CAT_IDS, DISASTER_IDS } from "./src/content/index.mjs";
 
 const OUT = "public";
@@ -20,7 +20,7 @@ write(".", renderHome());
 write("shindan", renderShindan());
 for (const id of CAT_IDS) {
   const c = CATS[id];
-  write(id, c.isBichiku ? renderBichiku(c) : c.gear ? renderDisaster(c) : renderCategory(c));
+  write(id, c.isBichiku ? renderBichiku(c) : renderDisaster(c));
 }
 
 // ── sitemap.xml
