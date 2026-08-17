@@ -104,6 +104,7 @@ button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
   letter-spacing:.02em;color:var(--navy);margin-bottom:18px;
 }
 .hero-lead{font-size:15px;color:var(--muted);line-height:1.95;max-width:34em}
+.hero-lead .lead-note{display:inline-block;margin-top:10px;font-size:13px;color:var(--faint);line-height:1.8}
 .hero-icon{
   width:44px;height:44px;color:var(--navy);margin-bottom:18px;stroke-width:1.3;
 }
