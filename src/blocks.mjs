@@ -140,9 +140,13 @@ export const tiles = (cats, ids) =>
 export const shops = () =>
   `<a class="cta" href="/bichiku/" style="margin-top:20px">備蓄リストを全部見る →</a>
   <p class="cta-note">人数を入れると必要量が出ます。チェックした内容はこの端末に残ります</p>
-  <p class="shop-note">楽天派の方へ：同じ備蓄品を
+  ${rakutenNote()}`;
+
+// ── 楽天ROOMの備考（備蓄ページにも単体で置く）
+export const rakutenNote = () =>
+  `<p class="shop-note">楽天派の方へ：同じ備蓄品を
     <a href="${LINKS.rakutenRoom}" target="_blank" rel="noopener sponsored noreferrer">楽天ROOMのコレクション</a>
-    にまとめています。</p>`;
+    にまとめています。ポイントを貯めたい方はこちらから。</p>`;
 
 // ── 免責
 export const disclaimer = (extra = "") =>

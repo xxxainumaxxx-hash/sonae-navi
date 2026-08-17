@@ -1,7 +1,7 @@
 import { SITE, LINKS, V, AFF_TAG, amz } from "./config.mjs";
 import { page, esc } from "./layout.mjs";
 import { ICONS, CSS_DISASTER, CSS_HOME, CSS_BICHIKU } from "./theme.mjs";
-import { h2, note, videos, tiles, shops, disclaimer } from "./blocks.mjs";
+import { h2, note, videos, tiles, shops, rakutenNote, disclaimer } from "./blocks.mjs";
 import { CATS, CAT_IDS, DISASTER_IDS, LIFE_IDS } from "./content/index.mjs";
 
 // ── 備蓄ページの人数計算機
@@ -283,6 +283,8 @@ export function renderBichiku(b) {
     <div class="prog-m" id="pm">チェックすると準備度が出ます。この端末に保存されるので、買い足しながら続きから使えます。</div>
     <a class="prog-reset" href="#" id="preset">チェックを全部リセットする</a>
   </div>
+
+  ${rakutenNote()}
 
   <section class="sect">
     ${videos(b.videoEyebrow, b.videos)}
