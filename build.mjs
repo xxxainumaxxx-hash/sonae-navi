@@ -2,7 +2,7 @@ import { mkdirSync, writeFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { SITE } from "./src/config.mjs";
 import { renderHome, renderShindan, renderCategory, renderDisaster } from "./src/render.mjs";
-import { CATS, CAT_IDS } from "./src/content/index.mjs";
+import { CATS, CAT_IDS, DISASTER_IDS } from "./src/content/index.mjs";
 
 const OUT = "public";
 
@@ -29,7 +29,7 @@ const urls = [
   { loc: "/shindan/", pri: "0.9" },
   ...CAT_IDS.map((id) => ({
     loc: `/${id}/`,
-    pri: ["bichiku", "kaji", "suigai"].includes(id) ? "0.9" : "0.7",
+    pri: DISASTER_IDS.includes(id) ? "0.9" : "0.7",
   })),
 ];
 const today = new Date().toISOString().slice(0, 10);

@@ -5,7 +5,7 @@ import {
   h2, p, facts, note, steps, checklist, CHK_JS,
   items, videos, tiles, shops, disclaimer,
 } from "./blocks.mjs";
-import { CATS, CAT_IDS, DISASTERS, DISASTER_IDS, LIFE_IDS } from "./content/index.mjs";
+import { CATS, CAT_IDS, DISASTER_IDS, LIFE_IDS } from "./content/index.mjs";
 
 // ── data-driven なブロック指定を HTML に変換
 function blocks(list) {
@@ -275,26 +275,9 @@ export function renderDisaster(d) {
 // トップページ
 // ============================================================
 export function renderHome() {
-  // 決定した10災害。未着手のものは「準備中」として並べ、全体像を先に見せる
-  const PLANNED = [
-    { id: "kaji" }, { id: "jishin" }, { id: "suigai" },
-    { name: "土砂災害に備える", short: "土砂災害", icon: "dosha", soon: true },
-    { name: "台風・暴風に備える", short: "台風・暴風", icon: "taifu", soon: true },
-    { name: "津波に備える", short: "津波", icon: "tsunami", soon: true },
-    { id: "teiden" },
-    { name: "熱中症に備える", short: "熱中症", icon: "necchusho", soon: true },
-    { name: "大雪・寒波に備える", short: "大雪・寒波", icon: "ooyuki", soon: true },
-    { name: "雷に備える", short: "雷", icon: "kaminari", soon: true },
-  ];
-
-  const dcards = PLANNED.map((x) => {
-    if (x.soon) {
-      return `<div class="dcard soon">${ICONS[x.icon]}
-        <div class="dcard-n">${esc(x.short)}</div>
-        <div class="dcard-c">準備中</div></div>`;
-    }
-    const c = CATS[x.id];
-    return `<a class="dcard" href="/${c.id}/">${ICONS[c.icon]}
+  const dcards = DISASTER_IDS.map((id) => {
+    const c = CATS[id];
+    return `<a class="dcard" href="/${id}/">${ICONS[c.icon]}
       <div class="dcard-n">${esc(c.short || c.name)}</div>
       <div class="dcard-c">${esc(c.catch)}</div></a>`;
   }).join("");
@@ -310,7 +293,7 @@ export function renderHome() {
 <section class="thero">
   <div class="thero-in">
     <div class="thero-eb">備えニキの防災まとめ</div>
-    <h1>災害から家族を守る、<br>備えのすべて</h1>
+    <h1>災害から大切な命を守る、<br>備えのすべて</h1>
     <p class="thero-l">
       チャンネルで扱ってきた防災の知識を、災害ごとに一つずつまとめました。
       どのページも「防ぐ・逃げる・備える」の順に読めば、
