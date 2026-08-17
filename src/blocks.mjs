@@ -136,16 +136,13 @@ export const tiles = (cats, ids) =>
     })
     .join("")}</div>`;
 
-// ── ショップ導線
+// ── ショップ導線（サイト内の備蓄リストが主役、楽天ROOMは備考）
 export const shops = () =>
-  `<div class="shops">
-    <a class="shop" href="${LINKS.amazonList}" target="_blank" rel="noopener sponsored noreferrer">
-      <div class="shop-n">Amazon 備蓄品まとめ</div>
-      <div class="shop-d">備えニキ厳選リスト</div></a>
-    <a class="shop" href="${LINKS.rakutenRoom}" target="_blank" rel="noopener sponsored noreferrer">
-      <div class="shop-n">楽天ROOM</div>
-      <div class="shop-d">ポイント派はこちら</div></a>
-  </div>`;
+  `<a class="cta" href="/bichiku/" style="margin-top:20px">備蓄リストを全部見る →</a>
+  <p class="cta-note">人数を入れると必要量が出ます。チェックした内容はこの端末に残ります</p>
+  <p class="shop-note">楽天派の方へ：同じ備蓄品を
+    <a href="${LINKS.rakutenRoom}" target="_blank" rel="noopener sponsored noreferrer">楽天ROOMのコレクション</a>
+    にまとめています。</p>`;
 
 // ── 免責
 export const disclaimer = (extra = "") =>

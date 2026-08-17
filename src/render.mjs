@@ -1,6 +1,6 @@
 import { SITE, LINKS, V, AFF_TAG, amz } from "./config.mjs";
 import { page, esc } from "./layout.mjs";
-import { ICONS, CSS_DISASTER, CSS_HOME } from "./theme.mjs";
+import { ICONS, CSS_DISASTER, CSS_HOME, CSS_BICHIKU } from "./theme.mjs";
 import {
   h2, p, facts, note, steps, checklist, CHK_JS,
   items, videos, tiles, shops, disclaimer,
@@ -239,6 +239,15 @@ export function renderDisaster(d) {
   </div>
   ${gear}
 
+  <div class="tobichiku">
+    <div class="tobichiku-t">水・食料・トイレは、備蓄ページで必要量を計算できます</div>
+    <p class="tobichiku-d">
+      どの災害でも共通して要る基本の備えは、10分野にまとめてあります。
+      家族の人数を入れると、最低ラインと理想ラインの数量が出ます。
+    </p>
+    <a class="tobichiku-b" href="/bichiku/">備蓄リストを見る →</a>
+  </div>
+
   <section class="sect">
     ${videos(d.videoEyebrow || d.name + "の動画", d.videos)}
   </section>
@@ -270,6 +279,202 @@ export function renderDisaster(d) {
     },
   });
 }
+
+
+// ============================================================
+// 備蓄ページ（専用テンプレート）
+//   人数入力で数量が動く／10カテゴリの追従ナビ／チェックはブラウザに保存
+// ============================================================
+export function renderBichiku(b) {
+  const totalChecks = b.groups.reduce((n, g) => n + g.checks.length, 0);
+
+  const nav = b.groups
+    .map((g, i) => `<a href="#${g.id}"><i>${i + 1}</i>${esc(g.name)}</a>`)
+    .join("");
+
+  const amt = (g, kind) => {
+    const ideal = kind === "ideal";
+    if (g.rate) {
+      const days = ideal ? 14 : 7;
+      return `<div class="amt-v" data-rate="${g.rate.per}" data-days="${days}"
+        >${4 * g.rate.per * days}<em>${esc(g.rate.unit)}</em></div>`;
+    }
+    return `<div class="amt-v" style="font-size:19px">${esc(ideal ? g.minText.ideal : g.minText.min)}</div>`;
+  };
+
+  const cats = b.groups
+    .map(
+      (g, i) => `
+<section class="bcat" id="${g.id}">
+  <div class="bcat-h">
+    <span class="bcat-ic">${ICONS[g.icon]}</span>
+    <div><div class="bcat-no">${String(i + 1).padStart(2, "0")}</div>
+    <div class="bcat-n">${esc(g.name)}</div></div>
+  </div>
+
+  <div class="amts">
+    <div class="amt"><div class="amt-l">最低ライン（7日）</div>${amt(g, "min")}
+      <div class="amt-n">${esc(g.minNote)}</div></div>
+    <div class="amt ideal"><div class="amt-l">理想ライン（14日）</div>${amt(g, "ideal")}
+      <div class="amt-n">${esc(g.idealNote)}</div></div>
+  </div>
+
+  <div class="ng"><span class="ng-i">!</span>
+    <div><div class="ng-t">よくある失敗</div>
+    <div class="ng-d">${esc(g.ng)}</div></div></div>
+
+  <p class="bcat-lead">${g.lead}</p>
+
+  <div class="bchk-h">できているか確認する</div>
+  ${g.checks
+    .map(
+      (c, j) =>
+        `<label class="bchk"><input type="checkbox" data-k="${g.id}-${j}"><span class="bchk-t">${esc(c)}</span></label>`
+    )
+    .join("")}
+
+  <div class="bchk-h">そろえるもの</div>
+  ${g.items
+    .map(
+      (it) => `<div class="grow">
+    <div class="grow-m">
+      <div class="grow-n">${esc(it.name)}${it.pick ? '<span class="grow-p">まずこれ</span>' : ""}</div>
+      <div class="grow-w">${esc(it.why)}</div>
+    </div>
+    <a class="grow-b" href="${amz(it.kw)}" target="_blank" rel="noopener sponsored noreferrer">Amazonで見る</a>
+  </div>`
+    )
+    .join("")}
+</section>`
+    )
+    .join("");
+
+  const body = `
+<div class="wrap">
+  <section class="hero" style="padding-bottom:24px">
+    ${ICONS[b.icon].replace("<svg", '<svg class="hero-icon"')}
+    <div class="hero-eyebrow">${esc(b.catch)}</div>
+    <h1>${esc(b.name)}</h1>
+    <p class="hero-lead">${b.lead}</p>
+  </section>
+</div>
+
+<div class="calc"><div class="calc-in">
+  <span class="calc-l">家族の人数</span>
+  <span class="calc-btns">
+    <button class="calc-b" id="cm" aria-label="減らす">−</button>
+    <span class="calc-n"><span id="cn">4</span><em>人</em></span>
+    <button class="calc-b" id="cp" aria-label="増やす">＋</button>
+  </span>
+  <span class="calc-hint">人数を変えると、下の必要量が全部書き換わります</span>
+</div></div>
+
+<nav class="bnav"><div class="bnav-in">${nav}</div></nav>
+
+<div class="wrap">
+  ${cats}
+
+  <div class="prog">
+    <div class="prog-row">
+      <span class="prog-n" id="pn">0</span><span class="prog-u">%</span>
+      <span class="prog-c"><span id="pc">0</span> / ${totalChecks} 項目</span>
+    </div>
+    <div class="prog-bar"><i id="pb"></i></div>
+    <div class="prog-m" id="pm">チェックすると準備度が出ます。この端末に保存されるので、買い足しながら続きから使えます。</div>
+    <a class="prog-reset" href="#" id="preset">チェックを全部リセットする</a>
+  </div>
+
+  <section class="sect">
+    ${videos(b.videoEyebrow, b.videos)}
+  </section>
+
+  <section class="sect">
+    ${h2("あわせて備える", "book", "災害ごとの「防ぐ・逃げる」はこちらにまとめています。")}
+    ${tiles(CATS, b.related)}
+  </section>
+
+  ${disclaimer()}
+</div>`;
+
+  return page({
+    path: "/bichiku/",
+    title: b.seoTitle,
+    bareTitle: true,
+    description: b.seoDesc,
+    body,
+    extraCSS: CSS_DISASTER + CSS_BICHIKU,
+    crumb: [{ href: "/", label: "備えナビ" }, { label: b.name }],
+    script: BICHIKU_JS,
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      headline: b.seoTitle,
+      description: b.seoDesc,
+      author: { "@type": "Person", name: SITE.author },
+      publisher: { "@type": "Organization", name: SITE.name },
+      mainEntityOfPage: SITE.origin + "/bichiku/",
+    },
+  });
+}
+
+const BICHIKU_JS = `
+(function(){
+  var KEY="sonaenavi-bichiku";
+  var store={};
+  try{ store=JSON.parse(localStorage.getItem(KEY)||"{}") }catch(e){ store={} }
+
+  // ── 人数 → 数量
+  var people = store.__people || 4;
+  var cn=document.getElementById("cn");
+  function amounts(){
+    cn.textContent=people;
+    document.querySelectorAll("[data-rate]").forEach(function(el){
+      var per=+el.getAttribute("data-rate"), days=+el.getAttribute("data-days");
+      var unit=el.querySelector("em").textContent;
+      el.innerHTML=(people*per*days)+"<em>"+unit+"</em>";
+    });
+  }
+  function setPeople(n){
+    people=Math.max(1,Math.min(12,n));
+    store.__people=people; save(); amounts();
+  }
+  document.getElementById("cm").addEventListener("click",function(){setPeople(people-1)});
+  document.getElementById("cp").addEventListener("click",function(){setPeople(people+1)});
+
+  // ── チェック
+  var boxes=document.querySelectorAll("[data-k]");
+  var pn=document.getElementById("pn"),pc=document.getElementById("pc"),
+      pb=document.getElementById("pb"),pm=document.getElementById("pm");
+  function save(){ try{ localStorage.setItem(KEY,JSON.stringify(store)) }catch(e){} }
+  function progress(){
+    var done=0;
+    boxes.forEach(function(b){ if(b.checked) done++ });
+    var pct=Math.round(done/boxes.length*100);
+    pn.textContent=pct; pc.textContent=done; pb.style.width=pct+"%";
+    pm.textContent = done===0
+      ? "チェックすると準備度が出ます。この端末に保存されるので、買い足しながら続きから使えます。"
+      : pct<=25 ? "まだ穴が大きい状態です。水・食料・トイレの3つから埋めてください。"
+      : pct<=50 ? "半分まで来ました。ここから先は季節物と電源が効いてきます。"
+      : pct<75  ? "かなり揃っています。書類と現金など、忘れられがちな所を見直しましょう。"
+      : pct<100 ? "あと少しです。残りの項目を週末に片付けられます。"
+      : "完璧です。あとは年1回、期限と中身を点検してください。";
+  }
+  boxes.forEach(function(b){
+    if(store[b.dataset.k]) b.checked=true;
+    b.addEventListener("change",function(){
+      if(b.checked) store[b.dataset.k]=1; else delete store[b.dataset.k];
+      save(); progress();
+    });
+  });
+  document.getElementById("preset").addEventListener("click",function(e){
+    e.preventDefault();
+    if(!confirm("チェックを全部外します。よろしいですか。")) return;
+    boxes.forEach(function(b){ b.checked=false; delete store[b.dataset.k] });
+    save(); progress();
+  });
+
+  amounts(); progress();
+})();`;
 
 // ============================================================
 // トップページ

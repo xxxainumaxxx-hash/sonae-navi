@@ -19,7 +19,7 @@ export const LINKS = {
   youtube: "https://www.youtube.com/@sonaeniki",
   instagram: "https://www.instagram.com/sonaeniki_bosai_bohan",
   amazonList: "https://amzn.asia/d/09QQw4zM",
-  rakutenRoom: "https://room.rakuten.co.jp/room_5fa1f5d076/items",
+  rakutenRoom: "https://room.rakuten.co.jp/room_5fa1f5d076/collections",
 };
 
 // Amazon検索リンク生成
