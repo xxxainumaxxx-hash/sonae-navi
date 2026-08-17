@@ -1,22 +1,21 @@
 import bichiku from "./bichiku.mjs";
 import kaji from "./kaji.mjs";
 import suigai from "./suigai.mjs";
-import { jishin, teiden, bouhan, neage, okane } from "./others.mjs";
+import jishin from "./jishin.mjs";
+import teiden from "./teiden.mjs";
+import { bouhan, neage, okane } from "./others.mjs";
 
-// 表示順 = トップのタイル順 = sitemapの順
-export const CATS = {
-  bichiku,
-  kaji,
-  suigai,
-  jishin,
-  teiden,
-  bouhan,
-  neage,
-  okane,
-};
+// 災害ページ（4ブロック構成）。トップのカード順もこの順
+export const DISASTERS = { kaji, jishin, suigai, teiden };
 
+// 暮らしを守る（災害そのものではないが備えニキの主要テーマ）
+export const LIFE = { bichiku, bouhan, neage, okane };
+
+export const CATS = { ...DISASTERS, ...LIFE };
 export const CAT_IDS = Object.keys(CATS);
+export const DISASTER_IDS = Object.keys(DISASTERS);
+export const LIFE_IDS = Object.keys(LIFE);
 
-// 3本柱（今回まとめ切ったテーマ）
+// 旧APIとの互換
 export const PILLARS = ["bichiku", "kaji", "suigai"];
 export const OTHERS = CAT_IDS.filter((id) => !PILLARS.includes(id));

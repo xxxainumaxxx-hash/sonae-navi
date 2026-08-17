@@ -1,7 +1,7 @@
 import { mkdirSync, writeFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { SITE } from "./src/config.mjs";
-import { renderHome, renderShindan, renderCategory } from "./src/render.mjs";
+import { renderHome, renderShindan, renderCategory, renderDisaster } from "./src/render.mjs";
 import { CATS, CAT_IDS } from "./src/content/index.mjs";
 
 const OUT = "public";
@@ -18,7 +18,10 @@ const write = (path, content) => {
 // ── ページ生成
 write(".", renderHome());
 write("shindan", renderShindan());
-for (const id of CAT_IDS) write(id, renderCategory(CATS[id]));
+for (const id of CAT_IDS) {
+  const c = CATS[id];
+  write(id, c.gear ? renderDisaster(c) : renderCategory(c));
+}
 
 // ── sitemap.xml
 const urls = [

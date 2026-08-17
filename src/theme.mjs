@@ -383,5 +383,162 @@ export const ICONS = {
   list: ic(`<path d="M8.5 6.5h12M8.5 12h12M8.5 17.5h12"/><path d="M3.6 6.5h.01M3.6 12h.01M3.6 17.5h.01"/>`),
   play: ic(`<circle cx="12" cy="12" r="9"/><path d="M10.2 8.6l5.2 3.4-5.2 3.4Z"/>`),
   alert: ic(`<path d="M12 3.7 2.6 20h18.8Z"/><path d="M12 10v4M12 17h.01"/>`),
+  dosha: ic(`<path d="M2.5 20.5h19"/><path d="M3 20.5 11 7l4.2 7"/><path d="M13.2 20.5 18 12l3.5 8.5"/><circle cx="8.4" cy="16.6" r="1.5"/><circle cx="13.6" cy="18.4" r="1.1"/><circle cx="17.6" cy="16.2" r="1.3"/>`),
+  taifu: ic(`<path d="M12 12c0-2.6 2.2-4.7 5-4.7 2.2 0 3.8 1.4 3.8 3.2 0 1.4-1.1 2.4-2.6 2.4"/><path d="M12 12c2.6 0 4.7 2.2 4.7 5 0 2.2-1.4 3.8-3.2 3.8-1.4 0-2.4-1.1-2.4-2.6"/><path d="M12 12c0 2.6-2.2 4.7-5 4.7-2.2 0-3.8-1.4-3.8-3.2 0-1.4 1.1-2.4 2.6-2.4"/><path d="M12 12c-2.6 0-4.7-2.2-4.7-5 0-2.2 1.4-3.8 3.2-3.8 1.4 0 2.4 1.1 2.4 2.6"/><circle cx="12" cy="12" r="1"/>`),
+  tsunami: ic(`<path d="M2.6 17.5c1.6 0 1.6 1.3 3.2 1.3s1.6-1.3 3.2-1.3 1.6 1.3 3.2 1.3 1.6-1.3 3.2-1.3 1.6 1.3 3.2 1.3 1.6-1.3 3.2-1.3"/><path d="M3 14.2c0-5.4 4-9.4 8.6-9.4 3.6 0 6.2 2.3 6.2 5.2 0 2.2-1.6 3.8-3.6 3.8-1.5 0-2.6-1-2.6-2.3"/><path d="M21 6.6c-1.4.5-2.3 1.5-2.7 2.8"/>`),
+  necchusho: ic(`<path d="M9.5 13.6V5.3a2.1 2.1 0 0 1 4.2 0v8.3a3.9 3.9 0 1 1-4.2 0Z"/><circle cx="11.6" cy="17.2" r="1.6"/><path d="M17.8 5.2h3.4M17.8 8.6h2.4M17.8 12h3"/>`),
+  ooyuki: ic(`<path d="M12 2.8v18.4M4.1 7.4l15.8 9.2M19.9 7.4 4.1 16.6"/><path d="M12 6.6 9.9 4.9M12 6.6l2.1-1.7M12 17.4l-2.1 1.7M12 17.4l2.1 1.7"/><path d="M6.9 9.2 6.5 6.6M6.9 9.2 4.4 9.7M17.1 14.8l.4 2.6M17.1 14.8l2.5-.5"/>`),
+  kaminari: ic(`<path d="M6.8 15.6a3.9 3.9 0 0 1 .5-7.8h.4a5.2 5.2 0 0 1 10 1.4 3.4 3.4 0 0 1-.5 6.4"/><path d="M13.4 11.6 9.8 16.8h3.1l-1.1 4.6 4-5.6h-3.2Z"/>`),
   book: ic(`<path d="M4 4.5h6a3 3 0 0 1 3 3V20a2.4 2.4 0 0 0-2.4-2.4H4Z"/><path d="M20 4.5h-6a3 3 0 0 0-3 3V20a2.4 2.4 0 0 1 2.4-2.4H20Z"/>`),
 };
+
+// ============================================================
+// 災害ページ（4ブロック構成）用の追加スタイル
+// ============================================================
+export const CSS_DISASTER = `
+/* ── ① 脅威フック（オレンジ枠） */
+.threat{
+  border:1px solid var(--accent);border-left-width:4px;
+  background:var(--accent-bg);border-radius:0 12px 12px 0;
+  padding:22px 24px;margin:30px 0 8px;
+}
+.threat-h{
+  font-family:var(--mincho);font-weight:600;font-size:19px;
+  color:var(--accent);line-height:1.6;margin-bottom:12px;
+}
+.threat-b{font-size:14.5px;line-height:1.95;color:var(--ink)}
+.threat-b strong{font-weight:700;color:var(--accent)}
+
+/* ── STEP切り替えナビ */
+.stepnav{
+  position:sticky;top:53px;z-index:40;background:var(--bg);
+  border-bottom:1px solid var(--line);margin:26px -20px 0;padding:0 20px;
+}
+.stepnav-in{display:flex;gap:0;max-width:var(--wrap);margin:0 auto}
+.stepnav a{
+  flex:1;text-align:center;text-decoration:none;padding:14px 4px 12px;
+  font-size:13.5px;font-weight:700;color:var(--muted);
+  border-bottom:2px solid transparent;transition:.15s;
+}
+.stepnav a:hover{color:var(--navy);border-bottom-color:var(--navy)}
+.stepnav a em{font-style:normal;display:block;font-size:10.5px;
+  font-weight:600;color:var(--faint);letter-spacing:.1em;margin-bottom:2px}
+
+/* ── STEP見出し */
+.steph{display:flex;align-items:flex-start;gap:14px;margin:56px 0 6px;scroll-margin-top:110px}
+.steph-n{
+  flex-shrink:0;width:38px;height:38px;border-radius:10px;
+  display:grid;place-items:center;font-size:12px;font-weight:700;
+  letter-spacing:.04em;background:var(--navy);color:var(--on-navy);
+}
+.steph.warn .steph-n{background:var(--danger)}
+.steph.buy .steph-n{background:var(--accent)}
+.steph-t{font-family:var(--mincho);font-weight:600;font-size:23px;
+  color:var(--navy);line-height:1.45}
+.steph.warn .steph-t{color:var(--danger)}
+.steph.buy .steph-t{color:var(--accent)}
+.steph-s{font-size:12.5px;color:var(--faint);margin-top:3px;line-height:1.7}
+
+/* ── 行動リスト（防ぐ＝紺チェック／逃げる＝赤!） */
+.acts{margin:22px 0 0}
+.act{
+  display:flex;gap:14px;align-items:flex-start;
+  border:1px solid var(--line);border-radius:12px;
+  padding:18px 19px;margin-bottom:10px;background:var(--bg);
+}
+.act-i{
+  flex-shrink:0;width:26px;height:26px;border-radius:50%;margin-top:1px;
+  display:grid;place-items:center;font-size:14px;font-weight:700;
+  border:1.5px solid var(--navy);color:var(--navy);background:var(--bg);
+}
+.acts.warn .act{background:var(--danger-bg);border-color:var(--danger)}
+.acts.warn .act-i{border-color:var(--danger);color:#fff;background:var(--danger)}
+.act-t{font-weight:700;font-size:15.5px;line-height:1.6;color:var(--ink);margin-bottom:6px}
+.acts.warn .act-t{color:var(--danger)}
+.act-d{font-size:13.5px;line-height:1.9;color:var(--muted)}
+.act-d strong{font-weight:700;color:var(--ink)}
+.acts.warn .act-d strong{color:var(--danger)}
+
+/* ── 備えるモノ：カテゴリ網羅 */
+.gearg{margin-top:34px}
+.gearg-h{
+  font-family:var(--mincho);font-weight:600;font-size:18px;color:var(--navy);
+  padding-bottom:9px;border-bottom:1px solid var(--line);
+  display:flex;align-items:baseline;gap:10px;
+}
+.gearg-h span{font-size:11.5px;font-weight:600;color:var(--faint);
+  font-family:var(--gothic);letter-spacing:.04em;margin-left:auto;flex-shrink:0}
+.gearg-n{font-size:12.5px;color:var(--faint);line-height:1.75;margin:9px 0 4px}
+.grow{
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  padding:16px 0;border-bottom:1px solid var(--line-soft);
+}
+.grow-m{flex:1;min-width:200px}
+.grow-n{font-size:15.5px;font-weight:700;color:var(--ink);line-height:1.55;
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.grow-p{font-size:10.5px;font-weight:700;letter-spacing:.06em;
+  padding:2px 8px;border-radius:20px;background:var(--navy);color:var(--on-navy)}
+.grow-w{font-size:13px;color:var(--muted);line-height:1.8;margin-top:4px}
+.grow-b{
+  flex-shrink:0;text-decoration:none;white-space:nowrap;
+  border:1px solid var(--navy);color:var(--navy);
+  padding:10px 20px;border-radius:8px;font-size:13.5px;font-weight:700;
+  transition:.15s;
+}
+.grow-b:hover{background:var(--accent);border-color:var(--accent);color:#fff}
+@media(max-width:479px){
+  .grow-b{width:100%;text-align:center}
+}
+`;
+
+// ============================================================
+// トップページ用の追加スタイル
+// ============================================================
+export const CSS_HOME = `
+/* ── ヒーロー（紺帯）＋ 防ぐ・逃げる・備える */
+.thero{background:var(--navy-deep);color:#fff;padding:52px 0 44px;margin-bottom:8px}
+.thero-in{max-width:var(--wrap);margin:0 auto;padding:0 20px}
+.thero-eb{font-size:12px;letter-spacing:.18em;color:#E8A472;font-weight:700;margin-bottom:16px}
+.thero h1{
+  font-family:var(--mincho);font-weight:600;color:#fff;
+  font-size:clamp(27px,6.6vw,38px);line-height:1.5;letter-spacing:.02em;margin-bottom:16px;
+}
+.thero-l{font-size:14.5px;line-height:1.95;color:#B9CBDC;max-width:33em;margin-bottom:32px}
+.tsteps{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.tstep{
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);
+  border-radius:12px;padding:18px 14px;text-align:center;
+}
+.tstep-n{font-size:10.5px;font-weight:700;letter-spacing:.14em;color:#8FB8DE;margin-bottom:7px}
+.tstep-t{font-family:var(--mincho);font-size:19px;font-weight:600;color:#fff;line-height:1.4}
+.tstep-d{font-size:11.5px;color:#9FB4C8;line-height:1.65;margin-top:6px}
+@media(max-width:479px){ .tstep-d{display:none} .tstep{padding:15px 8px} .tstep-t{font-size:17px} }
+
+/* ── 災害カード（ホバーで浮く＋上部にオレンジのライン） */
+.dcards{display:grid;grid-template-columns:repeat(2,1fr);gap:11px;margin-top:20px}
+@media(min-width:600px){ .dcards{grid-template-columns:repeat(4,1fr)} }
+.dcard{
+  position:relative;display:block;text-decoration:none;overflow:hidden;
+  border:1px solid var(--line);border-radius:13px;background:var(--bg);
+  padding:22px 16px 18px;text-align:center;
+  transition:transform .18s,box-shadow .18s,border-color .18s;
+}
+.dcard::before{
+  content:"";position:absolute;top:0;left:0;right:0;height:3px;
+  background:var(--accent);transform:scaleX(0);transform-origin:center;
+  transition:transform .22s cubic-bezier(.4,0,.2,1);
+}
+.dcard:hover{transform:translateY(-4px);box-shadow:var(--shadow);border-color:var(--navy-soft)}
+.dcard:hover::before{transform:scaleX(1)}
+.dcard svg{width:30px;height:30px;color:var(--navy);stroke-width:1.35;margin:0 auto 13px}
+.dcard-n{font-family:var(--mincho);font-size:16px;font-weight:600;color:var(--navy);line-height:1.45}
+.dcard-c{font-size:11.5px;color:var(--faint);line-height:1.6;margin-top:5px}
+.dcard.soon{opacity:.5;pointer-events:none}
+.dcard.soon .dcard-c{color:var(--accent)}
+
+/* ── セクション見出し（トップ） */
+.thead{margin:56px 0 0}
+.thead-t{font-family:var(--mincho);font-weight:600;font-size:22px;color:var(--navy);
+  line-height:1.5;padding-bottom:11px;border-bottom:1px solid var(--line)}
+.thead-d{font-size:13px;color:var(--faint);line-height:1.8;margin-top:11px}
+`;

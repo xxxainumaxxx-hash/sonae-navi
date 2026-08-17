@@ -1,11 +1,11 @@
-import { SITE, LINKS, V, AFF_TAG } from "./config.mjs";
+import { SITE, LINKS, V, AFF_TAG, amz } from "./config.mjs";
 import { page, esc } from "./layout.mjs";
-import { ICONS } from "./theme.mjs";
+import { ICONS, CSS_DISASTER, CSS_HOME } from "./theme.mjs";
 import {
   h2, p, facts, note, steps, checklist, CHK_JS,
   items, videos, tiles, shops, disclaimer,
 } from "./blocks.mjs";
-import { CATS, CAT_IDS, PILLARS, OTHERS } from "./content/index.mjs";
+import { CATS, CAT_IDS, DISASTERS, DISASTER_IDS, LIFE_IDS } from "./content/index.mjs";
 
 // ── data-driven なブロック指定を HTML に変換
 function blocks(list) {
@@ -159,42 +159,199 @@ const CALC_JS = `
   pi.addEventListener("input",upd);di.addEventListener("change",upd);upd();
 })();`;
 
+
+// ============================================================
+// 災害ページ（4ブロック構成）
+//   ①脅威 → ②未然に防ぐ → ③起きたらどうする → ④備えるモノ
+// ============================================================
+export function renderDisaster(d) {
+  const gearCount = d.gear.reduce((n, g) => n + g.items.length, 0);
+
+  const acts = (list, warn) =>
+    `<div class="acts${warn ? " warn" : ""}">${list
+      .map(
+        (a) => `<div class="act">
+        <span class="act-i">${warn ? "!" : "\u2713"}</span>
+        <div><div class="act-t">${esc(a.t)}</div><div class="act-d">${a.d}</div></div>
+      </div>`
+      )
+      .join("")}</div>`;
+
+  const gear = d.gear
+    .map(
+      (g) => `<div class="gearg">
+      <div class="gearg-h">${esc(g.group)}<span>${g.items.length}点</span></div>
+      <p class="gearg-n">${esc(g.note)}</p>
+      ${g.items
+        .map(
+          (it) => `<div class="grow">
+        <div class="grow-m">
+          <div class="grow-n">${esc(it.name)}${it.pick ? '<span class="grow-p">まずこれ</span>' : ""}</div>
+          <div class="grow-w">${esc(it.why)}</div>
+        </div>
+        <a class="grow-b" href="${amz(it.kw)}" target="_blank" rel="noopener sponsored noreferrer">Amazonで見る</a>
+      </div>`
+        )
+        .join("")}
+    </div>`
+    )
+    .join("");
+
+  const body = `
+<div class="wrap">
+  <section class="hero" style="padding-bottom:0">
+    ${ICONS[d.icon].replace("<svg", '<svg class="hero-icon"')}
+    <div class="hero-eyebrow">${esc(d.catch)}</div>
+    <h1>${esc(d.name)}</h1>
+  </section>
+
+  <div class="threat">
+    <div class="threat-h">${esc(d.threat.headline)}</div>
+    <div class="threat-b">${d.threat.body}</div>
+  </div>
+</div>
+
+<nav class="stepnav"><div class="stepnav-in">
+  <a href="#prevent"><em>STEP 1</em>防ぐ</a>
+  <a href="#respond"><em>STEP 2</em>逃げる</a>
+  <a href="#gear"><em>STEP 3</em>備える</a>
+</div></nav>
+
+<div class="wrap">
+  <div class="steph" id="prevent">
+    <span class="steph-n">1</span>
+    <div><div class="steph-t">未然に防ぐ</div>
+    <div class="steph-s">平時にやっておくこと。ここが一番、効果が大きい</div></div>
+  </div>
+  ${acts(d.prevent, false)}
+
+  <div class="steph warn" id="respond">
+    <span class="steph-n">2</span>
+    <div><div class="steph-t">起きたらどうする</div>
+    <div class="steph-s">その瞬間に迷わないために。先に読んでおく</div></div>
+  </div>
+  ${acts(d.respond, true)}
+
+  <div class="steph buy" id="gear">
+    <span class="steph-n">3</span>
+    <div><div class="steph-t">備えるモノ</div>
+    <div class="steph-s">${esc(d.name.replace("に備える", ""))}に関係する備えを${gearCount}点、目的別にまとめました</div></div>
+  </div>
+  ${gear}
+
+  <section class="sect">
+    ${videos(d.videoEyebrow || d.name + "の動画", d.videos)}
+  </section>
+
+  <section class="sect">
+    ${h2("関連する備え", "book", "続けて読むと、備えの穴が埋まります。")}
+    ${tiles(CATS, d.related)}
+  </section>
+
+  ${disclaimer()}
+</div>`;
+
+  return page({
+    path: `/${d.id}/`,
+    title: d.seoTitle,
+    bareTitle: true,
+    description: d.seoDesc,
+    body,
+    extraCSS: CSS_DISASTER,
+    crumb: [{ href: "/", label: "備えナビ" }, { label: d.name }],
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      headline: d.seoTitle,
+      description: d.seoDesc,
+      author: { "@type": "Person", name: SITE.author },
+      publisher: { "@type": "Organization", name: SITE.name },
+      mainEntityOfPage: SITE.origin + `/${d.id}/`,
+    },
+  });
+}
+
 // ============================================================
 // トップページ
 // ============================================================
 export function renderHome() {
+  // 決定した10災害。未着手のものは「準備中」として並べ、全体像を先に見せる
+  const PLANNED = [
+    { id: "kaji" }, { id: "jishin" }, { id: "suigai" },
+    { name: "土砂災害に備える", short: "土砂災害", icon: "dosha", soon: true },
+    { name: "台風・暴風に備える", short: "台風・暴風", icon: "taifu", soon: true },
+    { name: "津波に備える", short: "津波", icon: "tsunami", soon: true },
+    { id: "teiden" },
+    { name: "熱中症に備える", short: "熱中症", icon: "necchusho", soon: true },
+    { name: "大雪・寒波に備える", short: "大雪・寒波", icon: "ooyuki", soon: true },
+    { name: "雷に備える", short: "雷", icon: "kaminari", soon: true },
+  ];
+
+  const dcards = PLANNED.map((x) => {
+    if (x.soon) {
+      return `<div class="dcard soon">${ICONS[x.icon]}
+        <div class="dcard-n">${esc(x.short)}</div>
+        <div class="dcard-c">準備中</div></div>`;
+    }
+    const c = CATS[x.id];
+    return `<a class="dcard" href="/${c.id}/">${ICONS[c.icon]}
+      <div class="dcard-n">${esc(c.short || c.name)}</div>
+      <div class="dcard-c">${esc(c.catch)}</div></a>`;
+  }).join("");
+
+  const lcards = LIFE_IDS.map((id) => {
+    const c = CATS[id];
+    return `<a class="dcard" href="/${id}/">${ICONS[c.icon]}
+      <div class="dcard-n">${esc(c.short || c.name.replace("に備える","").replace("を備える",""))}</div>
+      <div class="dcard-c">${esc(c.catch)}</div></a>`;
+  }).join("");
+
   const body = `
-<div class="wrap">
-  <section class="hero">
-    <div class="hero-eyebrow">備えニキの防災まとめ</div>
-    <h1>災害と値上げから、<br>家族を守る備えのすべて</h1>
-    <p class="hero-lead">
-      チャンネルで扱ってきた防災の知識を、一つのサイトにまとめました。
-      何から手を付ければいいか分からない人は、まず30秒の診断から。
-      家族構成に合わせて、<strong>あなたの家に必要な量</strong>を計算します。
+<section class="thero">
+  <div class="thero-in">
+    <div class="thero-eb">備えニキの防災まとめ</div>
+    <h1>災害から家族を守る、<br>備えのすべて</h1>
+    <p class="thero-l">
+      チャンネルで扱ってきた防災の知識を、災害ごとに一つずつまとめました。
+      どのページも「防ぐ・逃げる・備える」の順に読めば、
+      何をすればいいかが最後まで分かるようになっています。
     </p>
-    <div style="margin-top:28px">
-      <a class="cta" href="/shindan/">30秒で必要な備えを診断する →</a>
-      <p class="cta-note">登録不要・個人情報の入力なし</p>
+    <div class="tsteps">
+      <div class="tstep"><div class="tstep-n">STEP 1</div>
+        <div class="tstep-t">防ぐ</div><div class="tstep-d">平時にできる対策</div></div>
+      <div class="tstep"><div class="tstep-n">STEP 2</div>
+        <div class="tstep-t">逃げる</div><div class="tstep-d">起きた瞬間の行動</div></div>
+      <div class="tstep"><div class="tstep-n">STEP 3</div>
+        <div class="tstep-t">備える</div><div class="tstep-d">揃えておくモノ</div></div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <section class="sect">
-    ${h2("まずこの3つ", "check",
-      "どれか一つだけやるなら備蓄です。全災害に効きます。")}
-    ${tiles(CATS, PILLARS)}
-  </section>
+<div class="wrap">
+  <div class="thead">
+    <div class="thead-t">災害から選ぶ</div>
+    <p class="thead-d">気になる災害から読んでください。それぞれに「防ぐ・逃げる・備える」がまとまっています。</p>
+  </div>
+  <div class="dcards">${dcards}</div>
 
-  <section class="sect">
-    ${h2("災害・リスク別に備える", "list",
-      "それぞれに準備度チェックと、必要なものリストがあります。")}
-    ${tiles(CATS, OTHERS)}
-  </section>
+  <div class="thead">
+    <div class="thead-t">暮らしを守る</div>
+    <p class="thead-d">災害の種類を問わず効く備えと、日々の生活防衛。備蓄はすべての災害の土台です。</p>
+  </div>
+  <div class="dcards">${lcards}</div>
 
-  <section class="sect">
-    ${h2("迷ったらこれを揃える", "list", "備えニキが実際に選んだものをまとめています。")}
-    ${shops()}
-  </section>
+  <div class="thead">
+    <div class="thead-t">30秒でわかる、あなたの家に必要な量</div>
+    <p class="thead-d">家族の人数と住まいから、必要な備蓄の量と優先順位を計算します。登録不要です。</p>
+  </div>
+  <div style="margin-top:20px"><a class="cta" href="/shindan/">生存準備度を診断する →</a>
+  <p class="cta-note">登録不要・個人情報の入力なし</p></div>
+
+  <div class="thead">
+    <div class="thead-t">迷ったらこれを揃える</div>
+    <p class="thead-d">備えニキが実際に選んだものをまとめています。</p>
+  </div>
+  ${shops()}
 
   <section class="sect">
     ${videos("今見るべき1本", [V.bichiku50, V.saisho30, V.hinanjo, V.hyakkin])}
@@ -209,6 +366,7 @@ export function renderHome() {
     bareTitle: true,
     description: SITE.description,
     body,
+    extraCSS: CSS_HOME,
     schema: {
       "@context": "https://schema.org",
       "@type": "WebSite",

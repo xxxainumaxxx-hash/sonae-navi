@@ -37,6 +37,7 @@ export function page({
   crumb = [],      // [{href,label}] パンくず（最終要素は現在地としてリンクなし）
   script = "",     // ページ固有のJS
   schema = null,   // JSON-LD（オブジェクト）
+  extraCSS = "",   // ページ固有の追加CSS
   bareTitle = false,
 }) {
   const url = SITE.origin + path;
@@ -88,7 +89,7 @@ export function page({
 <meta name="twitter:description" content="${esc(description)}">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 ${ld}
-<style>${CSS}</style>
+<style>${CSS}${extraCSS}</style>
 </head>
 <body>
 <header class="hd">
