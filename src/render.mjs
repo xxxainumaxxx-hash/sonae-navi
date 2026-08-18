@@ -506,17 +506,17 @@ ${prLabel()}
   <div class="dcards">${lcards}</div>
 
   <div class="thead">
-    <div class="thead-t">30秒でわかる、あなたの家に必要な量</div>
-    <p class="thead-d">家族の人数と住まいから、必要な備蓄の量と優先順位を計算します。登録不要です。</p>
-  </div>
-  <div style="margin-top:20px"><a class="cta" href="/shindan/">生存準備度を診断する →</a>
-  <p class="cta-note">登録不要・個人情報の入力なし</p></div>
-
-  <div class="thead">
     <div class="thead-t">迷ったらこれを揃える</div>
     <p class="thead-d">備えニキが実際に選んだものをまとめています。</p>
   </div>
   ${shops()}
+
+  <div class="thead">
+    <div class="thead-t">30秒でわかる<br>あなたの家に必要な量</div>
+    <p class="thead-d">家族の人数と住まいから、必要な備蓄の量と優先順位を計算します。登録不要です。</p>
+  </div>
+  <div style="margin-top:20px"><a class="cta" href="/shindan/">生存準備度を診断する →</a>
+  <p class="cta-note">登録不要・個人情報の入力なし</p></div>
 
   <section class="sect">
     ${videos("今見るべき1本", [V.bichiku50, V.saisho30, V.hinanjo, V.hyakkin])}

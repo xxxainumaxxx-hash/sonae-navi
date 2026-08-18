@@ -144,9 +144,9 @@ export const shops = () =>
 
 // ── 楽天ROOMの備考（備蓄ページにも単体で置く）
 export const rakutenNote = () =>
-  `<p class="shop-note">楽天派の方へ：備えニキの妹「そなえ」が、同じ備蓄品を
-    <a href="${LINKS.rakutenRoom}" target="_blank" rel="noopener sponsored noreferrer">楽天ROOMのコレクション</a>
-    にまとめています。防災リュック・停電対策・在宅避難など8つに分けてあるので、ポイントを貯めたい方はこちらから。</p>`;
+  `<p class="shop-note">楽天でそろえるなら、備えニキの妹「そなえ」の
+    <a href="${LINKS.rakutenRoom}" target="_blank" rel="noopener sponsored noreferrer">楽天ROOM</a>
+    へ。防災グッズをコレクション別にまとめています。</p>`;
 
 // ── 広告表記（ページ上部・ステマ規制対応）
 export const prLabel = () =>
