@@ -6,7 +6,7 @@
 export const SITE = {
   name: "備えナビ",
   author: "備えニキ",
-  origin: "https://sonae-navi.vercel.app",
+  origin: "https://sonaeniki-official.vercel.app",
   tagline: "災害から大切な命を守る、備えのすべて",
   description:
     "備えニキがまとめた防災の総合ナビ。火事・地震・水害・停電を「防ぐ・逃げる・備える」の順に整理し、住まいに合わせて必要な備えが30秒でわかります。",
