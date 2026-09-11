@@ -423,7 +423,7 @@ export const ICONS = {
   necchusho: ic(`<path d="M9.5 13.6V5.3a2.1 2.1 0 0 1 4.2 0v8.3a3.9 3.9 0 1 1-4.2 0Z"/><circle cx="11.6" cy="17.2" r="1.6"/><path d="M17.8 5.2h3.4M17.8 8.6h2.4M17.8 12h3"/>`),
   ooyuki: ic(`<path d="M12 2.8v18.4M4.1 7.4l15.8 9.2M19.9 7.4 4.1 16.6"/><path d="M12 6.6 9.9 4.9M12 6.6l2.1-1.7M12 17.4l-2.1 1.7M12 17.4l2.1 1.7"/><path d="M6.9 9.2 6.5 6.6M6.9 9.2 4.4 9.7M17.1 14.8l.4 2.6M17.1 14.8l2.5-.5"/>`),
   kaminari: ic(`<path d="M6.8 15.6a3.9 3.9 0 0 1 .5-7.8h.4a5.2 5.2 0 0 1 10 1.4 3.4 3.4 0 0 1-.5 6.4"/><path d="M13.4 11.6 9.8 16.8h3.1l-1.1 4.6 4-5.6h-3.2Z"/>`),
-  mizu: ic(`<path d="M12 3.2s5.6 6.2 5.6 10a5.6 5.6 0 0 1-11.2 0c0-3.8 5.6-10 5.6-10Z"/><path d="M9.4 13.4a2.7 2.7 0 0 0 2.6 3"/>`),
+  mizu: ic(`<rect x="9" y="2" width="6" height="3" rx=".7"/><path d="M9 5v2L6.5 10v9.5A2 2 0 0 0 8.5 21h7a2 2 0 0 0 2-1.5V10L15 7V5"/><path d="M6.5 12h11M6.5 17h11M9 14.5h6"/>`),
   shokuryo: ic(`<path d="M3.4 11.4h17.2a8.6 8.6 0 0 1-8.6 7.4 8.6 8.6 0 0 1-8.6-7.4Z"/><path d="M2.4 21.2h19.2"/><path d="M8.6 8.2c0-1.2 1-1.6 1-2.6s-.7-1.4-.7-1.4M12 8.2c0-1.2 1-1.6 1-2.6s-.7-1.4-.7-1.4M15.4 8.2c0-1.2 1-1.6 1-2.6s-.7-1.4-.7-1.4"/>`),
   toire: ic(`<path d="M5.4 3.4v7.2c0 3.4 2.2 6.2 5 6.7v3.3"/><path d="M4 10.6h9.4"/><path d="M10.4 20.6h5.6"/><path d="M16.6 3.4c1.7 0 3 1.3 3 3v6.4c0 1.5-1.2 2.7-2.7 2.7h-.6l.5 5.1"/>`),
   eisei: ic(`<path d="M8.6 8.2h5.2a2.4 2.4 0 0 1 2.4 2.4v8.6a2.4 2.4 0 0 1-2.4 2.4H8.6a2.4 2.4 0 0 1-2.4-2.4v-8.6a2.4 2.4 0 0 1 2.4-2.4Z"/><path d="M9.6 8.2V5.4a1.8 1.8 0 0 1 1.8-1.8h1.2"/><path d="M14.4 3.6h3.4M15.6 5.9h2.8M14.8 1.6h2.6"/><path d="M6.2 13h10"/>`),
@@ -601,6 +601,11 @@ export const CSS_HOME = `
 // 備蓄ページ専用スタイル
 // ============================================================
 export const CSS_BICHIKU = `
+.stock-product-link{color:var(--navy);text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:5px;line-height:1.8}
+.stock-product-link:hover{color:var(--accent);text-decoration-color:currentColor}
+.stock-product-link:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
+.stock-product-link span{font-size:12px}
+
 /* ── 人数入力（追従） */
 .calc{
   position:sticky;top:53px;z-index:41;background:var(--bg);

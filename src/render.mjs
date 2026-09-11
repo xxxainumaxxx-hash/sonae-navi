@@ -1,7 +1,7 @@
 import { SITE, LINKS, V, AFF_TAG, amz } from "./config.mjs";
 import { page, esc } from "./layout.mjs";
 import { ICONS, CSS_DISASTER, CSS_HOME, CSS_BICHIKU } from "./theme.mjs";
-import { h2, note, videos, tiles, shops, rakutenNote, prLabel, disclaimer } from "./blocks.mjs";
+import { h2, note, videos, tiles, shops, prLabel, disclaimer } from "./blocks.mjs";
 import { CATS, CAT_IDS, DISASTER_IDS, LIFE_IDS } from "./content/index.mjs";
 
 // ── 備蓄ページの人数計算機
@@ -86,10 +86,9 @@ export function renderDisaster(d) {
         .map(
           (it) => `<div class="grow">
         <div class="grow-m">
-          <div class="grow-n">${esc(it.name)}${it.pick ? '<span class="grow-p">まずこれ</span>' : ""}</div>
+          <div class="grow-n"><a class="stock-product-link" href="${amz(it.kw)}" target="_blank" rel="noopener sponsored noreferrer">${esc(it.name)} <span aria-hidden="true">↗</span></a>${it.pick ? '<span class="grow-p">まずこれ</span>' : ""}</div>
           <div class="grow-w">${esc(it.why)}</div>
         </div>
-        <a class="grow-b" href="${amz(it.kw)}" target="_blank" rel="noopener sponsored noreferrer">Amazonで見る</a>
       </div>`
         )
         .join("")}
@@ -149,16 +148,12 @@ ${prLabel()}
     <a class="tobichiku-b" href="/bichiku/">備蓄リストを見る →</a>
   </div>`}
 
-  <section class="sect">
-    ${videos(d.videoEyebrow || d.name + "の動画", d.videos)}
-  </section>
-
-  <section class="sect">
+<section class="sect">
     ${h2("関連する備え", "book", "続けて読むと、備えの穴が埋まります。")}
     ${tiles(CATS, d.related)}
   </section>
 
-  ${disclaimer()}
+  
 </div>`;
 
   return page({
@@ -184,10 +179,9 @@ ${prLabel()}
 
 // ============================================================
 // 備蓄ページ（専用テンプレート）
-//   人数入力で数量が動く／10カテゴリの追従ナビ／チェックはブラウザに保存
+//   人数入力で数量が動く／10カテゴリの備蓄ガイド
 // ============================================================
 export function renderBichiku(b) {
-  const totalChecks = b.groups.reduce((n, g) => n + g.checks.length, 0);
 
   const nav = b.groups
     .map((g, i) => `<a href="#${g.id}"><i>${i + 1}</i>${esc(g.name)}</a>`)
@@ -226,23 +220,14 @@ export function renderBichiku(b) {
 
   <p class="bcat-lead">${g.lead}</p>
 
-  <div class="bchk-h">できているか確認する</div>
-  ${g.checks
-    .map(
-      (c, j) =>
-        `<label class="bchk"><input type="checkbox" data-k="${g.id}-${j}"><span class="bchk-t">${esc(c)}</span></label>`
-    )
-    .join("")}
-
   <div class="bchk-h">そろえるもの</div>
   ${g.items
     .map(
       (it) => `<div class="grow">
     <div class="grow-m">
-      <div class="grow-n">${esc(it.name)}${it.pick ? '<span class="grow-p">まずこれ</span>' : ""}</div>
+      <div class="grow-n"><a class="stock-product-link" href="${amz(it.kw)}" target="_blank" rel="noopener sponsored noreferrer">${esc(it.name)} <span aria-hidden="true">↗</span></a>${it.pick ? '<span class="grow-p">まずこれ</span>' : ""}</div>
       <div class="grow-w">${esc(it.why)}</div>
     </div>
-    <a class="grow-b" href="${amz(it.kw)}" target="_blank" rel="noopener sponsored noreferrer">Amazonで見る</a>
   </div>`
     )
     .join("")}
@@ -276,28 +261,12 @@ ${prLabel()}
 <div class="wrap">
   ${cats}
 
-  <div class="prog">
-    <div class="prog-row">
-      <span class="prog-n" id="pn">0</span><span class="prog-u">%</span>
-      <span class="prog-c"><span id="pc">0</span> / ${totalChecks} 項目</span>
-    </div>
-    <div class="prog-bar"><i id="pb"></i></div>
-    <div class="prog-m" id="pm">チェックすると準備度が出ます。この端末に保存されるので、買い足しながら続きから使えます。</div>
-    <a class="prog-reset" href="#" id="preset">チェックを全部リセットする</a>
-  </div>
-
-  ${rakutenNote()}
-
-  <section class="sect">
-    ${videos(b.videoEyebrow, b.videos)}
-  </section>
-
-  <section class="sect">
+<section class="sect">
     ${h2("あわせて備える", "book", "災害ごとの「防ぐ・逃げる」はこちらにまとめています。")}
     ${tiles(CATS, b.related)}
   </section>
 
-  ${disclaimer()}
+  
 </div>`;
 
   return page({
@@ -345,39 +314,8 @@ const BICHIKU_JS = `
   document.getElementById("cm").addEventListener("click",function(){setPeople(people-1)});
   document.getElementById("cp").addEventListener("click",function(){setPeople(people+1)});
 
-  // ── チェック
-  var boxes=document.querySelectorAll("[data-k]");
-  var pn=document.getElementById("pn"),pc=document.getElementById("pc"),
-      pb=document.getElementById("pb"),pm=document.getElementById("pm");
   function save(){ try{ localStorage.setItem(KEY,JSON.stringify(store)) }catch(e){} }
-  function progress(){
-    var done=0;
-    boxes.forEach(function(b){ if(b.checked) done++ });
-    var pct=Math.round(done/boxes.length*100);
-    pn.textContent=pct; pc.textContent=done; pb.style.width=pct+"%";
-    pm.textContent = done===0
-      ? "チェックすると準備度が出ます。この端末に保存されるので、買い足しながら続きから使えます。"
-      : pct<=25 ? "まだ穴が大きい状態です。水・食料・トイレの3つから埋めてください。"
-      : pct<=50 ? "半分まで来ました。ここから先は季節物と電源が効いてきます。"
-      : pct<75  ? "かなり揃っています。書類と現金など、忘れられがちな所を見直しましょう。"
-      : pct<100 ? "あと少しです。残りの項目を週末に片付けられます。"
-      : "完璧です。あとは年1回、期限と中身を点検してください。";
-  }
-  boxes.forEach(function(b){
-    if(store[b.dataset.k]) b.checked=true;
-    b.addEventListener("change",function(){
-      if(b.checked) store[b.dataset.k]=1; else delete store[b.dataset.k];
-      save(); progress();
-    });
-  });
-  document.getElementById("preset").addEventListener("click",function(e){
-    e.preventDefault();
-    if(!confirm("チェックを全部外します。よろしいですか。")) return;
-    boxes.forEach(function(b){ b.checked=false; delete store[b.dataset.k] });
-    save(); progress();
-  });
-
-  amounts(); progress();
+  amounts();
 })();`;
 
 
@@ -417,7 +355,7 @@ export function renderDisclaimer() {
   <p>紹介している商品は、備えの参考として挙げているものです。<strong>特定の商品の性能・効果・安全性を保証するものではありません。</strong>購入の判断、使用方法の確認、保管や点検はご自身の責任でお願いします。使用にあたっては各製品の取扱説明書に従ってください。</p>
 
   <h2>広告について</h2>
-  <p>本サイトは<strong>Amazonアソシエイト・プログラムおよび楽天ROOMのアフィリエイトプログラム</strong>を利用しています。サイト内の商品リンクを経由して商品が購入された場合、運営者が紹介料を受け取ることがあります。</p>
+  <p>本サイトは<strong>Amazonアソシエイト・プログラム</strong>を利用しています。サイト内の商品リンクを経由して商品が購入された場合、運営者が紹介料を受け取ることがあります。</p>
   <p>紹介料の有無によって掲載内容を変えることはありませんが、この関係があることを前提としてお読みください。<strong>商品の価格・在庫・仕様は各販売サイトの表示が最新です。</strong></p>
 
   <h2>責任の範囲</h2>
@@ -437,9 +375,9 @@ export function renderDisclaimer() {
   <p>ただし、<strong>本サイトの記述はこれらの資料の要約や公式見解ではなく、運営者による解釈と再構成を含みます。</strong>正確な内容は必ず一次資料をご確認ください。</p>
 
   <h2>お問い合わせ</h2>
-  <p>内容の誤りにお気づきの場合は、YouTubeチャンネル「備えニキ」のコメント欄からお知らせいただけると助かります。確認のうえ修正します。</p>
+  <p>内容の誤りにお気づきの場合は、Instagram「備えニキ」のDMからお知らせいただけると助かります。確認のうえ修正します。</p>
 
-  ${disclaimer()}
+  
 </div>`;
 
   return page({
@@ -518,11 +456,7 @@ ${prLabel()}
   <div style="margin-top:20px"><a class="cta" href="/shindan/">生存準備度を診断する →</a>
   <p class="cta-note">登録不要・個人情報の入力なし</p></div>
 
-  <section class="sect">
-    ${videos("今見るべき1本", [V.bichiku50, V.saisho30, V.hinanjo, V.hyakkin])}
-  </section>
 
-  ${disclaimer()}
 </div>`;
 
   return page({
@@ -563,7 +497,7 @@ ${prLabel()}
     </div>
   </section>
   <div id="app"></div>
-  ${disclaimer()}
+  
 </div>`;
 
   return page({
@@ -691,10 +625,10 @@ function result(){
    +'<div class="items">'+r.it.map(function(x,i){var pr=i<r.nc;
       return '<div class="item'+(pr?' pri':'')+'">'
        +'<div class="item-head"><span class="item-rank">'+(pr?'今すぐ':'次に')+'</span>'
-       +'<span class="item-name">'+esc(x.n)+'</span></div>'
+       +'<a class="item-name stock-product-link" href="'+amz(x.k)+'" target="_blank" rel="noopener sponsored noreferrer">'+esc(x.n)+' <span aria-hidden="true">↗</span></a></div>'
        +'<div class="item-qty">'+esc(x.q)+'</div>'
        +'<div class="item-why">'+esc(x.w)+'</div>'
-       +'<a class="item-btn" href="'+amz(x.k)+'" target="_blank" rel="noopener sponsored noreferrer">Amazonで探す →</a></div>'}).join("")
+       +'</div>'}).join("")
    +'</div></section>'
    +'<section class="sect"><h2 class="h2">次に読むページ</h2>'
    +'<p class="h2-note">診断で出た量の根拠と、災害別の備えはこちらにまとめています。</p>'

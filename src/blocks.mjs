@@ -89,11 +89,10 @@ export const items = (list, priCount = 3) =>
       return `<div class="item${pri ? " pri" : ""}">
       <div class="item-head">
         <span class="item-rank">${pri ? "今すぐ" : "次に"}</span>
-        <span class="item-name">${esc(it.name)}</span>
+        <a class="item-name stock-product-link" href="${amz(it.kw)}" target="_blank" rel="noopener sponsored noreferrer">${esc(it.name)} <span aria-hidden="true">↗</span></a>
       </div>
       <div class="item-qty">${esc(it.qty)}</div>
       <div class="item-why">${esc(it.why)}</div>
-      <a class="item-btn" href="${amz(it.kw)}" target="_blank" rel="noopener sponsored noreferrer">Amazonで探す →</a>
     </div>`;
     })
     .join("")}</div>`;
@@ -136,26 +135,19 @@ export const tiles = (cats, ids) =>
     })
     .join("")}</div>`;
 
-// ── ショップ導線（サイト内の備蓄リストが主役、楽天ROOMは備考）
+// ── ショップ導線（サイト内の備蓄リストが主役）
 export const shops = () =>
   `<a class="cta" href="/bichiku/" style="margin-top:20px">備蓄リストを全部見る →</a>
-  <p class="cta-note">人数を入れると必要量が出ます。チェックした内容はこの端末に残ります</p>
-  ${rakutenNote()}`;
-
-// ── 楽天ROOMの備考（備蓄ページにも単体で置く）
-export const rakutenNote = () =>
-  `<p class="shop-note">楽天でそろえるなら、備えニキの妹「そなえ」の
-    <a href="${LINKS.rakutenRoom}" target="_blank" rel="noopener sponsored noreferrer">楽天ROOM</a>
-    へ。防災グッズをコレクション別にまとめています。</p>`;
+  <p class="cta-note">人数を入れると必要量が出ます。チェックした内容はこの端末に残ります</p>`;
 
 // ── 広告表記（ページ上部・ステマ規制対応）
 export const prLabel = () =>
-  `<p class="pr">本ページにはアフィリエイト広告（Amazonアソシエイト・楽天ROOM）を含みます。</p>`;
+  `<p class="pr">本ページにはアフィリエイト広告（Amazonアソシエイト）を含みます。</p>`;
 
 // ── 免責（ページ下部）
 export const disclaimer = (extra = "") =>
-  `<div class="disc">
-    <div class="disc-t">ご利用にあたって</div>
+  `<details class="legal-disclosure">
+    <summary>ご利用にあたって・免責事項<span class="legal-toggle" aria-hidden="true">＋</span></summary>
     <ul class="disc-l">
       ${extra ? `<li>${extra}</li>` : ""}
       <li>本サイトの情報は一般的な防災の目安であり、<strong>個別の状況における安全を保証するものではありません</strong>。</li>
@@ -163,9 +155,8 @@ export const disclaimer = (extra = "") =>
       <li>体調や怪我に関する記述は医療行為の指示ではありません。<strong>症状があるとき、判断に迷うときは、ためらわず119番または医療機関に相談してください。</strong>持病の薬については必ず主治医にご相談ください。</li>
       <li>掲載している数量・商品は目安です。住まい・家族構成・地域によって必要なものは変わります。<strong>最終的な判断と選択はご自身の責任でお願いします。</strong></li>
       <li>掲載内容は作成時点の情報に基づいており、正確性・最新性を保証するものではありません。本サイトの利用によって生じた損害について、運営者は責任を負いかねます。</li>
-      <li>商品リンクはAmazonアソシエイト・楽天ROOMを利用しており、購入により運営者が収益を得る場合があります。商品の性能・効果を保証するものではありません。</li>
+      <li>商品リンクはAmazonアソシエイトを利用しており、購入により運営者が収益を得る場合があります。商品の性能・効果を保証するものではありません。</li>
     </ul>
-    <a class="disc-more" href="/disclaimer/">免責事項をすべて読む →</a>
-  </div>`;
+  </details>`;
 
 export { V, ICONS };
