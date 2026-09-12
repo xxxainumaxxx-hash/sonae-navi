@@ -11,6 +11,15 @@ if (contactSection && contactToggle) {
     }
   };
   contactToggle.addEventListener('click', () => setContactOpen(contactSection.hidden, true));
+  document.querySelectorAll('.plan-select').forEach(link => link.addEventListener('click', event => {
+    event.preventDefault();
+    const form = document.getElementById('contact-form');
+    form.elements.category.value = link.dataset.category;
+    const message = form.elements.message;
+    const existing = message.value.replace(/^希望プラン：[^\n]*\n?/, '');
+    message.value = '希望プラン：' + link.dataset.plan + '\n' + existing;
+    setContactOpen(true, true);
+  }));
   if (location.hash === '#contact') setContactOpen(true);
   window.addEventListener('hashchange', () => { if (location.hash === '#contact') setContactOpen(true, true); });
 }
