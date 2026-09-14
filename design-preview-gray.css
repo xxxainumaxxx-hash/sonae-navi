@@ -81,3 +81,21 @@ footer{background:#e9ebed;color:#555b61;border-top:1px solid #d9dde0}.foot-top .
 @media(max-width:760px){.foot-top a.brand{font-size:20px}}
 
 .sns div{flex-wrap:wrap;row-gap:16px}.sns a{white-space:nowrap}
+
+/* ── 注目商品：買う理由（アコーディオンを開く前に読ませる） ── */
+.essential-block{margin-bottom:30px}
+.essential-block>.product-category{margin-bottom:0}
+.reason{border-left:3px solid #b0521c;background:#fbf7f3;border-radius:0 10px 10px 0;padding:20px 22px;margin:0 0 14px}
+.reason-t{margin:0 0 10px;font-size:17px;font-weight:700;line-height:1.6;color:#23282d}
+.reason-b{margin:0;font-size:14px;line-height:1.95;color:#3d4349}
+.reason-b strong{font-weight:700;color:#23282d;background:linear-gradient(transparent 62%,#f6e3d2 62%)}
+.reason-n{margin:14px 0 0;padding-top:12px;border-top:1px solid #e7ddd4;font-size:12.5px;line-height:1.85;color:#62666b}
+@media(max-width:760px){
+  .reason{padding:16px 17px}
+  .reason-t{font-size:15.5px}
+  .reason-b{font-size:13.5px}
+  .reason-n{font-size:12px}
+}
+.reason a.inline-buy{color:#8f3f12;font-weight:700;text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px}
+.reason a.inline-buy:hover{color:#b0521c;text-decoration-thickness:2px}
+.reason a.inline-buy span{font-size:.8em;margin-left:2px;text-decoration:none;display:inline-block}
