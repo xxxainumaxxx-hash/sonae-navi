@@ -176,3 +176,19 @@ footer{background:#e9ebed;color:#555b61;border-top:1px solid #d9dde0}.foot-top .
   .essential-block,
   .essential-block>.product-category>.category-toggle{animation:none}
 }
+
+/* ── 自己紹介（書いた人間がいます） ── */
+.about-section{background:#f7f6f3;padding:66px 0;margin-top:10px}
+.about-layout{display:grid;grid-template-columns:1.05fr 1fr;gap:44px;align-items:center}
+.about-img{width:100%;height:auto;border-radius:12px;display:block;box-shadow:0 10px 30px rgba(20,37,54,.08)}
+.about-copy .eyebrow{display:block;font-size:11px;letter-spacing:.16em;color:#8b9097;margin-bottom:12px}
+.about-copy h2{margin:0 0 20px;font-size:30px;font-weight:700;line-height:1.5;color:#142536;letter-spacing:.01em}
+.about-copy p{margin:0 0 16px;font-size:14.5px;line-height:2.05;color:#3d4349}
+.about-copy p:last-child{margin-bottom:0}
+.about-copy strong{font-weight:700;color:#142536;background:linear-gradient(transparent 62%,#efe4d2 62%)}
+@media(max-width:860px){
+  .about-section{padding:44px 0}
+  .about-layout{grid-template-columns:1fr;gap:22px}
+  .about-copy h2{font-size:23px;margin-bottom:16px}
+  .about-copy p{font-size:14px;line-height:1.98}
+}
