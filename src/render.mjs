@@ -4,6 +4,39 @@ import { ICONS, CSS_DISASTER, CSS_HOME, CSS_BICHIKU } from "./theme.mjs";
 import { h2, note, videos, tiles, shops, prLabel, disclaimer } from "./blocks.mjs";
 import { CATS, CAT_IDS, DISASTER_IDS, LIFE_IDS } from "./content/index.mjs";
 
+const GUIDE_VIDEO_CSS = `
+.guide-video{margin:32px 0 40px;padding:24px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.guide-video h2{margin:0 0 10px;font-size:clamp(20px,4.5vw,26px);line-height:1.5}
+.guide-video p{margin:0 0 20px;color:var(--muted);font-size:14px;line-height:1.9}
+.guide-video-frame{position:relative;aspect-ratio:16/9;background:#17191c;overflow:hidden;border-radius:5px}
+.guide-video-play,.guide-video-frame iframe{display:block;width:100%;height:100%;border:0}
+.guide-video-play{position:relative;color:#fff}
+.guide-video-play img{display:block;width:100%;height:100%;object-fit:cover}
+.guide-video-button{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;align-items:center;gap:10px;white-space:nowrap;padding:14px 20px;background:#202124ed;border:1px solid #ffffff70;border-radius:6px;font-size:15px;font-weight:700}
+.guide-video-play:hover .guide-video-button{background:#000}
+.guide-video-play:focus-visible{outline:3px solid #fff;outline-offset:-5px}
+.guide-video-external{display:inline-block;margin-top:14px;font-size:13px;text-underline-offset:4px}
+.guide-video-external:focus-visible{outline:2px solid currentColor;outline-offset:4px}
+@media(max-width:480px){.guide-video{padding:16px}.guide-video-button{padding:11px 16px}}
+`;
+
+const GUIDE_VIDEO_JS = `
+document.querySelectorAll('[data-youtube-id]').forEach(function(link){
+  link.addEventListener('click',function(event){
+    if(event.ctrlKey||event.metaKey||event.shiftKey||event.altKey||event.button!==0)return;
+    event.preventDefault();
+    var frame=document.createElement('iframe');
+    frame.title=link.getAttribute('aria-label');
+    frame.allow='autoplay; encrypted-media; picture-in-picture; fullscreen';
+    frame.allowFullscreen=true;
+    frame.referrerPolicy='strict-origin-when-cross-origin';
+    frame.src='https://www.youtube-nocookie.com/embed/'+encodeURIComponent(link.dataset.youtubeId)+'?autoplay=1&playsinline=1&rel=0';
+    link.replaceWith(frame);
+    frame.focus();
+  });
+});
+`;
+
 // ── 備蓄ページの人数計算機
 function calculator() {
   return `
@@ -118,6 +151,17 @@ ${prLabel()}
 </div></nav>
 
 <div class="wrap">
+  ${d.video ? `<section class="guide-video" aria-labelledby="guide-video-heading">
+    <h2 id="guide-video-heading">${esc(d.video.heading)}</h2>
+    <p>${esc(d.video.description)}</p>
+    <div class="guide-video-frame">
+      <a class="guide-video-play" href="https://www.youtube.com/watch?v=${esc(d.video.id)}" data-youtube-id="${esc(d.video.id)}" aria-label="${esc(d.video.heading)}を再生">
+        <img src="https://i.ytimg.com/vi/${esc(d.video.id)}/hqdefault.jpg" alt="" width="480" height="360" loading="lazy">
+        <span class="guide-video-button"><span aria-hidden="true">▶</span> 動画を再生</span>
+      </a>
+    </div>
+    <a class="guide-video-external" href="https://www.youtube.com/watch?v=${esc(d.video.id)}" target="_blank" rel="noopener noreferrer">YouTubeで見る ↗</a>
+  </section>` : ""}
   <div class="steph" id="prevent">
     <span class="steph-n">1</span>
     <div><div class="steph-t">${esc(s1.t)}</div>
@@ -162,7 +206,8 @@ ${prLabel()}
     bareTitle: true,
     description: d.seoDesc,
     body,
-    extraCSS: CSS_DISASTER,
+    extraCSS: CSS_DISASTER + (d.video ? GUIDE_VIDEO_CSS : ""),
+    script: d.video ? GUIDE_VIDEO_JS : "",
     crumb: [{ href: "/", label: "備えナビ" }, { label: d.name }],
     schema: {
       "@context": "https://schema.org",

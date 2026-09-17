@@ -11,6 +11,11 @@ export default {
   icon: "kaji",
   name: "火事に備える",
   short: "火事",
+  video: {
+    id: "ut3wxMbqbi8",
+    heading: "動画でわかる、火事への備え",
+    description: "火事を防ぐ対策から、いざというときの避難まで。動画でまとめて確認できます。",
+  },
   catch: "出火から避難まで、数分しかない",
 
   seoTitle: "火事に備える｜防ぐ・逃げる・備えるの完全まとめ",
