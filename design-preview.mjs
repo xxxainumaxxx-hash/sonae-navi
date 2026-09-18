@@ -4,6 +4,7 @@ import {disclaimer} from './src/blocks.mjs';
 import {ICONS} from './src/theme.mjs';
 import {CATS,CAT_IDS} from './src/content/index.mjs';
 import {buildIntegratedNavi} from './src/integrated-navi.mjs';
+import { renderCompilationVideo } from './src/compilation-video.mjs';
 import { renderFeaturedProducts } from './src/featured-products.mjs';
 import {mkdirSync,writeFileSync,cpSync,readFileSync} from 'node:fs';
 import {LINKS,amz} from './src/config.mjs';
@@ -18,7 +19,7 @@ ${readFileSync('design-preview-gray.css','utf8')}${readFileSync('assets/legal-di
 <nav class="jump" aria-label="ページ内"><a href="#essentials"><small>01</small>まず備える ↘</a><a href="#stock"><small>02</small>備蓄をそろえる ↘</a><a href="#navi"><small>03</small>備え方を知る ↘</a></nav>
 ${renderFeaturedProducts()}
 <section class="stock-section" id="stock"><div class="wrap stock-layout"><div class="stock-intro"><span class="eyebrow">STOCK YOUR EVERYDAY / 02</span><h2>絶対備えるべき備蓄、<br>全部まとめ。</h2><p>水も、食料も、日用品も。<br>必要なものを、種類ごとにすっきり整理。<br>商品名から、そのまま買い物へ。<small class="stock-affiliate-note">（amazonアフィリエイトリンク）</small></p></div><div>${groups}</div></div></section>
-<section class="wrap" id="navi"><div class="navi-box"><div><span class="eyebrow">KNOW HOW TO PREPARE / 03</span><h2>備えナビ</h2><p>災害への備え方、逃げ方、備蓄の仕方。<br>知っておきたい防災知識を、ここに。</p></div><div class="navi-cats">${CAT_IDS.map(id=>[id,CATS[id].short || CATS[id].name]).map(([id,label])=>`<a href="/design-preview/navi/${id}/">${ICONS[CATS[id].icon]}<strong>${esc(label)}</strong><span>↗</span></a>`).join('')}</div><div class="navi-diagnosis"><a class="text-link" href="/design-preview/navi/shindan/">30秒でわかる、あなたの家に必要な量 →</a></div></div></section>
+<section class="wrap" id="navi"><div class="navi-box"><div><span class="eyebrow">KNOW HOW TO PREPARE / 03</span><h2>備えナビ</h2><p>災害への備え方、逃げ方、備蓄の仕方。<br>知っておきたい防災知識を、ここに。</p>${renderCompilationVideo()}</div><div class="navi-cats">${CAT_IDS.map(id=>[id,CATS[id].short || CATS[id].name]).map(([id,label])=>`<a href="/design-preview/navi/${id}/">${ICONS[CATS[id].icon]}<strong>${esc(label)}</strong><span>↗</span></a>`).join('')}</div><div class="navi-diagnosis"><a class="text-link" href="/design-preview/navi/shindan/">30秒でわかる、あなたの家に必要な量 →</a></div></div></section>
 <section class="about-section" id="about"><div class="wrap about-layout">
 <img class="about-img" src="/assets/niki-desk-glasses-v1.png" width="1536" height="1030" loading="lazy" alt="資料を読みながらパソコンで調べものをする備えニキのイラスト">
 <div class="about-copy">
