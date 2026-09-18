@@ -11,27 +11,17 @@ export const featuredProducts = [
  {tier:'中級',purpose:'容量と価格のバランス',brand:'Jackery',name:'1000 New ＋ 100W',sub:'電源1台＋ソーラーパネル1枚',asin:'B0D3HLP1NM',price:89668,spec:'1,070Wh ／ 定格1,500W',why:'スマホだけでなく、対応する家電にも使える容量を備えたい人に。',caution:'使用時間は機器によって異なります。家全体の電気をまかなうものではありません。'},
  {tier:'上級',purpose:'容量に余裕を持たせる',brand:'Jackery',name:'2000 New ＋ 200W',sub:'電源1台＋ソーラーパネル1枚',asin:'B0DBQCN7HZ',price:168948,spec:'2,042Wh ／ 定格2,200W',why:'使いたい機器が多い人や、より長い停電を見据えて容量を確保したい人に。',caution:'持ち運びの重さ・置き場所も確認。医療機器の非常電源としては個別確認が必要です。'}]}
 ];
-export function renderFeaturedProducts(){return `<section class="wrap" id="essentials">
-<div class="section-head"><div><span class="eyebrow">THE ESSENTIALS / 01</span><h2>まず備えたい、<br>この2つ。</h2></div><p>なぜ必要かを読んでから、<br>特徴の異なる3商品を比較。</p></div>
-${featuredProducts.map((group,i)=>`<div class="essential-block">
-<div class="essential-head">
-<span class="essential-thumb"><img src="/assets/${group.image}" width="1536" height="1024" loading="lazy" alt="${group.title}のカテゴリーイメージ"><small>※写真はイメージです</small></span>
-<span class="essential-title"><span class="eyebrow">0${i+1} / まず備える</span><strong>${group.title}</strong></span>
-</div>
-<div class="reason">
-<p class="reason-t">${group.reasonTitle}</p>
-<p class="reason-b">${group.reasonBody}</p>
-<p class="reason-n">${group.reasonNote}</p>
-</div>
-<details class="product-category" id="${group.id}">
-<summary class="category-toggle"><span class="when-closed">3商品を比較する</span><span class="when-open">閉じる</span><span class="toggle-icon" aria-hidden="true">＋</span></summary>
-<div class="category-content">
-<p class="reason-detail">${group.reasonDetail}</p>
-<p class="category-lead">${group.lead}</p>
-<p class="selection-fine">表示価格は各商品の記載日に確認した税込価格です。最新の価格・在庫・送料・セット内容は、それぞれの購入先で確認してください。</p>
-<div class="product-options">${group.items.map(item=>`<article class="product-option ${item.emphasis||item.tier==='中級'?'balanced':''}"><div class="tier"><span>${item.tier}</span><strong>${item.purpose}</strong></div><p class="product-brand">${item.brand}${item.href?' <span class="product-pr">PR</span>':''}</p><h4>${item.href?esc(item.name):`<a href="https://www.amazon.co.jp/dp/${item.asin}?tag=${AFF_TAG}" target="_blank" rel="noopener sponsored noreferrer">${esc(item.name)} <span>↗</span></a>`}</h4><p class="product-sub">${item.sub}</p><p class="product-price">¥${item.price.toLocaleString('ja-JP')}<small>${item.checkedAt||checkedAt}確認</small></p><p class="product-spec">${item.spec}</p><p class="product-why">${item.why}</p><p class="product-caution">${item.caution}</p>${group.id==='backpacks'?`<div class="product-purchase"><a class="product-buy" href="${item.href||`https://www.amazon.co.jp/dp/${item.asin}?tag=${AFF_TAG}`}" target="_blank" rel="nofollow noopener sponsored noreferrer">${item.linkText||'セット内容・価格を見る'}</a><small>${item.seller||'Amazon'}で内容・価格を確認 ↗</small></div>`:''}${item.pixel?`<img class="affiliate-pixel" border="0" width="1" height="1" src="${item.pixel}" alt="">`:''}</article>`).join('')}</div>
-<p class="selection-fine">${group.note}</p>
-<p class="category-image-note">カテゴリー画像はイメージです。掲載商品とは異なります。</p>
-</div>
-</details>
-</div>`).join('')}<p class="essentials-ad-note">広告（Amazonアソシエイト・A8.net）を含みます。リンク経由の購入により運営者が紹介料を受け取る場合があります。</p></section>`;}
+// Set videoId when each comparison video is published.
+const categoryCopy = {
+  backpacks: {catch: '持ち出す備えを、ひとまとめ。', guide: '中身と重さを確認し、常備薬や着替えを追加。自分が背負える量に調整しましょう。', videoId: null},
+  'solar-power': {catch: '停電の日も、必要な電気を。', guide: '使う機器の消費電力と起動時の電力で選びます。3商品ともソーラーパネル付き。充電量は天候によって変わります。', videoId: null}
+};
+export function renderFeaturedProducts(){return `<section class="wrap compact-essentials" id="essentials">
+<div class="section-head"><div><span class="eyebrow">THE ESSENTIALS / 01</span><h2>まず備えたい、この2つ。</h2></div></div>
+<div class="essentials-pair">${featuredProducts.map(group=>{
+const copy=categoryCopy[group.id];
+return `<article class="essentials-card" id="${group.id}">
+<header class="essentials-card-head"><img src="/assets/${group.image}" width="1536" height="1024" loading="lazy" alt="${group.title}のイメージ"><div><h3>${group.title}</h3><p>${copy.catch}</p><small>画像はイメージです</small></div></header>
+<div class="essentials-actions"><details class="essentials-video"><summary>▷ 動画を見る${copy.videoId?'':' <small>準備中</small>'}</summary><div class="essentials-video-body">${copy.videoId?`<iframe src="https://www.youtube-nocookie.com/embed/${esc(copy.videoId)}?playsinline=1&amp;rel=0" title="${group.title}の選び方" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`:'<p>選び方の動画を準備しています。公開後、ここで再生できます。</p>'}</div></details><details class="essentials-guide"><summary>選び方</summary><p>${copy.guide}</p></details></div>
+<div class="essentials-products">${group.items.map(item=>`<details class="essentials-product"><summary><span class="essentials-product-name">${esc(item.name)}${item.href?' <small>PR</small>':''}</span><span class="essentials-product-catch">${item.purpose}</span><span class="essentials-plus" aria-hidden="true">＋</span></summary><div class="essentials-product-body"><p class="essentials-spec">${item.sub} · ${item.spec}</p><p>${item.why}</p><p class="essentials-price">¥${item.price.toLocaleString('ja-JP')}<small>税込・${item.checkedAt||checkedAt}確認</small></p><p class="essentials-caution">${item.caution}</p><a class="essentials-buy" href="${item.href||`https://www.amazon.co.jp/dp/${item.asin}?tag=${AFF_TAG}`}" target="_blank" rel="nofollow noopener sponsored noreferrer">${item.linkText||'Amazonで内容・価格を見る ↗'}</a><small class="essentials-seller">購入先：${item.seller||'Amazon'}／最新の価格・送料・内容は購入先で確認</small>${item.pixel?`<img border="0" width="1" height="1" src="${item.pixel}" alt="">`:''}</div></details>`).join('')}</div>
+</article>`}).join('')}</div><p class="essentials-ad-note">広告（Amazonアソシエイト・A8.net）を含みます。</p></section>`;}
