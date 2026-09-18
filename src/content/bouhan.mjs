@@ -5,6 +5,11 @@ export default {
   icon: "bouhan",
   name: "防犯に備える",
   short: "防犯",
+  video: {
+    id: "gHsqnB1ryaA",
+    heading: "動画でわかる、家を守る防犯対策",
+    description: "窓や玄関の対策から、家に異変があったときの行動まで。動画でまとめて確認できます。",
+  },
   catch: "狙われる家には、理由がある",
 
   seoTitle: "防犯に備える｜空き巣に選ばれない家をつくる",

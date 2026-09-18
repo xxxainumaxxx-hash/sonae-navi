@@ -5,6 +5,11 @@ export default {
   icon: "teiden",
   name: "停電に備える",
   short: "停電",
+  video: {
+    id: "ks9u6HLjKLw",
+    heading: "動画でわかる、停電への備え",
+    description: "灯り・電源の準備から、電気が止まったあとの生活まで。動画でまとめて確認できます。",
+  },
   catch: "夏は熱中症、冬は低体温症に直結する",
 
   seoTitle: "停電に備える｜電源・灯り・調理・室温を電気なしで確保する",

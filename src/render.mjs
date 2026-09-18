@@ -69,6 +69,23 @@ const CALC_JS = `
 // 災害ページ（4ブロック構成）
 //   ①脅威 → ②未然に防ぐ → ③起きたらどうする → ④備えるモノ
 // ============================================================
+function guideVideo(video) {
+  return video ? `<section class="guide-video" aria-labelledby="guide-video-heading">
+    <h2 id="guide-video-heading">${esc(video.heading)}</h2>
+    <p>${esc(video.description)}</p>
+    <div class="guide-video-frame">
+      <iframe
+        src="https://www.youtube-nocookie.com/embed/${esc(video.id)}?playsinline=1&amp;rel=0"
+        title="${esc(video.heading)}"
+        loading="lazy"
+        referrerpolicy="strict-origin-when-cross-origin"
+        allow="encrypted-media; picture-in-picture; fullscreen"
+        allowfullscreen></iframe>
+    </div>
+    <a class="guide-video-external" href="https://www.youtube.com/watch?v=${esc(video.id)}" target="_blank" rel="noopener noreferrer">YouTubeで見る ↗</a>
+  </section>` : "";
+}
+
 export function renderDisaster(d) {
   const gearCount = d.gear.reduce((n, g) => n + g.items.length, 0);
 
@@ -129,20 +146,7 @@ ${prLabel()}
 </div></nav>
 
 <div class="wrap">
-  ${d.video ? `<section class="guide-video" aria-labelledby="guide-video-heading">
-    <h2 id="guide-video-heading">${esc(d.video.heading)}</h2>
-    <p>${esc(d.video.description)}</p>
-    <div class="guide-video-frame">
-      <iframe
-        src="https://www.youtube-nocookie.com/embed/${esc(d.video.id)}?playsinline=1&amp;rel=0"
-        title="${esc(d.video.heading)}"
-        loading="lazy"
-        referrerpolicy="strict-origin-when-cross-origin"
-        allow="encrypted-media; picture-in-picture; fullscreen"
-        allowfullscreen></iframe>
-    </div>
-    <a class="guide-video-external" href="https://www.youtube.com/watch?v=${esc(d.video.id)}" target="_blank" rel="noopener noreferrer">YouTubeで見る ↗</a>
-  </section>` : ""}
+  ${guideVideo(d.video)}
   <div class="steph" id="prevent">
     <span class="steph-n">1</span>
     <div><div class="steph-t">${esc(s1.t)}</div>
@@ -284,6 +288,7 @@ ${prLabel()}
 <nav class="bnav"><div class="bnav-in">${nav}</div></nav>
 
 <div class="wrap">
+  ${guideVideo(b.video)}
   ${cats}
 
 <section class="sect">
@@ -300,7 +305,7 @@ ${prLabel()}
     bareTitle: true,
     description: b.seoDesc,
     body,
-    extraCSS: CSS_DISASTER + CSS_BICHIKU,
+    extraCSS: CSS_DISASTER + CSS_BICHIKU + (b.video ? GUIDE_VIDEO_CSS : ""),
     crumb: [{ href: "/", label: "備えナビ" }, { label: b.name }],
     script: BICHIKU_JS,
     schema: {

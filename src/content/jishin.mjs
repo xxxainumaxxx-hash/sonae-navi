@@ -5,6 +5,11 @@ export default {
   icon: "jishin",
   name: "地震に備える",
   short: "地震",
+  video: {
+    id: "4MBmEBFn6GI",
+    heading: "動画でわかる、地震への備え",
+    description: "家具の固定から、揺れたときの行動とその後の暮らしまで。動画でまとめて確認できます。",
+  },
   catch: "揺れた瞬間より、その後が長い",
 
   seoTitle: "地震に備える｜家具の固定から1週間を生き延びるまで",

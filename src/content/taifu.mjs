@@ -5,6 +5,11 @@ export default {
   icon: "taifu",
   name: "台風・暴風に備える",
   short: "台風・暴風",
+  video: {
+    id: "G7z4-VR58kQ",
+    heading: "動画でわかる、台風・暴風への備え",
+    description: "接近前の家の対策から、停電への準備と通過後の行動まで。動画でまとめて確認できます。",
+  },
   catch: "何日も前から準備できる、唯一の災害",
 
   seoTitle: "台風・暴風に備える｜上陸2日前からやることの全手順",

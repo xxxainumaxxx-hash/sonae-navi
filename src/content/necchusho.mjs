@@ -5,6 +5,11 @@ export default {
   icon: "necchusho",
   name: "熱中症に備える",
   short: "熱中症",
+  video: {
+    id: "ahvKztbmDBs",
+    heading: "動画でわかる、熱中症への備え",
+    description: "室内や外出先での暑さ対策から、異変に気づいたときの行動まで。動画でまとめて確認できます。",
+  },
   catch: "室内で、寝ている間にも起きる",
 
   seoTitle: "熱中症に備える｜屋内での発症と、正しい応急処置",

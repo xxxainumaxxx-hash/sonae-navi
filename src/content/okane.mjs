@@ -5,6 +5,11 @@ export default {
   icon: "okane",
   name: "お金を備える",
   short: "お金",
+  video: {
+    id: "wDMh6_o22Xg",
+    heading: "動画でわかる、お金の備え",
+    description: "保険や書類の確認から、被災後の相談と生活再建への備えまで。動画でまとめて確認できます。",
+  },
   catch: "知らないと、1円も入ってこない",
   noBichikuLink: true,
 

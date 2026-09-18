@@ -5,6 +5,11 @@ export default {
   icon: "suigai",
   name: "水害に備える",
   short: "水害",
+  video: {
+    id: "vxndlqSh3UU",
+    heading: "動画でわかる、水害への備え",
+    description: "大雨への事前準備から、避難の判断と被害後の対応まで。動画でまとめて確認できます。",
+  },
   catch: "唯一、来るのが事前にわかる災害",
 
   seoTitle: "水害に備える｜警戒レベルの判断とハザードマップの読み方",

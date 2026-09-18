@@ -5,6 +5,11 @@ export default {
   icon: "ooyuki",
   name: "大雪・寒波に備える",
   short: "大雪・寒波",
+  video: {
+    id: "N_iLjCMIJYs",
+    heading: "動画でわかる、大雪・寒波への備え",
+    description: "立ち往生や凍結への準備から、寒さと停電への対策まで。動画でまとめて確認できます。",
+  },
   catch: "車の中と、屋根の上で人が死ぬ",
 
   seoTitle: "大雪・寒波に備える｜立ち往生と除雪事故を避ける",

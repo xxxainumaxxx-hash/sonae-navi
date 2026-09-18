@@ -5,6 +5,11 @@ export default {
   icon: "kaminari",
   name: "雷に備える",
   short: "雷",
+  video: {
+    id: "VXNgrTpzdKc",
+    heading: "動画でわかる、雷への備え",
+    description: "雷が近づいたときの避難から、家電やデータを守る準備まで。動画でまとめて確認できます。",
+  },
   catch: "音が聞こえた時点で、もう射程内",
 
   seoTitle: "雷に備える｜安全な場所の見分け方と家電を守る方法",

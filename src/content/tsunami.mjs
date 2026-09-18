@@ -5,6 +5,11 @@ export default {
   icon: "tsunami",
   name: "津波に備える",
   short: "津波",
+  video: {
+    id: "YHHL2lHTahM",
+    heading: "動画でわかる、津波への備え",
+    description: "避難先や経路の確認から、揺れや警報を受けたときの行動まで。動画でまとめて確認できます。",
+  },
   catch: "揺れたら、警報を待たずに高い所へ",
 
   seoTitle: "津波に備える｜揺れたら即避難、その判断を先に決めておく",

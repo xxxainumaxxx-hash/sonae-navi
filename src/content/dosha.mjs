@@ -5,6 +5,11 @@ export default {
   icon: "dosha",
   name: "土砂災害に備える",
   short: "土砂災害",
+  video: {
+    id: "ee_t2tmDlC8",
+    heading: "動画でわかる、土砂災害への備え",
+    description: "危険区域の確認から、早めの避難と必要な備えまで。動画でまとめて確認できます。",
+  },
   catch: "前兆に気づけるかどうかが分かれ目",
 
   seoTitle: "土砂災害に備える｜前兆現象と避難のタイミング",

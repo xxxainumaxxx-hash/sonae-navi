@@ -5,6 +5,11 @@ export default {
   icon: "neage",
   name: "値上げに備える",
   short: "値上げ",
+  video: {
+    id: "yUCQ88btrOU",
+    heading: "動画でわかる、値上げへの備え",
+    description: "買いすぎない備蓄と在庫管理、生活費の見直しまで。動画でまとめて確認できます。",
+  },
   catch: "備蓄と家計防衛は、同じ行動",
   noBichikuLink: true,
 
