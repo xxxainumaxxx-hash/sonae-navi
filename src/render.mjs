@@ -10,6 +10,11 @@ const GUIDE_VIDEO_CSS = `
 .guide-video p{margin:0 0 20px;color:var(--muted);font-size:14px;line-height:1.9}
 .guide-video-frame{position:relative;aspect-ratio:16/9;background:#17191c;overflow:hidden;border-radius:5px}
 .guide-video-frame iframe{display:block;width:100%;height:100%;border:0}
+.guide-video-poster{position:absolute;inset:0;width:100%;height:100%;padding:0;border:0;background:#17191c;cursor:pointer}
+.guide-video-poster img{display:block;width:100%;height:100%;object-fit:cover}
+.guide-video-play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:grid;place-items:center;width:72px;height:50px;border-radius:12px;background:#16191de6;color:white;font-size:25px;padding-left:3px;box-shadow:0 2px 12px #0003}
+.guide-video-poster:hover .guide-video-play{background:#c00}
+.guide-video-poster:focus-visible{outline:3px solid #c3a15c;outline-offset:-4px}
 .guide-video-external{display:inline-block;margin-top:14px;font-size:13px;text-underline-offset:4px}
 .guide-video-external:focus-visible{outline:2px solid currentColor;outline-offset:4px}
 @media(max-width:480px){.guide-video{padding:16px}}
@@ -74,14 +79,12 @@ function guideVideo(video) {
     <h2 id="guide-video-heading">${esc(video.heading)}</h2>
     <p>${esc(video.description)}</p>
     <div class="guide-video-frame">
-      <iframe
-        src="https://www.youtube-nocookie.com/embed/${esc(video.id)}?playsinline=1&amp;rel=0"
-        title="${esc(video.heading)}"
-        loading="lazy"
-        referrerpolicy="strict-origin-when-cross-origin"
-        allow="encrypted-media; picture-in-picture; fullscreen"
-        allowfullscreen></iframe>
+      <button class="guide-video-poster" type="button" data-video-id="${esc(video.id)}" aria-label="${esc(video.heading)}を再生">
+        <img src="/assets/video-thumbnails/${esc(video.id)}.jpg" width="1280" height="720" loading="lazy" alt="${esc(video.heading)}のサムネイル">
+        <span class="guide-video-play" aria-hidden="true">▶</span>
+      </button>
     </div>
+    <script src="/assets/guide-video.js" defer></script>
     <a class="guide-video-external" href="https://www.youtube.com/watch?v=${esc(video.id)}" target="_blank" rel="noopener noreferrer">YouTubeで見る ↗</a>
   </section>` : "";
 }
