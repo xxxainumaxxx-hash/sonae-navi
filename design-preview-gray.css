@@ -192,3 +192,5 @@ footer{background:#e9ebed;color:#555b61;border-top:1px solid #d9dde0}.foot-top .
   .about-copy h2{font-size:23px;margin-bottom:16px}
   .about-copy p{font-size:14px;line-height:1.98}
 }
+
+.product-pr{font-size:10px;letter-spacing:0;border:1px solid #b8bdc2;border-radius:3px;padding:2px 5px;margin-left:6px}.product-purchase{margin-top:18px}.product-buy{display:flex;align-items:center;justify-content:center;min-height:58px;padding:10px 12px;border:1px solid #454b51;border-radius:5px;background:#fff;color:#292d32;font-size:12px;font-weight:700;line-height:1.7;text-align:center;text-decoration:none}.balanced .product-buy{background:#292d32;color:#fff}.product-buy:hover{background:#edf0f2;color:#292d32}.product-purchase>small{display:block;text-align:center;font-size:10px;color:#62666b;margin-top:7px}.affiliate-pixel{width:1px;height:1px;border:0}
