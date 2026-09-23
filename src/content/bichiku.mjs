@@ -13,8 +13,8 @@ export default {
   name: "備蓄する",
   short: "備蓄",
   video: {
-    id: "4bfzQgx1wGU",
-    heading: "動画でわかる、防災備蓄の基本",
+    id: "PeAtGFAFbZY",
+    heading: "動画で確認｜備蓄10分野の完全版",
     description: "水・食料・トイレから、薬・電源・持ち出し袋まで。暮らしを続けるための備えを動画で確認できます。",
   },
   catch: "全災害に効く、唯一の備え",
