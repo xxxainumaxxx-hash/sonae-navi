@@ -292,6 +292,17 @@ ${prLabel()}
 
 <div class="wrap">
   ${guideVideo(b.video)}
+  <section class="sect" aria-labelledby="note-reading">
+    <span class="eyebrow">READ / 被災の現実から備える</span>
+    <h2 id="note-reading" class="h2">「なぜ必要か」を、実際の被災から読む</h2>
+    <p>買い物の前に、断水・停電・在宅避難で生活がどう止まるのかを知ると、家に必要な備えの優先順位が見えてきます。</p>
+    <div class="check-grid" style="margin-top:18px">
+      <a class="tile" href="https://note.com/ainuma/n/nac7a9e87d2ed" target="_blank" rel="noopener noreferrer"><div class="tile-n">断水とトイレ</div><div class="tile-c">断水で一番困ったのは、水ではなかった。トイレだった</div></a>
+      <a class="tile" href="https://note.com/ainuma/n/n83d9cc00e5eb" target="_blank" rel="noopener noreferrer"><div class="tile-n">停電と電源</div><div class="tile-c">停電の夜、スマホの電池が切れると家族が孤立する</div></a>
+      <a class="tile" href="https://note.com/ainuma/n/n13fd6f8ebd0f" target="_blank" rel="noopener noreferrer"><div class="tile-n">在宅避難</div><div class="tile-c">避難所へ行けない夜、家で過ごすために足りなかったもの</div></a>
+    </div>
+    <p style="margin-top:18px"><a class="text-link" href="https://note.com/ainuma" target="_blank" rel="noopener noreferrer">備えニキのnoteをすべて読む ↗</a></p>
+  </section>
   ${cats}
 
 <section class="sect">

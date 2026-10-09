@@ -19,6 +19,7 @@ export const LINKS = {
   youtube: "https://www.youtube.com/@sonaeniki",
   instagram: "https://www.instagram.com/sonaeniki",
   tiktok: "https://www.tiktok.com/@sonaeniki",
+  note: "https://note.com/ainuma",
   amazonList: "https://amzn.asia/d/09QQw4zM",
 };
 

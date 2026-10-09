@@ -118,6 +118,7 @@ ${body}
     <div class="ft-sns">
       <a href="${LINKS.youtube}" target="_blank" rel="noopener noreferrer">YouTube</a>
       <a href="${LINKS.instagram}" target="_blank" rel="noopener noreferrer">Instagram</a>
+      <a href="${LINKS.note}" target="_blank" rel="noopener noreferrer">note</a>
     </div>
     <p class="ft-fine">
       本サイトの情報は一般的な防災の目安であり、個別の状況における安全を保証するものではありません。
