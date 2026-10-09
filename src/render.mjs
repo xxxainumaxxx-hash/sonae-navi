@@ -298,7 +298,7 @@ ${prLabel()}
     <p>買い物の前に、断水・停電・在宅避難で生活がどう止まるのかを知ると、家に必要な備えの優先順位が見えてきます。</p>
     <div class="check-grid" style="margin-top:18px">
       <a class="tile" href="https://note.com/ainuma/n/nfe2a160bf590" target="_blank" rel="noopener noreferrer"><div class="tile-n">能登半島地震とトイレ</div><div class="tile-c">断水より先に生活を止めたもの──トイレの現実から備蓄を考える</div></a>
-      <a class="tile" href="https://note.com/ainuma/n/n83d9cc00e5eb" target="_blank" rel="noopener noreferrer"><div class="tile-n">停電と電源</div><div class="tile-c">停電の夜、スマホの電池が切れると家族が孤立する</div></a>
+      <a class="tile" href="https://note.com/ainuma/n/nd60bed7fba72" target="_blank" rel="noopener noreferrer"><div class="tile-n">能登半島地震と停電</div><div class="tile-c">約4万戸が止まった夜、家で必要だった備え</div></a>
       <a class="tile" href="https://note.com/ainuma/n/n13fd6f8ebd0f" target="_blank" rel="noopener noreferrer"><div class="tile-n">在宅避難</div><div class="tile-c">避難所へ行けない夜、家で過ごすために足りなかったもの</div></a>
     </div>
     <p style="margin-top:18px"><a class="text-link" href="https://note.com/ainuma" target="_blank" rel="noopener noreferrer">備えニキのnoteをすべて読む ↗</a></p>
