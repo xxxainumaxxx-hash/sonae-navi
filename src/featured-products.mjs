@@ -18,11 +18,11 @@ const categoryCopy = {
 };
 export function renderFeaturedProducts(){return `<section class="wrap compact-essentials" id="essentials">
 <div class="section-head"><div><span class="eyebrow">THE ESSENTIALS / 01</span><h2>まず備えたい、この2つ。</h2></div></div>
-<p class="essentials-pr-label">広告・PR</p>
+<p class="essentials-pr-label">※広告を含みます</p>
 <div class="essentials-pair">${featuredProducts.map(group=>{
 const copy=categoryCopy[group.id];
 return `<article class="essentials-card" id="${group.id}">
 <header class="essentials-card-head"><img src="/assets/${group.image}" width="1536" height="1024" loading="lazy" alt="${group.title}のイメージ"><div><h3>${group.title}</h3><p>${copy.catch}</p><small>画像はイメージです</small></div></header>
 <div class="essentials-actions"><details class="essentials-video"><summary>▷ 比較動画を見る${copy.videoId?'':' <small>準備中</small>'}</summary><div class="essentials-video-body">${copy.videoId?`<div class="essentials-video-frame"><button class="guide-video-poster" type="button" data-video-id="${esc(copy.videoId)}" aria-label="${esc(group.title)}の選び方を再生"><img src="/assets/${group.id}-video-poster.jpg" width="1920" height="1080" loading="lazy" alt="${esc(group.title)}の比較動画"><span class="guide-video-play" aria-hidden="true">▶</span></button></div><a class="essentials-video-external" href="https://www.youtube.com/watch?v=${esc(copy.videoId)}" target="_blank" rel="noopener noreferrer">YouTubeで見る ↗</a>`:'<p>選び方の動画を準備しています。公開後、ここで再生できます。</p>'}</div></details><details class="essentials-guide"><summary>選び方</summary><p>${copy.guide}</p></details></div>
 <div class="essentials-products">${group.items.map(item=>`<details class="essentials-product"><summary><span class="essentials-product-name">${esc(item.name)}</span><span class="essentials-product-catch">${item.purpose}</span><span class="essentials-plus" aria-hidden="true">＋</span></summary><div class="essentials-product-body"><p class="essentials-spec">${item.sub} · ${item.spec}</p><p>${item.why}</p><p class="essentials-price">¥${item.price.toLocaleString('ja-JP')}<small>税込・${item.checkedAt||checkedAt}確認</small></p><p class="essentials-caution">${item.caution}</p><a class="essentials-buy" href="${item.href||`https://www.amazon.co.jp/dp/${item.asin}?tag=${AFF_TAG}`}" target="_blank" rel="nofollow noopener sponsored noreferrer">${item.linkText||'Amazonで内容・価格を見る ↗'}</a><small class="essentials-seller">購入先：${item.seller||'Amazon'}／最新の価格・送料・内容は購入先で確認</small>${item.pixel?`<img border="0" width="1" height="1" src="${item.pixel}" alt="">`:''}</div></details>`).join('')}</div>
-</article>`}).join('')}</div><p class="essentials-ad-note">広告（Amazonアソシエイト・A8.net）を含みます。</p></section>`;}
+</article>`}).join('')}</div><p class="essentials-ad-note">※一部リンクは広告を含みます</p></section>`;}

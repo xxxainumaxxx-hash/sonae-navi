@@ -10,6 +10,7 @@ const NAV = [
   { href: "/kaji/", label: "火事" },
   { href: "/suigai/", label: "水害" },
   { href: "/shindan/", label: "診断" },
+  { href: LINKS.note, label: "読みもの", external: true },
 ];
 
 const FOOT_NAV = [
@@ -100,7 +101,7 @@ ${ld}
       <span class="hd-sub">by 備えニキ</span>
     </a>
     <nav class="hd-nav">
-      ${NAV.map((n) => `<a href="${n.href}">${esc(n.label)}</a>`).join("")}
+      ${NAV.map((n) => `<a href="${n.href}"${n.external ? ' target="_blank" rel="noopener noreferrer"' : ''}>${esc(n.label)}</a>`).join("")}
     </nav>
   </div>
 </header>
@@ -124,7 +125,7 @@ ${body}
       本サイトの情報は一般的な防災の目安であり、個別の状況における安全を保証するものではありません。
       避難の判断は必ず自治体の発表とハザードマップに従ってください。
       体調に関する記述は医療行為の指示ではありません。最終的な判断はご自身の責任でお願いします。<br>
-      当サイトはAmazonアソシエイト・A8.netのアフィリエイトプログラムを利用しています。
+      当サイトは広告を含みます（Amazonアソシエイト・A8.netを利用）。
       <a href="/disclaimer/" style="color:#C9D6E3;text-decoration:underline">免責事項</a><br>
       © ${new Date().getFullYear()} 備えニキ
     </p>

@@ -142,7 +142,7 @@ export const shops = () =>
 
 // ── 広告表記（ページ上部・ステマ規制対応）
 export const prLabel = () =>
-  `<p class="pr">本ページにはアフィリエイト広告（Amazonアソシエイト）を含みます。</p>`;
+  `<p class="pr">広告を含みます（Amazonアソシエイトを利用）。</p>`;
 
 // ── 免責（ページ下部）
 export const disclaimer = (extra = "") =>
