@@ -16,8 +16,8 @@ const categoryCopy = {
   backpacks: {catch: '持ち出す備えを、ひとまとめ。', guide: '中身と重さを確認し、常備薬や着替えを追加。自分が背負える量に調整しましょう。', videoId: '2i616sQ8l9w'},
   'solar-power': {catch: '停電の日も、必要な電気を。', guide: '使う機器の消費電力と起動時の電力で選びます。3商品ともソーラーパネル付き。充電量は天候によって変わります。', videoId: '95yacCMgUkU'}
 };
-export function renderFeaturedProducts(){return `<section class="wrap compact-essentials" id="essentials">
-<div class="section-head"><div><span class="eyebrow">THE ESSENTIALS / 01</span><h2>まず備えたい、この2つ。</h2></div></div>
+export function renderFeaturedProducts(){return `<section class="wrap compact-essentials" id="extra-preparation">
+<div class="section-head"><div><span class="eyebrow">NEXT STEP</span><h2>基本の備蓄が揃ったら。</h2></div></div>
 <p class="essentials-pr-label">※広告を含みます</p>
 <div class="essentials-pair">${featuredProducts.map(group=>{
 const copy=categoryCopy[group.id];
