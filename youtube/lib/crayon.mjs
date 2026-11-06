@@ -81,18 +81,18 @@ function hatchPatterns() {
       <line x1="0" y1="3" x2="13" y2="3" stroke="${c}" stroke-width="7" stroke-linecap="round"/></pattern>`).join('');
 }
 
-export function paper() {
-  let s = `<rect width="1920" height="1080" fill="${C.paper}"/>`;
+export function paper(W = 1920, H = 1080) {
+  let s = `<rect width="${W}" height="${H}" fill="${C.paper}"/>`;
   if (T.bg === 'notebook') {
-    for (let y = 120; y < 1080; y += 64) s += `<line x1="0" y1="${y}" x2="1920" y2="${y}" stroke="#9cc3e4" stroke-width="2"/>`;
-    s += `<line x1="150" y1="0" x2="150" y2="1080" stroke="#e79a9a" stroke-width="3"/>`;
+    for (let y = 120; y < H; y += 64) s += `<line x1="0" y1="${y}" x2="${W}" y2="${y}" stroke="#9cc3e4" stroke-width="2"/>`;
+    s += `<line x1="150" y1="0" x2="150" y2="${H}" stroke="#e79a9a" stroke-width="3"/>`;
   }
   if (T.bg === 'board') {
-    s += `<rect width="1920" height="1080" filter="url(#paper)" opacity="0.9"/>`;
-    s += `<rect x="0" y="0" width="1920" height="1080" fill="none" stroke="#7a5a3a" stroke-width="40"/>`;
+    s += `<rect width="${W}" height="${H}" filter="url(#paper)" opacity="0.9"/>`;
+    s += `<rect x="0" y="0" width="${W}" height="${H}" fill="none" stroke="#7a5a3a" stroke-width="40"/>`;
     return s;
   }
-  return s + `<rect width="1920" height="1080" filter="url(#paper)"/>`;
+  return s + `<rect width="${W}" height="${H}" filter="url(#paper)"/>`;
 }
 
 // ---------- パス生成 ----------

@@ -16,7 +16,12 @@ if (!epId) { console.error('例: node animate.mjs 03-nintendo'); process.exit(1)
 const ci = process.argv.indexOf('--check');
 const checkEvery = ci > 0 ? parseFloat(process.argv[ci + 1] || '4') : 0;
 const ep = await import(pathToFileURL(path.join(ROOT, 'episodes', `${epId}.mjs`)));
-const FPS = 12, LEAD = 0.35, TAIL = 0.6;
+const FPS = 12;
+// ショート：縦型・前後の間ゼロ・無音カット。ロング：横型
+const SHORT = ep.meta.format === 'short';
+const W = SHORT ? 1080 : 1920, H = SHORT ? 1920 : 1080;
+const LEAD = SHORT ? 0.05 : 0.35, TAIL = SHORT ? 0.15 : 0.6;
+const CPS = SHORT ? 8.5 : 7.5; // 声が無いときの読む速さ（文字/秒）
 const OUT = path.join(ROOT, 'out', epId), FR = path.join(OUT, checkEvery ? 'check' : 'anim');
 const VOICE = path.join(ROOT, 'voice', epId);
 fs.rmSync(FR, { recursive: true, force: true });
@@ -31,10 +36,17 @@ fs.writeFileSync(path.join(VOICE, 'script.txt'), `${ep.meta.title}\n場面ごと
 // ---------- タイムライン（声の長さ or 文字数から） ----------
 let T0 = 0;
 const tl = ep.scenes.map((sc, i) => {
-  const voice = path.join(VOICE, `${pad(i + 1)}.mp3`);
+  let voice = path.join(VOICE, `${pad(i + 1)}.mp3`);
   const has = fs.existsSync(voice);
+  if (has && SHORT) {
+    // 0.3秒以上の無音（息継ぎ・間）をすべて詰める
+    const tight = path.join(OUT, `_tight${pad(i + 1)}.wav`);
+    sh('ffmpeg', ['-y', '-v', 'error', '-i', voice, '-af',
+      'silenceremove=start_periods=1:start_threshold=-45dB:stop_periods=-1:stop_duration=0.3:stop_threshold=-45dB', tight]);
+    voice = tight;
+  }
   const chars = sc.narration.map((t) => t.length), total = chars.reduce((a, c) => a + c, 0);
-  const speech = has ? parseFloat(sh('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', voice]).toString()) : total / 7.5;
+  const speech = has ? parseFloat(sh('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', voice]).toString()) : total / CPS;
   const d = LEAD + speech + TAIL;
   const subs = []; let t = LEAD;
   sc.narration.forEach((line, k) => { const len = (chars[k] / total) * speech; subs.push({ line, from: t, to: t + len }); t += len; });
@@ -78,17 +90,24 @@ function frameHtml(f) {
   const t = gt - s.start;
   const ctx = { d: s.d, mouth: mouthAt(s, t), at: (k) => s.subs[Math.min(k, s.subs.length - 1)].from, subs: s.subs };
   const boil = Math.floor(f / 3) % 3; // 1秒4回の線ゆれ
-  const art = svgDoc(defs(boil) + paper() + s.sc.draw(t, ctx));
+  const art = svgDoc(defs(boil) + paper(W, H) + s.sc.draw(t, ctx), W, H);
+  const telop = ep.meta.telop ? `<div class="telop">${ep.meta.telop}</div>` : '';
   const sub = s.subs.find((u) => t >= (u === s.subs[0] ? 0 : u.from) && t < u.to + (u === s.subs[s.subs.length - 1] ? TAIL : 0));
-  return art + (sub ? `<div class="sub"><span>${sub.line}</span></div>` : '');
+  return art + telop + (sub ? `<div class="sub"><span>${sub.line}</span></div>` : '');
 }
 
-const W = Math.max(1, Math.min(4, os.cpus().length - 1));
-console.log(`${ep.meta.title}：${TOTAL.toFixed(1)}秒 / ${frames.length}コマ / 並列${W}`);
+const NW = Math.max(1, Math.min(4, os.cpus().length - 1));
+console.log(`${ep.meta.title}：${TOTAL.toFixed(1)}秒 / ${frames.length}コマ / 並列${NW} / ${W}x${H}`);
 let done = 0;
-await Promise.all(Array.from({ length: W }, async (_, w) => {
-  const { shot, close } = await openShooter(ROOT, path.join(OUT, `_w${w}`));
-  for (let k = w; k < frames.length; k += W) {
+const CSS = SHORT
+  // 縦：字幕は下のボタン類を避けて中央より下、上部に固定テロップ
+  ? `.sub{bottom:560px}.sub span{font-size:62px;max-width:960px}
+     .telop{position:absolute;left:40px;right:40px;top:150px;padding:22px 10px;text-align:center;background:#2b2622;color:#ffd84a;
+       font-family:'Zen Maru Gothic';font-weight:900;font-size:66px;line-height:1.25;border-radius:26px}`
+  : '';
+await Promise.all(Array.from({ length: NW }, async (_, w) => {
+  const { shot, close } = await openShooter(ROOT, path.join(OUT, `_w${w}`), { w: W, h: H, css: CSS });
+  for (let k = w; k < frames.length; k += NW) {
     const f = frames[k];
     await shot(frameHtml(f), path.join(FR, checkEvery ? `t${pad(Math.round(f / FPS), 3)}.png` : `f${pad(f, 5)}.png`));
     if (++done % 60 === 0) console.log(`  ${done}/${frames.length}`);
