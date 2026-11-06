@@ -43,7 +43,7 @@ for (const [i, sc] of ep.scenes.entries()) {
   const n = pad(i + 1);
   for (let b = 0; b < BOILS; b++) {
     seed(1000 + i * 17); // 同じ場面は同じ形、ゆれだけ変える
-    const svg = svgDoc(`${defs(b)}${paper()}${sc.draw()}`);
+    const svg = svgDoc(ep.renderFrame ? ep.renderFrame(sc, b, i) : `${defs(b)}${paper()}${sc.draw()}`);
     await shot(svg, path.join(OUT, 'frames', `${n}_b${b}.png`));
     if (stillsOnly) break;
   }
