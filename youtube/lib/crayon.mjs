@@ -11,6 +11,14 @@ function rnd() {
   return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
 }
 const j = (a) => (rnd() * 2 - 1) * a; // ±a のゆらぎ
+// 形（座標）から乱数の種を決める：同じ形なら毎コマ同じ線、動いた部分だけ描き直される（手描きアニメと同じ）
+let _salt = 0;
+export function salt(n) { _salt = n | 0; }
+function hseed(...nums) {
+  let h = 2166136261 ^ _salt;
+  for (const v of nums.flat(3)) { h = Math.imul(h ^ Math.round((+v || 0) * 10), 16777619); }
+  _seed = (h >>> 0) || 1;
+}
 
 // ---------- 色（クレヨン12色くらいのイメージ） ----------
 export const C = {
@@ -124,6 +132,7 @@ const strokeAttr = (color, w) =>
 // ---------- 基本図形 ----------
 // 折れ線（クレヨンで2回なぞる）
 export function line(pts, { color = C.ink, w = 7, amp = 2.5, passes = 2 } = {}) {
+  hseed(pts, w);
   let s = '';
   for (let k = 0; k < passes; k++) {
     s += `<path d="${toPath(shaky(pts, amp))}" ${strokeAttr(color, k ? w * 0.75 : w)} opacity="${k ? 0.75 : 1}"/>`;
@@ -154,6 +163,7 @@ function fillPath(d, color, opacity = T.fillOpacity) {
 }
 
 export function ellipse(cx, cy, rx, ry, { fill, color = C.ink, w = 7, wob } = {}) {
+  hseed(cx, cy, rx, ry, w);
   let s = '';
   if (fill) s += fillPath(toPath(ellipsePts(cx + j(5), cy + j(5), rx, ry, 18, wob ?? 0.03), true), fill);
   if (color === null) return s; // 塗りだけ
@@ -165,6 +175,7 @@ export function ellipse(cx, cy, rx, ry, { fill, color = C.ink, w = 7, wob } = {}
 }
 
 export function poly(pts, { fill, color = C.ink, w = 7, amp = 2.5, closed = true } = {}) {
+  hseed(pts, w, 7);
   let s = '';
   const all = closed ? [...pts, pts[0]] : pts;
   if (fill) s += fillPath(toPath(shaky(all, amp * 1.5)) + (closed ? 'Z' : ''), fill);
