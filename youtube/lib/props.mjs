@@ -13,7 +13,7 @@ export function sonae({ x, y, s = 1, expr = 'smile', pose = 'point', flip = fals
   b += line([[0, -186], [0, -70]], { w: 4, color: C.dark });
   // 腕
   const L = [-66, -175], R = [66, -175];
-  const hand = (hx, hy) => ellipse(hx, hy, 17, 17, { fill: '#f7d7b5', w: 6 });
+  const hand = (hx, hy) => ellipse(hx, hy, 17, 17, { fill: C.skin, w: 6 });
   if (pose === 'point') {
     b += line([L, [-100, -110], [-92, -82]], { w: 9 }) + hand(-92, -78);
     b += line([R, [140, -230], [175, -265]], { w: 9 }) + hand(178, -268);
@@ -33,7 +33,7 @@ export function sonae({ x, y, s = 1, expr = 'smile', pose = 'point', flip = fals
     b += line([R, [96, -110], [90, -80]], { w: 9 }) + hand(90, -76);
   }
   // 頭
-  b += ellipse(0, -275, 82, 78, { fill: '#f7d7b5' });
+  b += ellipse(0, -275, 82, 78, { fill: C.skin });
   // ほっぺ
   b += ellipse(-48, -250, 15, 9, { fill: C.pink, color: null });
   b += ellipse(48, -250, 15, 9, { fill: C.pink, color: null });
@@ -180,3 +180,57 @@ export function question(x, y, s = 1, color = C.blue) {
 }
 
 export { sparkles };
+
+// ---------- 候補キャラ：備えるリス「リスケ」 ----------
+// どんぐりを貯めこむ＝備蓄の象徴。helmet:true で防災ヘルメット付き
+export function risu({ x, y, s = 1, expr = 'smile', pose = 'hold', helmet = false, flip = false } = {}) {
+  let b = '';
+  // しっぽ（体の後ろで大きくくるん）
+  b += poly([[40, -60], [130, -80], [190, -160], [205, -260], [180, -350], [120, -395], [62, -380],
+    [42, -335], [70, -305], [112, -300], [125, -250], [110, -190], [70, -140], [35, -115]], { fill: C.fur, amp: 3 });
+  b += line([[150, -130], [175, -230], [160, -320], [118, -350]], { w: 4, color: C.furDark });
+  // 足
+  b += ellipse(-38, -10, 30, 14, { fill: C.furDark }) + ellipse(38, -10, 30, 14, { fill: C.furDark });
+  // 体
+  b += ellipse(0, -110, 82, 100, { fill: C.fur });
+  b += ellipse(0, -95, 50, 70, { fill: C.cream, color: null });
+  // 耳
+  if (!helmet) {
+    b += ellipse(-52, -330, 22, 32, { fill: C.fur }) + ellipse(52, -330, 22, 32, { fill: C.fur });
+    b += ellipse(-52, -326, 10, 17, { fill: C.pink, color: null }) + ellipse(52, -326, 10, 17, { fill: C.pink, color: null });
+  }
+  // 頭
+  b += ellipse(0, -255, 88, 76, { fill: C.fur });
+  b += ellipse(0, -232, 52, 40, { fill: C.cream, color: null });
+  if (helmet) {
+    b += poly([[-90, -272], [-82, -322], [-48, -355], [0, -366], [48, -355], [82, -322], [90, -272]], { fill: C.yellow });
+    b += line([[-104, -270], [104, -270]], { w: 10 });
+    b += rect(-16, -345, 32, 30, { fill: C.white, w: 4 });
+    b += line([[0, -339], [0, -321]], { w: 6, color: C.green, passes: 1 }) + line([[-9, -330], [9, -330]], { w: 6, color: C.green, passes: 1 });
+  }
+  // 顔
+  if (expr === 'wow') {
+    b += ellipse(-32, -255, 13, 16, { fill: C.white, w: 6 }) + ellipse(32, -255, 13, 16, { fill: C.white, w: 6 });
+    b += ellipse(0, -212, 12, 14, { fill: C.dark, w: 5 });
+  } else if (expr === 'think') {
+    b += ellipse(-32, -255, 7, 8, { fill: C.ink, w: 5 }) + ellipse(32, -255, 7, 8, { fill: C.ink, w: 5 });
+    b += line([[-12, -212], [14, -215]], { w: 5 });
+  } else {
+    b += ellipse(-32, -255, 8, 9, { fill: C.ink, w: 5 }) + ellipse(32, -255, 8, 9, { fill: C.ink, w: 5 });
+    b += line([[-16, -214], [0, -205], [16, -214]], { w: 5 });
+  }
+  b += ellipse(0, -230, 9, 6, { fill: C.dark, w: 4 });
+  b += ellipse(-58, -225, 14, 9, { fill: C.pink, color: null }) + ellipse(58, -225, 14, 9, { fill: C.pink, color: null });
+  // どんぐり（手に持つ）
+  if (pose === 'hold') {
+    b += ellipse(0, -140, 34, 40, { fill: C.brown });
+    b += poly([[-38, -170], [38, -170], [30, -192], [-30, -192]], { fill: C.furDark, w: 5 });
+    b += line([[0, -192], [4, -206]], { w: 5 });
+    b += ellipse(-40, -150, 16, 14, { fill: C.fur, w: 5 }) + ellipse(40, -150, 16, 14, { fill: C.fur, w: 5 });
+  } else if (pose === 'point') {
+    b += ellipse(-60, -130, 16, 14, { fill: C.fur, w: 5 });
+    b += line([[60, -170], [130, -230]], { w: 9 }) + ellipse(136, -236, 16, 14, { fill: C.fur, w: 5 });
+  }
+  const t = `translate(${x} ${y}) scale(${flip ? -s : s} ${s})`;
+  return `<g transform="${t}">${b}</g>`;
+}

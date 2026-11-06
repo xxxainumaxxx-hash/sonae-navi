@@ -4,15 +4,13 @@
 //
 // 声：voice/<話ID>/01.mp3, 02.mp3 ... を置くと自動で合成。
 //     無い場面は文字数から長さを推定して無音で作る（仮動画）。
-import { createRequire } from 'node:module';
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL, fileURLToPath } from 'node:url';
-import { defs, paper, seed } from './lib/crayon.mjs';
+import { defs, paper, seed, setTheme } from './lib/crayon.mjs';
+import { openShooter, svgDoc } from './lib/shot.mjs';
 
-const require = createRequire(import.meta.url);
-const { chromium } = require('playwright');
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 
 const epId = process.argv[2];
@@ -37,39 +35,15 @@ fs.writeFileSync(path.join(VOICE, 'script.txt'),
   `${ep.meta.title}\n場面ごとに音声を作って、【】のファイル名でこのフォルダに保存してください。\n\n${scriptTxt}`);
 
 // ---------- 絵と字幕を PNG に ----------
-const fontCss = ['@fontsource/yomogi/japanese-400.css', '@fontsource/zen-maru-gothic/japanese-700.css',
-  '@fontsource/zen-maru-gothic/japanese-900.css', '@fontsource/zen-maru-gothic/latin-700.css',
-  '@fontsource/zen-maru-gothic/latin-900.css', '@fontsource/yomogi/latin-400.css']
-  .map((p) => `<link rel="stylesheet" href="${pathToFileURL(path.join(ROOT, 'node_modules', p))}">`).join('');
-const shell = path.join(OUT, '_shell.html');
-fs.writeFileSync(shell, `<!doctype html><meta charset="utf-8">${fontCss}
-<style>html,body{margin:0;width:1920px;height:1080px;overflow:hidden;background:transparent}
-.sub{position:absolute;left:0;right:0;bottom:46px;text-align:center}
-.sub span{font-family:'Zen Maru Gothic';font-weight:700;font-size:54px;line-height:1.35;color:#fff;
- -webkit-text-stroke:14px #2b2622;paint-order:stroke fill;display:inline-block;max-width:1640px}</style>
-<body><div id="root"></div>`);
-
-const browser = await chromium.launch();
-const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } });
-await page.goto(pathToFileURL(shell).href);
-async function shot(html, file, transparent = false) {
-  await page.evaluate((h) => { document.getElementById('root').innerHTML = h; }, html);
-  await page.evaluate(async () => {
-    // 使っている文字のフォントを全部読み込んでから撮る
-    const txt = document.body.innerText + [...document.querySelectorAll('text')].map((t) => t.textContent).join('');
-    await Promise.all(["400 10px Yomogi", "700 10px 'Zen Maru Gothic'", "900 10px 'Zen Maru Gothic'"]
-      .map((f) => document.fonts.load(f, txt || 'あ')));
-    await document.fonts.ready;
-  });
-  await page.screenshot({ path: file, omitBackground: transparent });
-}
+const { shot, close } = await openShooter(ROOT, OUT);
+setTheme(ep.meta.theme || 'crayon');
 
 const plan = [];
 for (const [i, sc] of ep.scenes.entries()) {
   const n = pad(i + 1);
   for (let b = 0; b < BOILS; b++) {
     seed(1000 + i * 17); // 同じ場面は同じ形、ゆれだけ変える
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">${defs(b)}${paper()}${sc.draw()}</svg>`;
+    const svg = svgDoc(`${defs(b)}${paper()}${sc.draw()}`);
     await shot(svg, path.join(OUT, 'frames', `${n}_b${b}.png`));
     if (stillsOnly) break;
   }
@@ -98,7 +72,7 @@ for (const [i, sc] of ep.scenes.entries()) {
   plan.push({ n, dur, voice: hasVoice ? voice : null, subs });
   console.log(`場面 ${n}: ${dur.toFixed(1)}秒 ${hasVoice ? '（声あり）' : '（声なし・仮）'}`);
 }
-await browser.close();
+await close();
 if (stillsOnly) { console.log(`→ ${path.join(OUT, 'frames')}`); process.exit(0); }
 
 // ---------- 場面ごとに動画化 ----------

@@ -17,8 +17,24 @@ export const C = {
   ink: '#2b2622', paper: '#f6efe0', white: '#fffdf7',
   red: '#e0473c', orange: '#f08a2c', yellow: '#f6c632', green: '#4aa564',
   blue: '#3f7fd1', sky: '#8cc4ec', brown: '#9a6a3f', pink: '#f2a0a8',
-  gray: '#a8a29a', dark: '#3d3a36', gold: '#e8b43a', rice: '#fbf8ef',
+  gray: '#a8a29a', dark: '#3d3a36', gold: '#e8b43a', rice: '#fbf8ef', skin: '#f7d7b5',
+  fur: '#c47a3c', furDark: '#8f5226', cream: '#f8e6c8',
 };
+
+// ---------- 絵柄テーマ ----------
+const BASE = { ...C };
+export const THEMES = {
+  crayon: { label: 'A クレヨン', bg: 'paper', paper: '#f6efe0', ink: '#2b2622', lineW: 1, fill: 'crayon', grain: 1.75, fillGrain: 1.95, fillOpacity: 0.92 },
+  pencil: { label: 'B 色えんぴつ', bg: 'paper', paper: '#fbf8f1', ink: '#4a4038', lineW: 0.55, fill: 'hatch', grain: 1.9, fillGrain: 2.2, fillOpacity: 0.95 },
+  marker: { label: 'C ノートにマジック', bg: 'notebook', paper: '#fdfdfb', ink: '#161616', lineW: 1.25, fill: 'flat', grain: 2.6, fillGrain: 2.6, fillOpacity: 1 },
+  chalk:  { label: 'D 黒板チョーク', bg: 'board', paper: '#2e4a3b', ink: '#f3f0e6', lineW: 1, fill: 'crayon', grain: 1.8, fillGrain: 2.15, fillOpacity: 1, dark: '#59605c' },
+  kraft:  { label: 'E クラフト紙', bg: 'paper', paper: '#cfa676', ink: '#2b2622', lineW: 1.05, fill: 'crayon', grain: 1.75, fillGrain: 2.0, fillOpacity: 0.95 },
+};
+export let T = THEMES.crayon;
+export function setTheme(name) {
+  T = THEMES[name] || THEMES.crayon;
+  Object.assign(C, BASE, { paper: T.paper, ink: T.ink }, T.dark ? { dark: T.dark } : {});
+}
 
 // ---------- フィルター（クレヨンのざらざら＆線のゆれ） ----------
 // boil を変えると線がわずかに震える＝手描きアニメっぽい「ゆれ」
@@ -30,18 +46,19 @@ export function defs(boil = 0) {
   </filter>
   <filter id="grain" x="-5%" y="-5%" width="110%" height="110%">
     <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="${11 + boil}" result="g"/>
-    <feColorMatrix in="g" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2.4 1.75" result="mask"/>
+    <feColorMatrix in="g" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2.4 ${T.grain}" result="mask"/>
     <feComposite in="SourceGraphic" in2="mask" operator="in" result="tex"/>
     <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="${5 + boil * 3}" result="n2"/>
     <feDisplacementMap in="tex" in2="n2" scale="6" xChannelSelector="R" yChannelSelector="G"/>
   </filter>
   <filter id="fillgrain" x="-5%" y="-5%" width="110%" height="110%">
     <feTurbulence type="fractalNoise" baseFrequency="0.7 0.12" numOctaves="3" seed="${21 + boil}" result="g"/>
-    <feColorMatrix in="g" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2.2 1.95" result="mask"/>
+    <feColorMatrix in="g" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2.2 ${T.fillGrain}" result="mask"/>
     <feComposite in="SourceGraphic" in2="mask" operator="in" result="tex"/>
     <feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="2" seed="${8 + boil * 5}" result="n2"/>
     <feDisplacementMap in="tex" in2="n2" scale="7" xChannelSelector="R" yChannelSelector="G"/>
   </filter>
+  ${hatchPatterns()}
   <filter id="paper">
     <feTurbulence type="fractalNoise" baseFrequency="0.55" numOctaves="3" seed="2" result="p"/>
     <feColorMatrix in="p" type="matrix" values="0 0 0 0 0.45  0 0 0 0 0.38  0 0 0 0 0.28  0 0 0 0.10 0"/>
@@ -49,9 +66,25 @@ export function defs(boil = 0) {
 </defs>`;
 }
 
+function hatchPatterns() {
+  if (T.fill !== 'hatch') return '';
+  return [...new Set(Object.values(C))].map((c) =>
+    `<pattern id="h${c.slice(1)}" width="13" height="13" patternUnits="userSpaceOnUse" patternTransform="rotate(32)">
+      <line x1="0" y1="3" x2="13" y2="3" stroke="${c}" stroke-width="7" stroke-linecap="round"/></pattern>`).join('');
+}
+
 export function paper() {
-  return `<rect width="1920" height="1080" fill="${C.paper}"/>
-<rect width="1920" height="1080" filter="url(#paper)"/>`;
+  let s = `<rect width="1920" height="1080" fill="${C.paper}"/>`;
+  if (T.bg === 'notebook') {
+    for (let y = 120; y < 1080; y += 64) s += `<line x1="0" y1="${y}" x2="1920" y2="${y}" stroke="#9cc3e4" stroke-width="2"/>`;
+    s += `<line x1="150" y1="0" x2="150" y2="1080" stroke="#e79a9a" stroke-width="3"/>`;
+  }
+  if (T.bg === 'board') {
+    s += `<rect width="1920" height="1080" filter="url(#paper)" opacity="0.9"/>`;
+    s += `<rect x="0" y="0" width="1920" height="1080" fill="none" stroke="#7a5a3a" stroke-width="40"/>`;
+    return s;
+  }
+  return s + `<rect width="1920" height="1080" filter="url(#paper)"/>`;
 }
 
 // ---------- パス生成 ----------
@@ -86,7 +119,7 @@ function shaky(pts, amp) {
 }
 
 const strokeAttr = (color, w) =>
-  `fill="none" stroke="${color}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" filter="url(#grain)"`;
+  `fill="none" stroke="${color}" stroke-width="${(w * T.lineW).toFixed(1)}" stroke-linecap="round" stroke-linejoin="round" filter="url(#grain)"`;
 
 // ---------- 基本図形 ----------
 // 折れ線（クレヨンで2回なぞる）
@@ -111,7 +144,12 @@ function ellipsePts(cx, cy, rx, ry, n = 18, wob = 0.035) {
 }
 
 // 塗り（ざらざら、輪郭から少しはみ出す/ずれる）
-function fillPath(d, color, opacity = 0.92) {
+function fillPath(d, color, opacity = T.fillOpacity) {
+  if (T.fill === 'hatch') {
+    return `<path d="${d}" fill="${color}" opacity="0.28" filter="url(#wobble)"/>` +
+      `<path d="${d}" fill="url(#h${color.slice(1)})" opacity="0.9" filter="url(#fillgrain)"/>`;
+  }
+  if (T.fill === 'flat') return `<path d="${d}" fill="${color}" opacity="${opacity}" filter="url(#wobble)"/>`;
   return `<path d="${d}" fill="${color}" opacity="${opacity}" filter="url(#fillgrain)"/>`;
 }
 
