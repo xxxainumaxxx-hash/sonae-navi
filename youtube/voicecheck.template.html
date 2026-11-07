@@ -1,0 +1,178 @@
+<title>ナレーション聞き取りチェック</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&family=M+PLUS+1+Code:wght@500&display=swap">
+<style>
+/* 1列のチェックリスト。上に固定の進み具合バー、場面ごとに行が並ぶ。台本の紙＋任天堂の赤 */
+:root {
+  --bg: #f6f1e7; --surface: #fffdf8; --ink: #2b2622; --muted: #7a6f66; --line: #e3d9c9;
+  --accent: #c8352e; --accent-ink: #ffffff; --ok: #2f7d4f; --ok-bg: #e3f1e7; --fix: #b4561a; --fix-bg: #fbe9d9;
+  --warn: #8a5a00; --warn-bg: #fff1c9;
+  --font-body: "Zen Maru Gothic", "Hiragino Maru Gothic ProN", "Hiragino Sans", "Noto Sans JP", sans-serif;
+  --font-code: "M PLUS 1 Code", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #1d1a18; --surface: #272320; --ink: #f1ebe2; --muted: #b0a597; --line: #3a342f;
+  --accent: #e5554b; --accent-ink: #1d1a18; --ok: #6cc28e; --ok-bg: #1f3428; --fix: #f0995c; --fix-bg: #3a2717;
+  --warn: #f2c35b; --warn-bg: #3a3017; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #1d1a18; --surface: #272320; --ink: #f1ebe2; --muted: #b0a597; --line: #3a342f;
+  --accent: #e5554b; --accent-ink: #1d1a18; --ok: #6cc28e; --ok-bg: #1f3428; --fix: #f0995c; --fix-bg: #3a2717;
+  --warn: #f2c35b; --warn-bg: #3a3017; color-scheme: dark }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+.wrap { max-width: 760px; margin: 0 auto; padding-block: 8px 48px; }
+header { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); padding-block: 14px 10px; border-bottom: 1px solid var(--line); }
+h1 { font-size: 20px; font-weight: 900; margin: 0; text-wrap: balance; }
+.ep { font-family: var(--font-code); font-size: 12px; color: var(--muted); }
+.progress { display: flex; flex-wrap: wrap; gap: 8px 14px; margin-top: 8px; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.progress b { color: var(--ink); }
+.bar { height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; margin-top: 8px; display: flex; }
+.bar i { display: block; height: 100%; }
+.bar .b-ok { background: var(--ok); } .bar .b-fix { background: var(--fix); }
+.filters { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.chip { font: inherit; font-size: 13px; font-weight: 700; padding: 5px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.chip:focus-visible, button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.note { font-size: 13px; color: var(--muted); margin: 12px 0 0; }
+.status { font-size: 13px; color: var(--muted); margin-top: 6px; min-height: 1.4em; }
+h2 { font-size: 14px; font-weight: 900; color: var(--accent); margin: 26px 0 8px; letter-spacing: .04em; }
+.list { display: grid; gap: 10px; }
+.row { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; align-items: start; }
+.row[data-state="ok"] { border-color: var(--ok); }
+.row[data-state="fix"] { border-color: var(--fix); }
+.play { width: 44px; height: 44px; border-radius: 50%; border: none; background: var(--accent); color: var(--accent-ink); font-size: 16px; cursor: pointer; grid-row: span 2; display: grid; place-items: center; }
+.play[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.body { min-width: 0; display: grid; gap: 6px; }
+.meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 12px; }
+.id { font-family: var(--font-code); color: var(--muted); }
+.badge { font-weight: 700; padding: 1px 8px; border-radius: 999px; }
+.badge.ai { background: var(--warn-bg); color: var(--warn); }
+.badge.ok { background: var(--ok-bg); color: var(--ok); }
+.badge.fix { background: var(--fix-bg); color: var(--fix); }
+.text { font-size: 17px; font-weight: 700; overflow-wrap: anywhere; }
+.heard { font-size: 13px; color: var(--muted); overflow-wrap: anywhere; }
+.heard b { color: var(--warn); font-weight: 700; }
+.actions { grid-column: 2; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.btn { font: inherit; font-size: 14px; font-weight: 700; padding: 7px 14px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); cursor: pointer; }
+.btn.ok[aria-pressed="true"] { background: var(--ok); border-color: var(--ok); color: var(--surface); }
+.btn.fix[aria-pressed="true"] { background: var(--fix); border-color: var(--fix); color: var(--surface); }
+.memo { flex: 1 1 220px; min-width: 0; font: inherit; font-size: 14px; padding: 7px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); }
+.empty { color: var(--muted); padding: 24px 0; text-align: center; }
+@media (prefers-reduced-motion: no-preference) { .row { transition: border-color .2s; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>ナレーション聞き取りチェック</h1>
+    <div class="ep">__EP__</div>
+    <div class="progress" id="progress"></div>
+    <div class="bar" id="bar"><i class="b-ok"></i><i class="b-fix"></i></div>
+    <div class="filters" role="group" aria-label="表示する行">
+      <button class="chip" id="f-ai" data-f="ai" aria-pressed="true">AIが気になった行</button>
+      <button class="chip" id="f-todo" data-f="todo" aria-pressed="false">未チェック</button>
+      <button class="chip" id="f-fix" data-f="fix" aria-pressed="false">直す</button>
+      <button class="chip" id="f-all" data-f="all" aria-pressed="false">全部</button>
+    </div>
+    <div class="status" id="status" role="status"></div>
+  </header>
+  <p class="note">▶で1行ずつ聞けます。読み間違いや言い方が変なら「直す」を押して、正しい読み方やどう変かをメモに書いてください。押した内容はそのまま保存され、Claude が読みます。「AIが気になった行」は、声を文字に戻したときに台本と食い違った行です（漢字とひらがなの違いだけのこともあります）。</p>
+  <main id="list"></main>
+</div>
+
+<script>
+const EP = "__EP__";
+const ROWS = __DATA__;
+const state = {};            // id -> {status, memo}
+let filter = 'ai';
+let db = null;
+const $ = (s) => document.querySelector(s);
+const statusEl = $('#status');
+
+function counts() {
+  let ok = 0, fix = 0;
+  for (const r of ROWS) { const s = state[r.id]?.status; if (s === 'ok') ok++; else if (s === 'fix') fix++; }
+  return { ok, fix, todo: ROWS.length - ok - fix, ai: ROWS.filter((r) => r.flag).length };
+}
+function renderProgress() {
+  const c = counts(), n = ROWS.length;
+  $('#progress').innerHTML = `<span>全<b>${n}</b>行</span><span>OK <b>${c.ok}</b></span><span>直す <b>${c.fix}</b></span><span>未チェック <b>${c.todo}</b></span><span>AIの指摘 <b>${c.ai}</b></span>`;
+  $('#bar .b-ok').style.width = (c.ok / n * 100) + '%';
+  $('#bar .b-fix').style.width = (c.fix / n * 100) + '%';
+}
+function visible(r) {
+  const s = state[r.id]?.status;
+  if (filter === 'ai') return r.flag;
+  if (filter === 'todo') return !s;
+  if (filter === 'fix') return s === 'fix';
+  return true;
+}
+let audio = null, playingId = null;
+function play(r, btn) {
+  if (audio) { audio.pause(); document.querySelectorAll('.play[aria-pressed="true"]').forEach((b) => { b.setAttribute('aria-pressed', 'false'); b.textContent = '▶'; }); }
+  if (playingId === r.id) { playingId = null; return; }
+  audio = new Audio(r.audio); playingId = r.id;
+  btn.setAttribute('aria-pressed', 'true'); btn.textContent = '■';
+  audio.onended = () => { btn.setAttribute('aria-pressed', 'false'); btn.textContent = '▶'; playingId = null; };
+  audio.play().catch(() => {});
+}
+function render() {
+  const list = $('#list'); list.innerHTML = '';
+  const shown = ROWS.filter(visible);
+  if (!shown.length) { list.innerHTML = `<p class="empty">${filter === 'ai' ? 'AIが気になった行はありません。「全部」で全行を聞けます。' : 'この条件の行はありません。'}</p>`; renderProgress(); return; }
+  let scene = null, box = null;
+  for (const r of shown) {
+    if (r.scene !== scene) { scene = r.scene; const h = document.createElement('h2'); h.textContent = `場面 ${scene}`; list.append(h); box = document.createElement('div'); box.className = 'list'; list.append(box); }
+    const s = state[r.id] || {};
+    const row = document.createElement('div'); row.className = 'row'; row.dataset.state = s.status || '';
+    const pb = document.createElement('button'); pb.className = 'play'; pb.textContent = '▶'; pb.setAttribute('aria-label', `${r.id} を再生`); pb.setAttribute('aria-pressed', 'false');
+    pb.onclick = () => play(r, pb);
+    const body = document.createElement('div'); body.className = 'body';
+    const meta = document.createElement('div'); meta.className = 'meta';
+    meta.innerHTML = `<span class="id">${r.id}</span>` + (r.flag ? `<span class="badge ai">AIの指摘 ${r.missing && r.missing.length ? '「' + r.missing.join('」「') + '」の読み' : '一致' + Math.round(r.score * 100) + '%'}</span>` : '') +
+      (s.status === 'ok' ? '<span class="badge ok">OK</span>' : s.status === 'fix' ? '<span class="badge fix">直す</span>' : '');
+    const tx = document.createElement('div'); tx.className = 'text'; tx.textContent = r.text;
+    body.append(meta, tx);
+    if (r.flag) { const h = document.createElement('div'); h.className = 'heard'; h.innerHTML = '<b>聞こえた文：</b>'; h.append(document.createTextNode(r.heard || '（聞き取れず）')); body.append(h); }
+    const act = document.createElement('div'); act.className = 'actions';
+    const ok = document.createElement('button'); ok.className = 'btn ok'; ok.textContent = 'OK'; ok.setAttribute('aria-pressed', s.status === 'ok');
+    const fx = document.createElement('button'); fx.className = 'btn fix'; fx.textContent = '直す'; fx.setAttribute('aria-pressed', s.status === 'fix');
+    const memo = document.createElement('input'); memo.className = 'memo'; memo.id = 'memo-' + r.id; memo.placeholder = '例：房治郎は「ふさじろう」'; memo.value = s.memo || ''; memo.hidden = s.status !== 'fix';
+    ok.onclick = () => save(r.id, { status: s.status === 'ok' ? null : 'ok', memo: s.memo || '' });
+    fx.onclick = () => save(r.id, { status: s.status === 'fix' ? null : 'fix', memo: s.memo || '' }, true);
+    memo.onchange = () => save(r.id, { status: 'fix', memo: memo.value });
+    act.append(ok, fx, memo);
+    row.append(pb, body, act); box.append(row);
+  }
+  renderProgress();
+}
+async function save(id, val, focusMemo) {
+  state[id] = val; render();
+  if (focusMemo && val.status === 'fix') document.getElementById('memo-' + id)?.focus();
+  if (!db) { statusEl.textContent = '保存できる状態ではありません（ログインが必要です）。押した内容はこの画面にだけ残ります。'; return; }
+  try {
+    await db.doc('checks/' + EP + '__' + id).set({ ep: EP, id, status: val.status || null, memo: val.memo || '', updatedAt: new Date().toISOString() });
+    statusEl.textContent = '保存しました';
+  } catch (e) { statusEl.textContent = '保存できませんでした。通信を確認して、もう一度押してください。'; }
+}
+document.querySelectorAll('.chip').forEach((c) => c.onclick = () => {
+  filter = c.dataset.f; document.querySelectorAll('.chip').forEach((x) => x.setAttribute('aria-pressed', x === c)); render();
+});
+if (!ROWS.some((r) => r.flag)) { filter = 'all'; document.querySelectorAll('.chip').forEach((x) => x.setAttribute('aria-pressed', x.dataset.f === 'all')); }
+render();
+statusEl.textContent = '保存先に接続しています…';
+(async () => {
+  try {
+    db = await window.claude?.use?.('db');
+  } catch { db = null; }
+  if (!db) { statusEl.textContent = '保存先に接続できませんでした。押した内容はこの画面にだけ残ります。'; return; }
+  const timer = setTimeout(() => { statusEl.textContent = '保存済みの内容を読み込めませんでした。チェックは続けられます。'; }, 10000);
+  db.collection('checks').where('ep', '==', EP).onSnapshot((snap) => {
+    clearTimeout(timer);
+    for (const d of snap.docs) { const v = d.data(); if (v && v.id) state[v.id] = { status: v.status || null, memo: v.memo || '' }; }
+    statusEl.textContent = ''; render();
+  }, () => { clearTimeout(timer); statusEl.textContent = '保存済みの内容を読み込めませんでした。チェックは続けられます。'; });
+})();
+</script>
