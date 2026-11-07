@@ -51,6 +51,13 @@ def main():
     od = os.path.join(ROOT, 'out', ep)
     os.makedirs(od, exist_ok=True)
     rows = []
+    # 前回のチェック（check.json）と、前回「直す」が付いた行（review.json：Claude がチェックページから書き出す）
+    prev_p = os.path.join(vd, 'check.json')
+    prev = {r['id']: r for r in json.load(open(prev_p))} if os.path.exists(prev_p) else {}
+    rv_p = os.path.join(vd, 'review.json')
+    review = json.load(open(rv_p)) if os.path.exists(rv_p) else {}
+    fixed = {k for k, v in review.get('statuses', {}).items() if v == 'fix'}
+    round_no = review.get('round', 1) + 1 if prev else 1
     rp = os.path.join(ROOT, 'voice', 'readings.json')
     words = [k for k in (json.load(open(rp)) if os.path.exists(rp) else {}) if not k.startswith('_')]
     scenes = sorted(f[:-5] for f in os.listdir(vd) if re.fullmatch(r'\d\d\.json', f))
@@ -70,7 +77,11 @@ def main():
                 score = difflib.SequenceMatcher(None, norm(l['line']), norm(heard)).ratio() if heard else 0.0
                 # 読み方の辞書にある言葉（人名など）が、文字に戻したときに出てこなければ要チェック
                 missing = [w for w in words if w in l['line'] and w not in heard]
+                rid = f'{n}-{i + 1}'
+                # 修正した行：前回から読ませ方が変わった行、または前回「直す」が付いた行
+                recheck = bool(prev) and (rid in fixed or prev.get(rid, {}).get('spoken') != l.get('spoken', l['line']))
                 rows.append({
+                    'recheck': recheck,
                     'id': f'{n}-{i + 1}', 'scene': n, 'text': l['line'], 'spoken': l.get('spoken', l['line']),
                     'heard': heard, 'score': round(score, 2), 'flag': score < FLAG_BELOW or bool(missing), 'missing': missing,
                     'audio': 'data:audio/mpeg;base64,' + base64.b64encode(open(clip, 'rb').read()).decode(),
@@ -79,9 +90,11 @@ def main():
     meta = {k: v for k, v in [('ep', ep)]}
     json.dump([{k: v for k, v in r.items() if k != 'audio'} for r in rows], open(os.path.join(vd, 'check.json'), 'w'), ensure_ascii=False, indent=1)
     tpl = open(os.path.join(ROOT, 'voicecheck.template.html'), encoding='utf-8').read()
-    page = tpl.replace('__EP__', html.escape(ep)).replace('__DATA__', json.dumps(rows, ensure_ascii=False).replace('</', '<\\/'))
+    page = tpl.replace('__ROUND__', str(round_no)).replace('__EP__', html.escape(ep)).replace('__DATA__', json.dumps(rows, ensure_ascii=False).replace('</', '<\\/'))
     open(os.path.join(od, 'voicecheck.html'), 'w', encoding='utf-8').write(page)
+    json.dump({'round': round_no, 'statuses': {}}, open(rv_p, 'w'), ensure_ascii=False, indent=1)
     flagged = sum(r['flag'] for r in rows)
+    print(f'第{round_no}回のチェック。修正した行：{sum(r["recheck"] for r in rows)}行')
     print(f'\n{len(rows)}行のうち、AIが気になった行：{flagged}行 → {os.path.join(od, "voicecheck.html")}')
 
 

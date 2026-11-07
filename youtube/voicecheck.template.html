@@ -73,7 +73,7 @@ h2 { font-size: 14px; font-weight: 900; color: var(--accent); margin: 16px 0 6px
 <div class="wrap">
   <header>
     <h1>ナレーション聞き取りチェック</h1>
-    <div class="ep">__EP__</div>
+    <div class="ep">__EP__ ・ 第__ROUND__回のチェック</div>
     <div class="progress" id="progress"></div>
     <div class="bar" id="bar"><i class="b-ok"></i><i class="b-fix"></i></div>
     <div class="player">
@@ -81,6 +81,7 @@ h2 { font-size: 14px; font-weight: 900; color: var(--accent); margin: 16px 0 6px
       <span class="now" id="now" aria-live="polite"></span>
     </div>
     <div class="filters" role="group" aria-label="表示する行">
+      <button class="chip" id="f-re" data-f="re" aria-pressed="false">修正した行</button>
       <button class="chip" id="f-all" data-f="all" aria-pressed="true">全部</button>
       <button class="chip" id="f-ai" data-f="ai" aria-pressed="false">AIが気になった行</button>
       <button class="chip" id="f-todo" data-f="todo" aria-pressed="false">未チェック</button>
@@ -88,12 +89,13 @@ h2 { font-size: 14px; font-weight: 900; color: var(--accent); margin: 16px 0 6px
     </div>
     <div class="status" id="status" role="status"></div>
   </header>
-  <p class="note">「通しで再生」で上から順に流れます（各行の「ここから」でその行から）。読み間違いや言い方が変なら「直す」を押すと再生が止まるので、正しい読み方やどう変かをメモに書いてください。押した内容はそのまま保存され、Claude が読みます。「AIが気になった行」は、声を文字に戻したときに台本と食い違った行です（漢字とひらがなの違いだけのこともあります）。</p>
+  <p class="note">2回目以降は、最初に「修正した行」（前回から直した行）だけが出ます。「通しで再生」で上から順に流れます（各行の「ここから」でその行から）。読み間違いや言い方が変なら「直す」を押すと再生が止まるので、正しい読み方やどう変かをメモに書いてください。押した内容はそのまま保存され、Claude が読みます。「AIが気になった行」は、声を文字に戻したときに台本と食い違った行です（漢字とひらがなの違いだけのこともあります）。</p>
   <main id="list"></main>
 </div>
 
 <script>
 const EP = "__EP__";
+const ROUND = __ROUND__;
 const ROWS = __DATA__;
 const state = {};            // id -> {status, memo}
 let filter = 'all';
@@ -114,6 +116,7 @@ function renderProgress() {
 }
 function visible(r) {
   const s = state[r.id]?.status;
+  if (filter === 're') return r.recheck;
   if (filter === 'ai') return r.flag;
   if (filter === 'todo') return !s;
   if (filter === 'fix') return s === 'fix';
@@ -188,7 +191,7 @@ function render() {
     const body = document.createElement('div'); body.className = 'body';
     const meta = document.createElement('div'); meta.className = 'meta';
     meta.innerHTML = `<span class="id">${r.id}</span>` + (r.flag ? `<span class="badge ai">AIの指摘 ${r.missing && r.missing.length ? '「' + r.missing.join('」「') + '」の読み' : '一致' + Math.round(r.score * 100) + '%'}</span>` : '') +
-      (s.status === 'ok' ? '<span class="badge ok">OK</span>' : s.status === 'fix' ? '<span class="badge fix">直す</span>' : '');
+      (r.recheck ? '<span class="badge fix">修正した行</span>' : '') + (s.status === 'ok' ? '<span class="badge ok">OK</span>' : s.status === 'fix' ? '<span class="badge fix">直す</span>' : '');
     const tx = document.createElement('div'); tx.className = 'text'; tx.textContent = r.text;
     body.append(meta, tx);
     if (r.flag) { const h = document.createElement('div'); h.className = 'heard'; h.innerHTML = '<b>聞こえた文：</b>'; h.append(document.createTextNode(r.heard || '（聞き取れず）')); body.append(h); }
@@ -211,13 +214,15 @@ async function save(id, val, focusMemo) {
   if (focusMemo && val.status === 'fix') document.getElementById('memo-' + id)?.focus();
   if (!db) { statusEl.textContent = '保存できる状態ではありません（ログインが必要です）。押した内容はこの画面にだけ残ります。'; return; }
   try {
-    await db.doc('checks/' + EP + '__' + id).set({ ep: EP, id, status: val.status || null, memo: val.memo || '', updatedAt: new Date().toISOString() });
+    await db.doc('checks/' + EP + '__r' + ROUND + '__' + id).set({ ep: EP, round: ROUND, id, status: val.status || null, memo: val.memo || '', updatedAt: new Date().toISOString() });
     statusEl.textContent = '保存しました';
   } catch (e) { statusEl.textContent = '保存できませんでした。通信を確認して、もう一度押してください。'; }
 }
 document.querySelectorAll('.chip').forEach((c) => c.onclick = () => {
   filter = c.dataset.f; document.querySelectorAll('.chip').forEach((x) => x.setAttribute('aria-pressed', x === c)); if (queue) stopQueue(); resumeAt = null; render(); updateCont();
 });
+// 修正した行があれば、最初はその行だけを表示する
+if (ROWS.some((r) => r.recheck)) { filter = 're'; document.querySelectorAll('.chip').forEach((x) => x.setAttribute('aria-pressed', x.dataset.f === 're')); }
 document.getElementById('cont').onclick = () => { if (queue) stopQueue(); else startQueue(resumeAt ? resumeAt.id : null); };
 render(); updateCont();
 statusEl.textContent = '保存先に接続しています…';
@@ -228,8 +233,9 @@ statusEl.textContent = '保存先に接続しています…';
   if (!db) { statusEl.textContent = '保存先に接続できませんでした。押した内容はこの画面にだけ残ります。'; return; }
   const timer = setTimeout(() => { statusEl.textContent = '保存済みの内容を読み込めませんでした。チェックは続けられます。'; }, 10000);
   db.collection('checks').where('ep', '==', EP).onSnapshot((snap) => {
+    for (const k in state) delete state[k];
     clearTimeout(timer);
-    for (const d of snap.docs) { const v = d.data(); if (v && v.id) state[v.id] = { status: v.status || null, memo: v.memo || '' }; }
+    for (const d of snap.docs) { const v = d.data(); if (v && v.id && (v.round || 1) === ROUND) state[v.id] = { status: v.status || null, memo: v.memo || '' }; }
     statusEl.textContent = ''; render();
   }, () => { clearTimeout(timer); statusEl.textContent = '保存済みの内容を読み込めませんでした。チェックは続けられます。'; });
 })();
