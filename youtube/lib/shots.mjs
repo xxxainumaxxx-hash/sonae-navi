@@ -8,8 +8,8 @@ import { tw, ease, clamp, lerp } from './anim.mjs';
 //  ・1つのカットが長いときは、字幕の区切り（または約2.4秒ごと）で構図を変える（寄り・引き・横）＝2〜3秒ごとに画が変わる
 //  ・カットの変わり目は、パッと寄って落ち着く／横に流れる／ズームで飛びこむ、を混ぜる
 const BEAT = 2.4;
-const FRAMES = [ // 構図の変え方（倍率, 中心x, 中心y）
-  [1.22, 760, 500], [0.94, 960, 540], [1.18, 1160, 520], [1.28, 960, 470], [1.15, 820, 560], [1.2, 1100, 480],
+const FRAMES = [ // 構図の変え方（倍率, 中心x, 中心y）。端の見出しが切れない程度に
+  [1.14, 880, 500], [0.95, 960, 540], [1.14, 1040, 500], [1.18, 960, 480], [1.12, 900, 520], [1.14, 1020, 490],
 ];
 const wrap = (inner, z, x, y) => `<g transform="translate(960 540) scale(${z.toFixed(4)}) translate(${(-x).toFixed(1)} ${(-y).toFixed(1)})">${inner}</g>`;
 function beats(c, t0, t1) {
@@ -40,7 +40,7 @@ export function shots(t, c, list) {
   let inner = draw(k, t);
   if (j > 0) {
     const [z, x, y] = FRAMES[(seed + j) % FRAMES.length];
-    const dz = 0.05 * ease.inOut(clamp(bt / bd));
+    const dz = 0.04 * ease.inOut(clamp(bt / bd));
     inner = wrap(inner, z + dz, x, y);
   }
   // 変わり目の演出（カット・ビートの頭の0.3秒）
