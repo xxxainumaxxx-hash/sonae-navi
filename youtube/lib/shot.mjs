@@ -21,10 +21,15 @@ export async function openShooter(root, workDir, { w = 1920, h = 1080, css = '' 
 .sub span{font-family:'Zen Maru Gothic';font-weight:700;font-size:54px;line-height:1.35;color:#fff;
  -webkit-text-stroke:14px #2b2622;paint-order:stroke fill;display:inline-block;max-width:1640px}${css}</style>
 <body><div id="root"></div>`);
-  const browser = await chromium.launch();
-  const page = await browser.newPage({ viewport: { width: w, height: h } });
-  await page.goto(pathToFileURL(shell).href);
-  async function shot(html, file, transparent = false) {
+  let browser, page;
+  async function open() {
+    try { if (browser) await browser.close(); } catch {}
+    browser = await chromium.launch();
+    page = await browser.newPage({ viewport: { width: w, height: h } });
+    await page.goto(pathToFileURL(shell).href);
+  }
+  await open();
+  async function once(html, file, transparent) {
     await page.evaluate((h) => { document.getElementById('root').innerHTML = h; }, html);
     await page.evaluate(async () => {
       const txt = document.body.innerText + [...document.querySelectorAll('text')].map((t) => t.textContent).join('');
@@ -32,10 +37,17 @@ export async function openShooter(root, workDir, { w = 1920, h = 1080, css = '' 
         .map((f) => document.fonts.load(f, txt || 'あ')));
       await document.fonts.ready;
     });
-    // ブラウザが一時的に撮影に失敗することがあるので、数回撮り直す
+    await page.screenshot({ path: file, omitBackground: transparent });
+  }
+  async function shot(html, file, transparent = false) {
+    // ブラウザがときどき落ちるので、失敗したら開き直して撮り直す
     for (let tries = 0; ; tries++) {
-      try { await page.screenshot({ path: file, omitBackground: transparent }); break; }
-      catch (e) { if (tries >= 4) throw e; await new Promise((r) => setTimeout(r, 500 * (tries + 1))); }
+      try { await once(html, file, transparent); return; }
+      catch (e) {
+        if (tries >= 4) throw e;
+        await new Promise((r) => setTimeout(r, 500 * (tries + 1)));
+        await open();
+      }
     }
   }
   return { shot, close: () => browser.close() };

@@ -108,8 +108,12 @@ function mouthAt(s, t) {
 // ---------- コマを描く ----------
 setTheme(ep.meta.theme || 'crayon');
 const frames = [];
+// --frames 435,1552：指定したコマだけ描き出す（調べもの用）。HTMLも保存する
+const fi = process.argv.indexOf('--frames');
+const ONLY = fi > 0 ? process.argv[fi + 1].split(',').map(Number) : null;
 for (let f = 0; f < Math.ceil(TOTAL * FPS); f++) {
   const gt = f / FPS;
+  if (ONLY && !ONLY.includes(f)) continue;
   if (checkEvery && Math.abs(gt / checkEvery - Math.round(gt / checkEvery)) > 0.5 / FPS / checkEvery) continue;
   frames.push(f);
 }
@@ -139,12 +143,13 @@ await Promise.all(Array.from({ length: NW }, async (_, w) => {
   for (let k = w; k < frames.length; k += NW) {
     const f = frames[k];
     if (RESUME && !checkEvery && fs.existsSync(path.join(FR, `f${pad(f, 5)}.png`))) { done++; continue; }
+    if (ONLY) fs.writeFileSync(path.join(OUT, `debug_${f}.html`), frameHtml(f));
     await shot(frameHtml(f), path.join(FR, checkEvery ? `t${pad(Math.round(f / FPS), 3)}.png` : `f${pad(f, 5)}.png`));
     if (++done % 60 === 0) console.log(`  ${done}/${frames.length}`);
   }
   await close();
 }));
-if (checkEvery) { console.log(`確認用: ${FR}`); process.exit(0); }
+if (checkEvery || ONLY) { console.log(`確認用: ${FR}`); process.exit(0); }
 
 // ---------- 音声をつなぐ ----------
 const aArgs = [], parts = [];
