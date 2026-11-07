@@ -17,7 +17,7 @@ const hero = (t) => {
 
 export const scenes = [{
   narration: [
-    '任天堂を救ったのは、社員の遊び道具。',
+    '任天堂を救った、社員の遊び道具。',
     '1960年代、会社はピンチだった。',
     '点検係の若い社員が、',
     'ひまつぶしに作った「のびる手」。',
@@ -25,13 +25,17 @@ export const scenes = [{
     '「それを商品にしろ」',
     '結果、大ヒット。',
     'あなたのひまつぶし、商品になりそう？',
-    'こうして、任天堂を救ったのは…',
+    '社長が見つけたのは…',
   ],
   draw: (t, c) => {
     let s = band(-20, 1960, '#e6efe8');
     s += gear(880, 500, 90, t * 40) + gear(990, 610, 60, -t * 55, '#8e8a84');
-    const loop = t < c.at(1) || t > c.at(8) + 0.6;
-    if (loop) {
+    if (t > c.at(8)) {
+      // 最後：社長が若者とおもちゃを指さす → 2周目の頭で「大ヒット！」
+      s += hero(t);
+      s += pres({ x: 820, y: 1150, s: 0.95, flip: true, look: [-1, 0], arms: [12, 8, 125, 10], blink: blinking(t, 3), expr: 'smile' });
+      s += enter(text('？', 760, 640, { size: 180, color: C.blue, font: 'Zen Maru Gothic', weight: 900 }), t, c.at(8) + 0.2, { cx: 760, cy: 580 });
+    } else if (t < c.at(1)) {
       s += hero(t) + enter(sign('大ヒット！', 540, 560, { size: 80, fill: C.yellow, rot: -4 }), t, 0, { cx: 540, cy: 560 });
     } else if (t < c.at(2)) {
       s += pres({ x: 540, y: 1150, s: 1.1, expr: 'worry', sweat: true, arms: [60, 95, 60, 95], blink: blinking(t, 2) }) + rainCloud(540, 520, t, 0.9);
