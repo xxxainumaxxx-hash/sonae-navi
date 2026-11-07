@@ -86,7 +86,11 @@ def speakable(line, table):
         pat = re.compile('|'.join(re.escape(k) for k, _ in table))
         line = pat.sub(lambda m: d[m.group(0)], line)
     # 「14,800円」のような3桁区切りのカンマは読み間違えるので、声では外す（字幕はそのまま）
-    line = re.sub(r'(?<![\d])(1\d{3}|20\d{2})年', lambda m: kanji_num(int(m.group(1))) + '年', line)
+    # 年号は漢数字で。ただし「四十」は「よんじゅう」、最後の「九年」は「きゅうねん」と読ませる（「しじゅう」「くねん」と読むので）
+    def year(m):
+        k = kanji_num(int(m.group(1))).replace('四十', 'よんじゅう')
+        return (k[:-1] + 'きゅう' if k.endswith('九') else k) + '年'
+    line = re.sub(r'(?<![\d])(1\d{3}|20\d{2})年', year, line)
     # 短い言葉の「」は、声では外す（前後で変に区切れるので）。長いセリフの「」は残す
     # ただし「ボタン「十字キー」」のように名詞のすぐ後ろなら、読点で区切る
     line = re.sub(r'(?<=[ァ-ヶー一-龥])「([^」]{1,6})」', r'、\1', line)
