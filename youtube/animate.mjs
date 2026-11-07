@@ -48,8 +48,21 @@ const tl = ep.scenes.map((sc, i) => {
   const chars = sc.narration.map((t) => t.length), total = chars.reduce((a, c) => a + c, 0);
   const speech = has ? parseFloat(sh('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', voice]).toString()) : total / CPS;
   const d = LEAD + speech + TAIL;
-  const subs = []; let t = LEAD;
-  sc.narration.forEach((line, k) => { const len = (chars[k] / total) * speech; subs.push({ line, from: t, to: t + len }); t += len; });
+  // 長い文は句読点で字幕を分ける（ロング30字・ショート15字が目安）。at(k) は k 行目の最初の字幕の開始時刻
+  const MAXC = SHORT ? 15 : 30;
+  const split = (line) => {
+    if (line.length <= MAXC) return [line];
+    const parts = line.match(/[^、。！？」]+[、。！？」]*/g) || [line];
+    const out = []; let cur = '';
+    for (const p of parts) { if (cur && (cur + p).length > MAXC) { out.push(cur); cur = p; } else cur += p; }
+    if (cur) out.push(cur);
+    return out;
+  };
+  const subs = [], lineStart = []; let t = LEAD;
+  sc.narration.forEach((line, k) => {
+    lineStart.push(subs.length);
+    for (const piece of split(line)) { const len = (piece.length / total) * speech; subs.push({ line: piece, from: t, to: t + len }); t += len; }
+  });
   // 口パク用の音量（1コマごと）
   let env = null;
   if (has) {
@@ -62,7 +75,7 @@ const tl = ep.scenes.map((sc, i) => {
     }
     const mx = Math.max(...env, 1e-6); env = env.map((v) => Math.min(1, (v / mx) * 1.5));
   }
-  const item = { i, sc, d, start: T0, subs, voice: has ? voice : null, env };
+  const item = { i, sc, d, start: T0, subs, lineStart, voice: has ? voice : null, env };
   T0 += d;
   return item;
 });
@@ -88,7 +101,7 @@ function frameHtml(f) {
   const gt = f / FPS;
   const s = tl.find((x) => gt >= x.start && gt < x.start + x.d) || tl[tl.length - 1];
   const t = gt - s.start;
-  const ctx = { d: s.d, mouth: mouthAt(s, t), at: (k) => s.subs[Math.min(k, s.subs.length - 1)].from, subs: s.subs };
+  const ctx = { d: s.d, mouth: mouthAt(s, t), at: (k) => s.subs[s.lineStart[Math.min(k, s.lineStart.length - 1)]].from, subs: s.subs };
   const boil = Math.floor(f / 3) % 3; // 1秒4回の線ゆれ
   const art = svgDoc(defs(boil) + paper(W, H) + s.sc.draw(t, ctx), W, H);
   const telop = ep.meta.telop ? `<div class="telop">${ep.meta.telop}</div>` : '';

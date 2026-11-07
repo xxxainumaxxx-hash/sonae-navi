@@ -249,3 +249,87 @@ export function ball(x, y, r = 40, col = C.red) { return ellipse(x, y, r, r, { f
 
 // 地面・空など（背景の色面）
 export function band(y, h, col) { return poly([[-60, y], [1980, y], [1980, y + h], [-60, y + h]], { fill: col, color: null }); }
+
+// ---------- 10分版で追加 ----------
+// 光線銃（一般形）と的
+export function lightGun(x, y, s = 1, flash = 0) {
+  let b = rect(-120, -40, 240, 60, { fill: C.gray }) + poly([[-120, 20], [-60, 20], [-80, 120], [-130, 120]], { fill: C.brown, w: 6 });
+  b += rect(120, -30, 40, 40, { fill: C.dark, w: 5 });
+  if (flash) b += `<circle cx="180" cy="-10" r="${40 * flash}" fill="${C.yellow}" opacity="0.6"/>`;
+  return g(b, x, y, s);
+}
+export function target(x, y, s = 1, hit = 0) {
+  let b = ellipse(0, 0, 90, 90, { fill: C.white }) + ellipse(0, 0, 60, 60, { fill: C.red }) + ellipse(0, 0, 28, 28, { fill: C.white });
+  return `<g transform="translate(${x} ${y}) rotate(${hit * 70}) scale(${s})">${b}</g>`;
+}
+// ラブテスター（一般形）。v 0〜1 で針が動く
+export function loveMeter(x, y, s = 1, v = 0.5) {
+  let b = rect(-150, -110, 300, 220, { fill: C.pink });
+  b += `<path d="M-100,40 A100,100 0 0,1 100,40" fill="none" stroke="${C.ink}" stroke-width="8"/>`;
+  const a = Math.PI * (1 - v);
+  b += line([[0, 40], [Math.cos(a) * 85, 40 - Math.sin(a) * 85]], { w: 8, color: C.red, passes: 1 });
+  b += text('LOVE', 0, 95, { size: 40, color: C.red, font: 'Zen Maru Gothic', weight: 900 });
+  return g(b, x, y, s);
+}
+// ロボットのおもちゃ（一般形）
+export function toyRobot(x, y, s = 1, tilt = 0) {
+  let b = rect(-50, -40, 100, 160, { fill: C.gray }) + rect(-70, -160, 140, 110, { fill: C.white });
+  b += ellipse(-30, -105, 18, 18, { fill: C.red, w: 5 }) + ellipse(30, -105, 18, 18, { fill: C.red, w: 5 });
+  b += line([[-50, 0], [-110, 40]], { w: 12, passes: 1 }) + line([[50, 0], [110, 40]], { w: 12, passes: 1 });
+  b += rect(-80, 120, 160, 40, { fill: C.dark, w: 5 });
+  return `<g transform="translate(${x} ${y}) rotate(${tilt}) scale(${s})">${b}</g>`;
+}
+// 売れ残りのゲームの山（ほこり付き）
+export function dustyPile(x, y, s = 1) {
+  let b = '';
+  for (let r = 0; r < 4; r++) for (let c = 0; c < 5 - r; c++) b += rect(-250 + r * 50 + c * 100, -r * 70, 90, 66, { fill: ['#8a8faa', '#a89a7a', '#9aa58a'][(r + c) % 3], w: 4 });
+  for (let i = 0; i < 6; i++) b += ellipse(-200 + i * 80, -290 + (i % 2) * 20, 6, 6, { fill: C.gray, w: 0, color: null });
+  return g(b, x, y, s);
+}
+export function goldSeal(x, y, s = 1, rot = 0) {
+  const pts = []; for (let i = 0; i < 16; i++) { const a = (i / 16) * Math.PI * 2, r = i % 2 ? 70 : 90; pts.push([Math.cos(a) * r, Math.sin(a) * r]); }
+  return `<g transform="translate(${x} ${y}) rotate(${rot}) scale(${s})">${poly(pts, { fill: C.gold })}${text('品質', 0, 14, { size: 40, font: 'Zen Maru Gothic', weight: 900 })}</g>`;
+}
+// 赤い立体ゲーム機（一般形：台にのったゴーグル）
+export function redGoggle(x, y, s = 1) {
+  let b = rect(-180, -120, 360, 130, { fill: '#b8322c' }) + rect(-140, -90, 110, 70, { fill: C.dark, w: 5 }) + rect(30, -90, 110, 70, { fill: C.dark, w: 5 });
+  b += line([[-60, 10], [-100, 160]], { w: 12, passes: 1 }) + line([[60, 10], [100, 160]], { w: 12, passes: 1 });
+  return g(b, x, y, s);
+}
+// 2画面の携帯機（一般形）
+export function dualScreen(x, y, s = 1, k = 0) {
+  let b = rect(-170, -230, 340, 220, { fill: C.gray }) + rect(-130, -200, 260, 160, { fill: C.sky, w: 4 });
+  b += rect(-170, 0, 340, 220, { fill: C.gray }) + rect(-110, 30, 220, 150, { fill: C.white, w: 4 });
+  b += line([[-60 + k * 80, 150], [-30 + k * 80, 60]], { w: 7, color: C.dark, passes: 1 });
+  return g(b, x, y, s);
+}
+// リモコン型コントローラー
+export function remote(x, y, s = 1, rot = 0) {
+  const b = rect(-26, -150, 52, 300, { fill: C.white }) + ellipse(0, -100, 16, 16, { fill: C.blue, w: 4 }) + rect(-10, -60, 20, 20, { fill: C.gray, w: 3 });
+  return `<g transform="translate(${x} ${y}) rotate(${rot}) scale(${s})">${b}</g>`;
+}
+// 持ち運べる据え置き機（一般形：画面＋左右のコントローラー）
+export function hybridConsole(x, y, s = 1, split = 0) {
+  let b = rect(-200, -120, 400, 240, { fill: C.dark }) + rect(-180, -100, 360, 200, { fill: C.sky, w: 4 });
+  b += ellipse(-40, 0, 40, 40, { fill: C.yellow, w: 4 }) + ellipse(60, 30, 24, 24, { fill: C.red, w: 4 });
+  b += rect(-280 - split * 120, -120, 80, 240, { fill: '#9a9aa6' }) + rect(200 + split * 120, -120, 80, 240, { fill: '#9a9aa6' });
+  return g(b, x, y, s);
+}
+// 家の断面（テレビの前に家族）
+export function houseFrame(x, y, s = 1) {
+  return g(poly([[-260, 0], [-260, -300], [0, -470], [260, -300], [260, 0]], { fill: '#f4e4c8' }) + rect(-260, -10, 520, 20, { fill: C.brown, w: 5 }), x, y, s);
+}
+// 門と夕焼け
+export function gate(x, y, s = 1) {
+  return g(rect(-260, -260, 60, 260, { fill: C.gray }) + rect(200, -260, 60, 260, { fill: C.gray }) + rect(-280, -300, 560, 50, { fill: C.dark, w: 5 }), x, y, s);
+}
+
+// ショートの名物：すみっこでこっそり遊ぶネコ（毎回ちがう物で遊ぶ）
+export function sneakyCat(x, y, t, toy = '') {
+  let b = ellipse(0, 0, 70, 50, { fill: C.gray }) + ellipse(-60, -50, 42, 38, { fill: C.gray });
+  b += poly([[-92, -76], [-84, -112], [-64, -84]], { fill: C.gray, w: 5 }) + poly([[-56, -86], [-40, -116], [-30, -82]], { fill: C.gray, w: 5 });
+  b += ellipse(-74, -52, 5, 6, { fill: C.ink, w: 3 }) + ellipse(-48, -52, 5, 6, { fill: C.ink, w: 3 });
+  b += line([[60, 10], [110, -30 + Math.sin(t * 4) * 12], [130, -70]], { w: 10, color: C.ink, passes: 1 });
+  b += `<g transform="translate(-40 0)">${toy}</g>`;
+  return `<g transform="translate(${x} ${y})">${b}</g>`;
+}
