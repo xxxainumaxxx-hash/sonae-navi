@@ -101,10 +101,11 @@ def speakable(line, table):
     return line
 
 
-def build(lines, dst_mp3, dst_json, tmp):
+def build(lines, dst_mp3, dst_json, tmp, overrides=None):
     table = readings()
     shown = lines                                   # 字幕に出す文（漢字のまま）
-    lines = [speakable(l, table) for l in lines]    # 声に読ませる文（読み方の辞書で置きかえ）
+    # 声に読ませる文（読み方の辞書で置きかえ。行ごとの指定 overrides があればそちらを使う）
+    lines = [(overrides or {}).get(i) or speakable(l, table) for i, l in enumerate(lines)]
     text = ''.join(lines)
     r = tts(text, tmp)
     raw = os.path.join(tmp, 'raw.mp3')
@@ -146,8 +147,52 @@ def build(lines, dst_mp3, dst_json, tmp):
     return dur
 
 
+def load_overrides(vd):
+    p = os.path.join(vd, 'overrides.json')
+    return json.load(open(p)) if os.path.exists(p) else {}
+
+
+def patch_lines(ep, ids, scenes, vd, tmp):
+    """指定した行（例 04-1）だけ声を作り直して、場面の音声に差し込む。ほかの行の音声はそのまま残す"""
+    ov = load_overrides(vd)
+    by_scene = {}
+    for rid in ids:
+        sn, ln = rid.split('-'); by_scene.setdefault(sn, []).append(int(ln) - 1)
+    for sn, idxs in by_scene.items():
+        mp3, js = os.path.join(vd, f'{sn}.mp3'), os.path.join(vd, f'{sn}.json')
+        d = json.load(open(js))
+        for k in sorted(idxs, reverse=True):          # 後ろの行から差し込む（前の行の時刻がずれないように）
+            lines = d['lines']
+            line_text = scenes[int(sn) - 1][k]
+            one_mp3, one_js = os.path.join(tmp, 'one.mp3'), os.path.join(tmp, 'one.json')
+            build([line_text], one_mp3, one_js, tmp, {0: ov.get(f'{sn}-{k + 1}')})
+            one = json.load(open(one_js))
+            a = lines[k]['start']
+            b = lines[k + 1]['start'] if k + 1 < len(lines) else d['duration']
+            new_len = one['duration'] + (GAP_KEEP if k + 1 < len(lines) else 0)
+            seg = os.path.join(tmp, 'spliced.mp3')
+            fc = (f"[0:a]atrim=0:{a:.3f},asetpts=PTS-STARTPTS[x];[1:a]apad=pad_dur={GAP_KEEP if k + 1 < len(lines) else 0},asetpts=PTS-STARTPTS[y];"
+                  f"[0:a]atrim=start={b:.3f},asetpts=PTS-STARTPTS[z];[x][y][z]concat=n=3:v=0:a=1[a]")
+            subprocess.check_call(['ffmpeg', '-y', '-v', 'error', '-i', mp3, '-i', one_mp3, '-filter_complex', fc, '-map', '[a]', '-b:a', '160k', seg])
+            subprocess.check_call(['cp', seg, mp3])
+            shift = a + new_len - b
+            lines[k] = dict(one['lines'][0], line=line_text, start=round(a + one['lines'][0]['start'], 3), end=round(a + one['lines'][0]['end'], 3))
+            for j in range(k + 1, len(lines)):
+                lines[j]['start'] = round(lines[j]['start'] + shift, 3); lines[j]['end'] = round(lines[j]['end'] + shift, 3)
+            d['duration'] = float(subprocess.check_output(['ffprobe', '-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', mp3]))
+            json.dump(d, open(js, 'w'), ensure_ascii=False, indent=1)
+            print(f'{sn}-{k + 1}: 作り直して差し込み（{one["lines"][0]["spoken"]}）')
+
+
 def main():
     ep = sys.argv[1]
+    # --lines 04-1,04-5：その行だけ作り直して差し込む（ほかの行の音声は変えない）
+    if '--lines' in sys.argv:
+        ids = sys.argv[sys.argv.index('--lines') + 1].split(',')
+        vd = os.path.join(ROOT, 'voice', ep)
+        with tempfile.TemporaryDirectory() as tmp:
+            patch_lines(ep, ids, narration(ep), vd, tmp)
+        return
     only = set(int(x) for x in sys.argv[2:])  # 場面番号を指定すると、その場面だけ作り直す
     vd = os.path.join(ROOT, 'voice', ep)
     os.makedirs(vd, exist_ok=True)
@@ -157,7 +202,8 @@ def main():
             if not lines or (only and i not in only):
                 continue
             n = f'{i:02d}'
-            d = build(lines, os.path.join(vd, f'{n}.mp3'), os.path.join(vd, f'{n}.json'), tmp)
+            ov = {int(k.split('-')[1]) - 1: v for k, v in load_overrides(vd).items() if k.split('-')[0] == n}
+            d = build(lines, os.path.join(vd, f'{n}.mp3'), os.path.join(vd, f'{n}.json'), tmp, ov)
             total += d
             print(f'{n}: {d:.1f}秒  ({sum(len(l) for l in lines)}字)')
     print(f'合計 {total:.1f}秒')
