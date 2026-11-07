@@ -22,7 +22,8 @@ const mix = (a, b, k) => a.map((v, i) => lerp(v, b[i], k));
 const pres = (o) => kid({ hair: 'side', hairColor: '#2a2420', shirt: C.white, jacket: '#2f3b5c', tie: RED, pants: '#2c3350', ...o });
 const crafts = (o) => kid({ hair: 'bald', hairColor: '#3a2d25', mustache: true, shirt: '#7a5a3a', pants: '#4a3a2a', ...o });
 // バストアップ：顔が画面の上3分の1あたりに来るよう大きく置く
-const bust = (fn, x, o = {}) => fn({ x, y: 1290, s: 3.0, ...o });
+// 人物は基本「腰から上（画面の高さの5〜6割）」。close: true のときだけ顔のアップ
+const bust = (fn, x, o = {}) => { const { close, ...r } = o; return fn({ x, ...r, y: close ? 1290 : 1100, s: close ? (r.s || 3.0) : 1.85 }); };
 
 // 筆で花札に色を塗るアップ
 function paintingCloseup(tl) {
@@ -160,7 +161,7 @@ export const scenes = [
       (tl, d, t) => cam(fill('#e7e0f0') + glow(700, 500, 600, '#fff', 0.3) + bust(pres, 620, { blink: blinking(t, 2), look: [1, 0], expr: 'smile' }) +
         xf(big(countUp(22, tl, 1.0) + '歳', 1400, 520, 220, RED), { s: popS(tl, 0.2), cx: 1400, cy: 440 }) + typeText('山内溥', 1400, 720, tl, { size: 80, color: INK, delay: 1.0 }), tl, d, { z0: 1.0, z1: 1.06, x0: 900 }),
       // 2 若き社長は、とにかく大胆だった。
-      (tl, d, t) => cam(fill(RED) + glow(960, 400, 700, '#fff', 0.18) + bust(pres, 960, { s: 3.4, blink: blinking(t, 2), arms: P.hips, look: [0, 0], expr: 'smile' }), tl, d, { z0: 1.0, z1: 1.15, y0: 500, y1: 420 }),
+      (tl, d, t) => cam(fill(RED) + glow(960, 400, 700, '#fff', 0.18) + bust(pres, 960, { close: true, s: 3.4, blink: blinking(t, 2), arms: P.hips, look: [0, 0], expr: 'smile' }), tl, d, { z0: 1.0, z1: 1.15, y0: 500, y1: 420 }),
       // 3 1953年、日本で初めてプラスチック製のトランプを発売。紙より丈夫で、水にも強い。
       (tl, d) => {
         let s = fill('#cfe6f5') + xf(playingCard(0, 0, 3.0, Math.sin(tl * 2) * 6, '♠'), { x: 960, y: 600 }) + rainCloud(960, 120, tl, 2.0);
