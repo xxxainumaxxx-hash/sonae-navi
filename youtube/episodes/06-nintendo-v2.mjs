@@ -25,15 +25,25 @@ const crafts = (o) => kid({ hair: 'bald', hairColor: '#3a2d25', mustache: true, 
 // 人物は基本「腰から上（画面の高さの5〜6割）」。close: true のときだけ顔のアップ
 const bust = (fn, x, o = {}) => { const { close, ...r } = o; return fn({ x, ...r, y: close ? 1290 : 1100, s: close ? (r.s || 3.0) : 1.85 }); };
 
-// 筆で花札に色を塗るアップ
+// 職人が作業台で、筆を持って花札に色を塗っている（腰から上）
 function paintingCloseup(tl) {
-  const k = 0.35 + 0.65 * clamp(tl / 2.2); // 最初のコマから半分ほど塗られた状態で始める
-  let s = hanafuda(820, 560, 3.4, -4, 2);
-  // 塗られていない部分を紙色で隠し、筆が進むにつれて見えてくる
-  s += `<rect x="${600 + k * 460}" y="160" width="${520 - k * 460}" height="820" fill="${CREAM}" opacity="0.92"/>`;
-  const bx = 620 + k * 440 + Math.sin(tl * 9) * 20, by = 520 + Math.cos(tl * 7) * 60;
-  s += line([[bx, by], [bx + 260, by - 300]], { w: 22, color: '#8a5a34', passes: 1 }) + ellipse(bx - 6, by + 8, 20, 30, { fill: C.pink, w: 5 });
-  s += ellipse(bx + 300, by - 330, 70, 60, { fill: C.skin, w: 6 });
+  const k = 0.25 + 0.75 * clamp(tl / 2.4); // 塗り終わった割合
+  let s = glow(1260, 560, 700, '#fff3d6', 0.35);
+  // 奥の壁に、できあがった札を並べた棚
+  s += rect(80, 290, 560, 16, { fill: C.brown, w: 4 }) + [0, 1, 2, 3].map((i) => hanafuda(150 + i * 135, 230, 0.42, -4 + i * 3, i)).join('');
+  // 職人（右手を上げて筆を持つ）
+  s += crafts({ x: 700, y: 1100, s: 1.85, arms: [12, 8, 100, -50], blink: blinking(tl, 3), expr: 'smile', look: [1, 0.3] });
+  // 塗る前の白い札 → 左から色が入っていく
+  const cx = 1270, cy = 610, sc = 2.2;
+  s += `<g transform="translate(${cx} ${cy}) rotate(4) scale(${sc})">${rect(-70, -110, 140, 220, { fill: C.white })}</g>`;
+  const w = 330 * k;
+  s += `<clipPath id="paintclip"><rect x="${cx - 165}" y="${cy - 260}" width="${w}" height="520"/></clipPath><g clip-path="url(#paintclip)">${hanafuda(cx, cy, sc, 4, 1)}</g>`;
+  // 筆：手から、いま塗っている所へ
+  const tipx = cx - 150 + w, tipy = cy - 80 + Math.sin(tl * 8) * 120;
+  s += line([[1013, 815], [tipx, tipy]], { w: 16, color: '#8a5a34', passes: 1 }) + ellipse(tipx, tipy, 16, 24, { fill: C.red, w: 5 });
+  s += ellipse(1013, 815, 30, 30, { fill: C.skin, w: 6 });
+  // 手前の作業台（足を隠す）
+  s += `<rect x="-200" y="872" width="2400" height="500" fill="#a8774a"/>` + rect(-200, 870, 2400, 500, { fill: '#a8774a', w: 6 }) + ellipse(560, 920, 90, 22, { fill: C.red, w: 4 }) + ellipse(760, 930, 70, 18, { fill: C.green, w: 4 }) + ellipse(400, 935, 60, 16, { fill: C.yellow, w: 4 });
   return s;
 }
 
@@ -44,7 +54,7 @@ export const scenes = [
     draw: (t, c) => shots(t, c, [
       // 0 花札を手で塗っていた、京都の小さな店。
       (tl, d) => {
-        if (tl < d * 0.6) return cam(fill(CREAM) + paintingCloseup(tl), tl, d * 0.6, { z0: 1.15, z1: 1.25, x0: 820, y0: 560 });
+        if (tl < d * 0.6) return cam(fill(SEPIA) + paintingCloseup(tl), tl, d * 0.6, { z0: 1.0, z1: 1.1, x0: 960, x1: 1060, y0: 540 });
         return cam(fill(SEPIA) + townRow(820, 7, -200, 340) + fill('none') + shop(960, 900, 1.25), tl - d * 0.6, d * 0.4, { z0: 1.3, z1: 1.0, y0: 620, y1: 560 });
       },
       // 1 その店が130年後、ゲーム機を1億5000万台以上売る会社になる。
