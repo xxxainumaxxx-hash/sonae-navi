@@ -24,7 +24,8 @@ export async function openShooter(root, workDir, { w = 1920, h = 1080, css = '' 
   let browser, page;
   async function open() {
     try { if (browser) await browser.close(); } catch {}
-    browser = await chromium.launch();
+    // コンテナでは共有メモリが小さく、重いコマでブラウザが落ちるので、それを使わない設定にする
+    browser = await chromium.launch({ args: ['--disable-dev-shm-usage'] });
     page = await browser.newPage({ viewport: { width: w, height: h } });
     await page.goto(pathToFileURL(shell).href);
   }

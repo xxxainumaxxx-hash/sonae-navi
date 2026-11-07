@@ -165,3 +165,5 @@ const final = path.join(OUT, `${epId}.mp4`);
 sh('ffmpeg', ['-y', '-v', 'error', '-framerate', String(FPS), '-i', path.join(FR, 'f%05d.png'), '-i', audio,
   '-vf', 'fps=30', '-c:v', 'libx264', '-preset', 'medium', '-crf', '21', '-pix_fmt', 'yuv420p', '-c:a', 'copy', '-shortest', '-movflags', '+faststart', final]);
 console.log(`完成: ${final}`);
+// コマ画像は大きい（10分で約18GB）ので、完成したら消す。残したいときは --keep-frames
+if (!process.argv.includes('--keep-frames')) fs.rmSync(FR, { recursive: true, force: true });
