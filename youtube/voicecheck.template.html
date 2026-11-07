@@ -61,6 +61,12 @@ h2 { font-size: 14px; font-weight: 900; color: var(--accent); margin: 26px 0 8px
 .btn.fix[aria-pressed="true"] { background: var(--fix); border-color: var(--fix); color: var(--surface); }
 .memo { flex: 1 1 220px; min-width: 0; font: inherit; font-size: 14px; padding: 7px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); }
 .empty { color: var(--muted); padding: 24px 0; text-align: center; }
+.player { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 10px; }
+.cont { font: inherit; font-size: 15px; font-weight: 900; padding: 9px 18px; border-radius: 999px; border: none; background: var(--accent); color: var(--accent-ink); cursor: pointer; }
+.cont[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.now { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; min-width: 0; }
+.row[data-playing="true"] { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+.from { font: inherit; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--muted); cursor: pointer; }
 @media (prefers-reduced-motion: no-preference) { .row { transition: border-color .2s; } }
 </style>
 
@@ -70,15 +76,19 @@ h2 { font-size: 14px; font-weight: 900; color: var(--accent); margin: 26px 0 8px
     <div class="ep">__EP__</div>
     <div class="progress" id="progress"></div>
     <div class="bar" id="bar"><i class="b-ok"></i><i class="b-fix"></i></div>
+    <div class="player">
+      <button class="cont" id="cont" aria-pressed="false">▶ 通しで再生</button>
+      <span class="now" id="now" aria-live="polite"></span>
+    </div>
     <div class="filters" role="group" aria-label="表示する行">
-      <button class="chip" id="f-ai" data-f="ai" aria-pressed="true">AIが気になった行</button>
+      <button class="chip" id="f-all" data-f="all" aria-pressed="true">全部</button>
+      <button class="chip" id="f-ai" data-f="ai" aria-pressed="false">AIが気になった行</button>
       <button class="chip" id="f-todo" data-f="todo" aria-pressed="false">未チェック</button>
       <button class="chip" id="f-fix" data-f="fix" aria-pressed="false">直す</button>
-      <button class="chip" id="f-all" data-f="all" aria-pressed="false">全部</button>
     </div>
     <div class="status" id="status" role="status"></div>
   </header>
-  <p class="note">▶で1行ずつ聞けます。読み間違いや言い方が変なら「直す」を押して、正しい読み方やどう変かをメモに書いてください。押した内容はそのまま保存され、Claude が読みます。「AIが気になった行」は、声を文字に戻したときに台本と食い違った行です（漢字とひらがなの違いだけのこともあります）。</p>
+  <p class="note">「通しで再生」で上から順に流れます（各行の「ここから」でその行から）。読み間違いや言い方が変なら「直す」を押すと再生が止まるので、正しい読み方やどう変かをメモに書いてください。押した内容はそのまま保存され、Claude が読みます。「AIが気になった行」は、声を文字に戻したときに台本と食い違った行です（漢字とひらがなの違いだけのこともあります）。</p>
   <main id="list"></main>
 </div>
 
@@ -86,7 +96,7 @@ h2 { font-size: 14px; font-weight: 900; color: var(--accent); margin: 26px 0 8px
 const EP = "__EP__";
 const ROWS = __DATA__;
 const state = {};            // id -> {status, memo}
-let filter = 'ai';
+let filter = 'all';
 let db = null;
 const $ = (s) => document.querySelector(s);
 const statusEl = $('#status');
@@ -110,13 +120,56 @@ function visible(r) {
   return true;
 }
 let audio = null, playingId = null;
-function play(r, btn) {
-  if (audio) { audio.pause(); document.querySelectorAll('.play[aria-pressed="true"]').forEach((b) => { b.setAttribute('aria-pressed', 'false'); b.textContent = '▶'; }); }
-  if (playingId === r.id) { playingId = null; return; }
-  audio = new Audio(r.audio); playingId = r.id;
-  btn.setAttribute('aria-pressed', 'true'); btn.textContent = '■';
-  audio.onended = () => { btn.setAttribute('aria-pressed', 'false'); btn.textContent = '▶'; playingId = null; };
-  audio.play().catch(() => {});
+let queue = null, qi = 0, resumeAt = null;   // 通し再生の行の並びと位置
+const contBtn = () => document.getElementById('cont');
+function markPlaying(id) {
+  document.querySelectorAll('.row[data-playing="true"]').forEach((el) => el.dataset.playing = 'false');
+  document.querySelectorAll('.play[aria-pressed="true"]').forEach((b) => { b.setAttribute('aria-pressed', 'false'); b.textContent = '▶'; });
+  if (!id) return;
+  const row = document.getElementById('row-' + id); if (!row) return;
+  row.dataset.playing = 'true';
+  const pb = row.querySelector('.play'); pb.setAttribute('aria-pressed', 'true'); pb.textContent = '■';
+  row.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+}
+function stopAll() {
+  if (audio) { audio.onended = null; audio.pause(); }
+  audio = null; playingId = null; markPlaying(null);
+}
+function playOne(r, onEnd) {
+  stopAll();
+  audio = new Audio(r.audio); playingId = r.id; markPlaying(r.id);
+  audio.onended = () => { playingId = null; markPlaying(null); onEnd && onEnd(); };
+  audio.play().catch(() => { stopQueue(); });
+}
+function updateCont() {
+  const b = contBtn(); if (!b) return;
+  if (queue) { b.textContent = '■ 止める'; b.setAttribute('aria-pressed', 'true'); }
+  else { b.textContent = resumeAt != null ? '▶ 続きから再生' : '▶ 通しで再生'; b.setAttribute('aria-pressed', 'false'); }
+  const now = document.getElementById('now');
+  if (queue) now.textContent = `${qi + 1} / ${queue.length} 行目を再生中`;
+  else if (resumeAt != null) now.textContent = `${resumeAt.label} から再開できます`;
+  else now.textContent = '';
+}
+function startQueue(fromId) {
+  queue = ROWS.filter(visible);
+  qi = Math.max(0, fromId ? queue.findIndex((r) => r.id === fromId) : 0);
+  resumeAt = null; nextInQueue();
+}
+function nextInQueue() {
+  if (!queue) return;
+  if (qi >= queue.length) { queue = null; resumeAt = null; updateCont(); document.getElementById('now').textContent = '最後まで再生しました'; return; }
+  updateCont();
+  playOne(queue[qi], () => { qi++; nextInQueue(); });
+}
+function stopQueue(keepResume) {
+  if (queue && keepResume) { const r = queue[qi + 1]; resumeAt = r ? { id: r.id, label: r.id } : null; }
+  else if (queue) { const r = queue[qi]; resumeAt = r ? { id: r.id, label: r.id } : null; }
+  queue = null; stopAll(); updateCont();
+}
+function play(r) {   // 1行だけ再生（▶ボタン）
+  if (playingId === r.id) { stopQueue(); return; }
+  if (queue) stopQueue();
+  playOne(r);
 }
 function render() {
   const list = $('#list'); list.innerHTML = '';
@@ -126,9 +179,9 @@ function render() {
   for (const r of shown) {
     if (r.scene !== scene) { scene = r.scene; const h = document.createElement('h2'); h.textContent = `場面 ${scene}`; list.append(h); box = document.createElement('div'); box.className = 'list'; list.append(box); }
     const s = state[r.id] || {};
-    const row = document.createElement('div'); row.className = 'row'; row.dataset.state = s.status || '';
+    const row = document.createElement('div'); row.className = 'row'; row.id = 'row-' + r.id; row.dataset.state = s.status || ''; row.dataset.playing = playingId === r.id ? 'true' : 'false';
     const pb = document.createElement('button'); pb.className = 'play'; pb.textContent = '▶'; pb.setAttribute('aria-label', `${r.id} を再生`); pb.setAttribute('aria-pressed', 'false');
-    pb.onclick = () => play(r, pb);
+    pb.onclick = () => play(r);
     const body = document.createElement('div'); body.className = 'body';
     const meta = document.createElement('div'); meta.className = 'meta';
     meta.innerHTML = `<span class="id">${r.id}</span>` + (r.flag ? `<span class="badge ai">AIの指摘 ${r.missing && r.missing.length ? '「' + r.missing.join('」「') + '」の読み' : '一致' + Math.round(r.score * 100) + '%'}</span>` : '') +
@@ -141,9 +194,11 @@ function render() {
     const fx = document.createElement('button'); fx.className = 'btn fix'; fx.textContent = '直す'; fx.setAttribute('aria-pressed', s.status === 'fix');
     const memo = document.createElement('input'); memo.className = 'memo'; memo.id = 'memo-' + r.id; memo.placeholder = '例：房治郎は「ふさじろう」'; memo.value = s.memo || ''; memo.hidden = s.status !== 'fix';
     ok.onclick = () => save(r.id, { status: s.status === 'ok' ? null : 'ok', memo: s.memo || '' });
-    fx.onclick = () => save(r.id, { status: s.status === 'fix' ? null : 'fix', memo: s.memo || '' }, true);
+    fx.onclick = () => { if (queue && s.status !== 'fix') stopQueue(playingId !== r.id); save(r.id, { status: s.status === 'fix' ? null : 'fix', memo: s.memo || '' }, true); };
     memo.onchange = () => save(r.id, { status: 'fix', memo: memo.value });
-    act.append(ok, fx, memo);
+    const from = document.createElement('button'); from.className = 'from'; from.textContent = 'ここから'; from.setAttribute('aria-label', `${r.id} から通しで再生`);
+    from.onclick = () => { stopAll(); startQueue(r.id); };
+    act.append(ok, fx, from, memo);
     row.append(pb, body, act); box.append(row);
   }
   renderProgress();
@@ -158,10 +213,10 @@ async function save(id, val, focusMemo) {
   } catch (e) { statusEl.textContent = '保存できませんでした。通信を確認して、もう一度押してください。'; }
 }
 document.querySelectorAll('.chip').forEach((c) => c.onclick = () => {
-  filter = c.dataset.f; document.querySelectorAll('.chip').forEach((x) => x.setAttribute('aria-pressed', x === c)); render();
+  filter = c.dataset.f; document.querySelectorAll('.chip').forEach((x) => x.setAttribute('aria-pressed', x === c)); if (queue) stopQueue(); resumeAt = null; render(); updateCont();
 });
-if (!ROWS.some((r) => r.flag)) { filter = 'all'; document.querySelectorAll('.chip').forEach((x) => x.setAttribute('aria-pressed', x.dataset.f === 'all')); }
-render();
+document.getElementById('cont').onclick = () => { if (queue) stopQueue(); else startQueue(resumeAt ? resumeAt.id : null); };
+render(); updateCont();
 statusEl.textContent = '保存先に接続しています…';
 (async () => {
   try {

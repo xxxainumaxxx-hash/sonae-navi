@@ -7,7 +7,7 @@
 - 出力：voice/<話ID>/NN.mp3 と NN.json（各行の開始・終了秒。animate.mjs が絵のタイミング合わせに使う）
 - APIキーは環境のネットワーク設定で自動的に付く（コードには書かない）
 """
-import base64, json, os, subprocess, sys, tempfile
+import base64, json, os, re, subprocess, sys, tempfile
 
 VOICE_ID = '3JDquces8E8bkmvbh6Bc'  # Otani
 MODEL = 'eleven_v3'
@@ -51,6 +51,13 @@ def readings():
 def speakable(line, table):
     for k, v in table:
         line = line.replace(k, v)
+    # 「14,800円」のような3桁区切りのカンマは読み間違えるので、声では外す（字幕はそのまま）
+    line = re.sub(r'(?<=\d),(?=\d{3})', '', line)
+    # 5桁以上の数は「万」で区切ると正しく読む（14800 → 1万4800）
+    def man(m):
+        n = int(m.group(0)); hi, lo = divmod(n, 10000)
+        return f'{hi}万' + (str(lo) if lo else '')
+    line = re.sub(r'(?<![\d.])\d{5,8}(?![\d.])', man, line)
     return line
 
 

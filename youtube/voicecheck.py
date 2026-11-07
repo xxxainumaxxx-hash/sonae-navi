@@ -11,7 +11,28 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 FLAG_BELOW = 0.85  # 台本との一致率がこれより低い行に印
 
 
+KD = {'〇': 0, '零': 0, '一': 1, '二': 2, '三': 3, '四': 4, '五': 5, '六': 6, '七': 7, '八': 8, '九': 9}
+KU = {'十': 10, '百': 100, '千': 1000}
+KB = {'万': 10 ** 4, '億': 10 ** 8}
+
+
+def to_num(run):
+    # 「一万四千八百」「1億5000万」「二十二」「一九八〇」「14,800」をすべて数字にそろえる
+    total = section = cur = 0
+    for ch in run:
+        if ch == ',':
+            continue
+        if ch.isdigit() or ch in KD:
+            cur = cur * 10 + (int(ch) if ch.isdigit() else KD[ch])
+        elif ch in KU:
+            section += (cur or 1) * KU[ch]; cur = 0
+        elif ch in KB:
+            total += (section + cur or 1) * KB[ch]; section = cur = 0
+    return str(total + section + cur)
+
+
 def norm(s):
+    s = re.sub(r'[0-9〇零一二三四五六七八九][0-9〇零一二三四五六七八九十百千万億,]*', lambda m: to_num(m.group(0)), s)
     return re.sub(r'[\s、。，．,.！？!?「」『』（）()・…ー〜~\-]', '', s)
 
 
