@@ -45,5 +45,13 @@
 ---
 
 ## 決まっていること（メモ）
-- ナレーター：候補5人（Asu／Riku／Koji／Mio／Chihiro）のサンプルを作成済み。**まだ選んでいない。** 選んだ声を全作品で使う。
-- 声は ElevenLabs のAPIで作る（キーは環境に登録済み。モデルは eleven_multilingual_v2）。
+- **作る順番**：台本 → 声 → 絵。声と一緒に「どの文字を何秒に読んだか」のデータ（ElevenLabs の with-timestamps）を取り、言葉と絵のタイミングをぴったり合わせる。
+- **チャンネルの声（ロングもショートも共通）**
+  - 声：Otani（voice_id `3JDquces8E8bkmvbh6Bc`）
+  - モデル：eleven_v3
+  - 後処理：文と文の間を約0.25秒まで詰める → 1.35倍速（音の高さは変えない）
+    - ffmpeg: `silenceremove=start_periods=1:start_threshold=-40dB:stop_periods=-1:stop_duration=0.25:stop_silence=0.25:stop_threshold=-40dB,atempo=1.35`
+  - 速さの目安：約7字/秒。**ロング台本は3,800字以上**（8分を切らないため）。
+  - しんみりした場面だけ、間を少し長めに残す調整もあり。
+- 数字・人名は聞き取りにくくなるので、画面に大きく文字を出して補う。
+- ElevenLabs のAPIキーは環境に登録済み。
