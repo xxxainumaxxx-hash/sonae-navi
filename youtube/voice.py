@@ -41,7 +41,23 @@ def tts(text, tmp):
     raise SystemExit('ElevenLabs request failed')
 
 
+def readings():
+    p = os.path.join(ROOT, 'voice', 'readings.json')
+    d = json.load(open(p)) if os.path.exists(p) else {}
+    # 長い言葉から先に置きかえる（「山内房治郎」を「房治郎」より先に）
+    return sorted(((k, v) for k, v in d.items() if not k.startswith('_')), key=lambda kv: -len(kv[0]))
+
+
+def speakable(line, table):
+    for k, v in table:
+        line = line.replace(k, v)
+    return line
+
+
 def build(lines, dst_mp3, dst_json, tmp):
+    table = readings()
+    shown = lines                                   # 字幕に出す文（漢字のまま）
+    lines = [speakable(l, table) for l in lines]    # 声に読ませる文（読み方の辞書で置きかえ）
     text = ''.join(lines)
     r = tts(text, tmp)
     raw = os.path.join(tmp, 'raw.mp3')
@@ -76,7 +92,7 @@ def build(lines, dst_mp3, dst_json, tmp):
         print('  ! alignment length differs from text; using proportional fallback', file=sys.stderr)
     for line in lines:
         i0, i1 = pos, min(pos + len(line), n) - 1
-        out.append({'line': line, 'start': round(remap(st[min(i0, n - 1)]), 3), 'end': round(remap(en[max(i1, 0)]), 3)})
+        out.append({'line': shown[len(out)], 'spoken': line, 'start': round(remap(st[min(i0, n - 1)]), 3), 'end': round(remap(en[max(i1, 0)]), 3)})
         pos += len(line)
     dur = float(subprocess.check_output(['ffprobe', '-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', dst_mp3]))
     json.dump({'duration': dur, 'lines': out}, open(dst_json, 'w'), ensure_ascii=False, indent=1)
