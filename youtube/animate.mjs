@@ -24,7 +24,9 @@ const LEAD = SHORT ? 0.05 : 0.35, TAIL = SHORT ? 0.15 : 0.6;
 const CPS = SHORT ? 8.5 : 7.5; // 声が無いときの読む速さ（文字/秒）
 const OUT = path.join(ROOT, 'out', epId), FR = path.join(OUT, checkEvery ? 'check' : 'anim');
 const VOICE = path.join(ROOT, 'voice', epId);
-fs.rmSync(FR, { recursive: true, force: true });
+// --resume：描き出し済みのコマを残して続きから（途中で止まったとき用）
+const RESUME = process.argv.includes('--resume');
+if (!RESUME) fs.rmSync(FR, { recursive: true, force: true });
 fs.mkdirSync(FR, { recursive: true });
 fs.mkdirSync(VOICE, { recursive: true });
 const pad = (n, w = 2) => String(n).padStart(w, '0');
@@ -136,6 +138,7 @@ await Promise.all(Array.from({ length: NW }, async (_, w) => {
   const { shot, close } = await openShooter(ROOT, path.join(OUT, `_w${w}`), { w: W, h: H, css: CSS });
   for (let k = w; k < frames.length; k += NW) {
     const f = frames[k];
+    if (RESUME && !checkEvery && fs.existsSync(path.join(FR, `f${pad(f, 5)}.png`))) { done++; continue; }
     await shot(frameHtml(f), path.join(FR, checkEvery ? `t${pad(Math.round(f / FPS), 3)}.png` : `f${pad(f, 5)}.png`));
     if (++done % 60 === 0) console.log(`  ${done}/${frames.length}`);
   }

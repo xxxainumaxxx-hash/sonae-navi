@@ -32,7 +32,11 @@ export async function openShooter(root, workDir, { w = 1920, h = 1080, css = '' 
         .map((f) => document.fonts.load(f, txt || 'あ')));
       await document.fonts.ready;
     });
-    await page.screenshot({ path: file, omitBackground: transparent });
+    // ブラウザが一時的に撮影に失敗することがあるので、数回撮り直す
+    for (let tries = 0; ; tries++) {
+      try { await page.screenshot({ path: file, omitBackground: transparent }); break; }
+      catch (e) { if (tries >= 4) throw e; await new Promise((r) => setTimeout(r, 500 * (tries + 1))); }
+    }
   }
   return { shot, close: () => browser.close() };
 }
