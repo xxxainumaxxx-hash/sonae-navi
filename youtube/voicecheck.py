@@ -88,11 +88,18 @@ def main():
                 })
                 print(f"{rows[-1]['id']}  {score:.2f}  {'⚠' if rows[-1]['flag'] else ' '}  {l['line'][:24]} / {heard[:24]}")
     meta = {k: v for k, v in [('ep', ep)]}
+    # 声が前回から何も変わっていなければ、同じ回のまま作り直す（2回続けて実行しても回が進まず、「修正した行」も消えない）
+    unchanged = bool(prev) and all(prev.get(r['id'], {}).get('spoken') == r['spoken'] for r in rows)
+    if unchanged:
+        round_no = review.get('round', 1)
+        for r in rows:
+            r['recheck'] = prev.get(r['id'], {}).get('recheck', False)
     json.dump([{k: v for k, v in r.items() if k != 'audio'} for r in rows], open(os.path.join(vd, 'check.json'), 'w'), ensure_ascii=False, indent=1)
     tpl = open(os.path.join(ROOT, 'voicecheck.template.html'), encoding='utf-8').read()
     page = tpl.replace('__ROUND__', str(round_no)).replace('__EP__', html.escape(ep)).replace('__DATA__', json.dumps(rows, ensure_ascii=False).replace('</', '<\\/'))
     open(os.path.join(od, 'voicecheck.html'), 'w', encoding='utf-8').write(page)
-    json.dump({'round': round_no, 'statuses': {}}, open(rv_p, 'w'), ensure_ascii=False, indent=1)
+    if not unchanged:
+        json.dump({'round': round_no, 'statuses': {}}, open(rv_p, 'w'), ensure_ascii=False, indent=1)
     flagged = sum(r['flag'] for r in rows)
     print(f'第{round_no}回のチェック。修正した行：{sum(r["recheck"] for r in rows)}行')
     print(f'\n{len(rows)}行のうち、AIが気になった行：{flagged}行 → {os.path.join(od, "voicecheck.html")}')

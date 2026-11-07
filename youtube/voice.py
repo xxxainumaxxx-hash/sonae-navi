@@ -64,8 +64,11 @@ def year_kana(y):
 
 
 def speakable(line, table):
-    for k, v in table:
-        line = line.replace(k, v)
+    # 長い言葉を優先して、1回で置きかえる（「横井軍平」を残したまま「横井」だけ置きかえられるように）
+    if table:
+        d = dict(table)
+        pat = re.compile('|'.join(re.escape(k) for k, _ in table))
+        line = pat.sub(lambda m: d[m.group(0)], line)
     # 「14,800円」のような3桁区切りのカンマは読み間違えるので、声では外す（字幕はそのまま）
     line = re.sub(r'(?<![\d])(1\d{3}|20\d{2})年', lambda m: year_kana(int(m.group(1))) + 'ねん', line)
     # 短い言葉の「」は、声では外す（前後で変に区切れるので）。長いセリフの「」は残す
