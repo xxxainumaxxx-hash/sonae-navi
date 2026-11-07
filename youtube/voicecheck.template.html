@@ -38,9 +38,9 @@ h1 { font-size: 20px; font-weight: 900; margin: 0; text-wrap: balance; }
 .chip:focus-visible, button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 .note { font-size: 13px; color: var(--muted); margin: 12px 0 0; }
 .status { font-size: 13px; color: var(--muted); margin-top: 6px; min-height: 1.4em; }
-h2 { font-size: 14px; font-weight: 900; color: var(--accent); margin: 26px 0 8px; letter-spacing: .04em; }
-.list { display: grid; gap: 10px; }
-.row { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; align-items: start; }
+h2 { font-size: 14px; font-weight: 900; color: var(--accent); margin: 16px 0 6px; letter-spacing: .04em; }
+.list { display: grid; gap: 6px; }
+.row { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; align-items: start; }
 .row[data-state="ok"] { border-color: var(--ok); }
 .row[data-state="fix"] { border-color: var(--fix); }
 .play { width: 44px; height: 44px; border-radius: 50%; border: none; background: var(--accent); color: var(--accent-ink); font-size: 16px; cursor: pointer; grid-row: span 2; display: grid; place-items: center; }
@@ -129,15 +129,17 @@ function markPlaying(id) {
   const row = document.getElementById('row-' + id); if (!row) return;
   row.dataset.playing = 'true';
   const pb = row.querySelector('.play'); pb.setAttribute('aria-pressed', 'true'); pb.textContent = '■';
-  row.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+  row.scrollIntoView({ block: 'center', behavior: 'auto' });
 }
 function stopAll() {
-  if (audio) { audio.onended = null; audio.pause(); }
+  if (audio) { audio.onended = null; audio.pause(); audio.currentTime = 0; }
   audio = null; playingId = null; markPlaying(null);
 }
+const cache = {};   // 次の行を先に読み込んでおき、切り替えの待ち時間をなくす
+function getAudio(r) { if (!cache[r.id]) { const a = new Audio(r.audio); a.preload = 'auto'; cache[r.id] = a; } return cache[r.id]; }
 function playOne(r, onEnd) {
   stopAll();
-  audio = new Audio(r.audio); playingId = r.id; markPlaying(r.id);
+  audio = getAudio(r); audio.currentTime = 0; playingId = r.id; markPlaying(r.id);
   audio.onended = () => { playingId = null; markPlaying(null); onEnd && onEnd(); };
   audio.play().catch(() => { stopQueue(); });
 }
@@ -160,6 +162,7 @@ function nextInQueue() {
   if (qi >= queue.length) { queue = null; resumeAt = null; updateCont(); document.getElementById('now').textContent = '最後まで再生しました'; return; }
   updateCont();
   playOne(queue[qi], () => { qi++; nextInQueue(); });
+  if (queue[qi + 1]) getAudio(queue[qi + 1]).load();
 }
 function stopQueue(keepResume) {
   if (queue && keepResume) { const r = queue[qi + 1]; resumeAt = r ? { id: r.id, label: r.id } : null; }

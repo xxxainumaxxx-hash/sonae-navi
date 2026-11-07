@@ -60,8 +60,9 @@ def main():
             mp3 = os.path.join(vd, f'{n}.mp3')
             lines = d['lines']
             for i, l in enumerate(lines):
-                a = max(0.0, l['start'] - 0.05)
-                b = lines[i + 1]['start'] if i + 1 < len(lines) else d['duration']
+                # 読み終わった直後で切る（行と行の間の無音を残さない）
+                a = max(0.0, l['start'] - 0.03)
+                b = min(l['end'] + 0.08, lines[i + 1]['start'] if i + 1 < len(lines) else d['duration'])
                 clip = os.path.join(tmp, f'{n}-{i + 1}.mp3')
                 subprocess.check_call(['ffmpeg', '-y', '-v', 'error', '-ss', f'{a:.3f}', '-to', f'{b:.3f}', '-i', mp3,
                                        '-ac', '1', '-b:a', '48k', clip])
