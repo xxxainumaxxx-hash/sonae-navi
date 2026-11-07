@@ -48,14 +48,14 @@ export const SHOTS = {
       s += plane(tw(tl, 0, d, -300, 2300), 180, 0.8);
       return cam(s, tl, d, { z0: 1.0, z1: 1.35, y0: 540, y1: 700 });
     },
-    (tl, d, t) => cam(fill('#cfe6f5') + building(700, 1000, 300, 420, '#d8b080') + text('世界一の', 700, 640, { size: 46, font: 'Zen Maru Gothic', weight: 900 }) + text('トランプ会社', 700, 700, { size: 46, font: 'Zen Maru Gothic', weight: 900 }) +
+    (tl, d, t) => cam(fill('#cfe6f5') + building(700, 1000, 300, 420, '#d8b080') + text('世界一の', 700, 470, { size: 50, font: 'Zen Maru Gothic', weight: 900 }) + text('トランプ会社', 700, 535, { size: 46, font: 'Zen Maru Gothic', weight: 900 }) +
       mid(pres, 1450, { expr: 'wow', blink: blinking(t, 3), look: [-1, -0.5], flip: true }) + enter(bubble('この程度…？', 1150, 220, { size: 60 }), tl, 0.2, { cx: 1150, cy: 220 }), tl, d, { z0: 1.0, z1: 1.08, x0: 1000 }),
     (tl, d) => {
-      let s = fill(CREAM) + rect(300, 260, 1320, 40, { fill: INK });
-      s += text('これ以上は無理', 960, 230, { size: 56, color: RED, font: 'Zen Maru Gothic', weight: 900 });
+      let s = fill(CREAM) + rect(300, 300, 1320, 40, { fill: INK });
+      s += text('これ以上は無理', 960, 200, { size: 56, color: RED, font: 'Zen Maru Gothic', weight: 900 });
       const h = tw(tl, 0, d * 0.7, 0, 1, ease.out);
-      [0, 1, 2].forEach((i) => { const top = lerp(900, 320 + i * 0, h); s += rect(560 + i * 300, top, 200, 900 - top, { fill: [C.red, C.green, C.yellow][i] }) + hanafuda(660 + i * 300, top - 110, 0.7, 0, i); });
-      s += xf(text('ゴツン', 1500, 380, { size: 90, color: INK, font: 'Zen Maru Gothic', weight: 900, rot: 10 }), { s: popS(tl, d * 0.7), cx: 1500, cy: 350 });
+      [0, 1, 2].forEach((i) => { const top = lerp(900, 520, h); s += rect(560 + i * 300, top, 200, 900 - top, { fill: [C.red, C.green, C.yellow][i] }) + hanafuda(660 + i * 300, top - 95, 0.7, 0, i); });
+      s += xf(text('ゴツン', 1520, 420, { size: 90, color: INK, font: 'Zen Maru Gothic', weight: 900, rot: 10 }), { s: popS(tl, d * 0.7), cx: 1500, cy: 350 });
       return cam(s, tl, d, { z0: 1.05, z1: 1.0, x0: shake(tl, d * 0.7, 0.4, 12) + 960 });
     },
     (tl, d) => {
@@ -118,15 +118,15 @@ export const SHOTS = {
     },
     (tl, d, t) => {
       const ext = 0.5 - 0.5 * Math.cos(tl * 2.4);
-      return cam(fill('#d6e4dc') + gear(1700, 200, 100, tl * 40) + mid(worker, 600, { arms: P.hold, blink: blinking(t, 5), look: [1, 0], tilt: Math.sin(tl * 2.4) * 4 }) +
-        extendHand(640, 770, 1.6, ext), tl, d, { z0: 1.0, z1: 1.06, x0: 1000 });
+      return cam(fill('#d6e4dc') + gear(1700, 200, 100, tl * 40) + mid(worker, 600, { arms: [12, 8, 100, -50], blink: blinking(t, 5), look: [1, 0], tilt: Math.sin(tl * 2.4) * 4 }) +
+        extendHand(830, 860, 1.3, ext), tl, d, { z0: 1.0, z1: 1.06, x0: 1000 });
     },
     (tl, d) => {
       const ext = 0.5 - 0.5 * Math.cos(tl * 2.2);
       const tip = 200 + 6 * (22 + 48 * ext) * 2.4 + 200;
       return cam(fill(CREAM) + glow(960, 540, 800, C.yellow, 0.2) + extendHand(200, 560, 2.4, ext) + ball(ext > 0.85 ? tip : 1700, ext > 0.85 ? 560 : 640 - Math.abs(Math.sin(tl * 3)) * 80, 80, RED), tl, d, { z0: 1.05, z1: 1.0 });
     },
-    (tl, d, t) => cam(fill('#d6e4dc') + mid(worker, 520, { arms: P.hold, blink: blinking(t, 5), look: [1, 0], expr: 'wow' }) + extendHand(560, 770, 1.2, 0.4) +
+    (tl, d, t) => cam(fill('#d6e4dc') + mid(worker, 520, { arms: [12, 8, 100, -50], blink: blinking(t, 5), look: [1, 0], expr: 'wow' }) + extendHand(750, 860, 1.0, 0.4) +
       enter(mid(pres, 1450, { flip: true, look: [-1, 0], blink: blinking(t, 6), arms: P.idle }), tl, 0, { how: 'right', dist: 800 }), tl, d, { z0: 1.0, z1: 1.04 }),
     // 決め台詞：顔のアップ
     (tl, d, t) => cam(fill(RED) + glow(900, 500, 700, '#fff', 0.2) + close(pres, 760, { arms: P.point, expr: 'smile', blink: blinking(t, 6), look: [1, 0] }) +
@@ -193,8 +193,8 @@ export const SHOTS = {
     (tl, d, t) => {
       const fire = tl % 2.2;
       let s = fill('#e7efe0') + head('1970年　光線銃', tl);
-      s += mid(kid, 420, { hair: 'messy', shirt: C.blue, arms: P.aim, blink: blinking(t, 7), look: [1, 0] }) + lightGun(640, 640, 1.0, fire < 0.2 ? 1 - fire * 5 : 0);
-      if (fire < 0.3) s += line([[820, 630], [1420, 560]], { w: 7, color: C.yellow, passes: 1 });
+      s += mid(kid, 420, { hair: 'messy', shirt: C.blue, arms: P.aim, blink: blinking(t, 7), look: [1, 0] }) + lightGun(800, 780, 1.0, fire < 0.2 ? 1 - fire * 5 : 0);
+      if (fire < 0.3) s += line([[960, 760], [1420, 560]], { w: 7, color: C.yellow, passes: 1 });
       s += target(1500, 560, 1.4, fire > 0.25 && fire < 1.6 ? 1 : 0) + rect(1410, 690, 180, 70, { fill: '#2f4a7a', w: 5 }) + text('太陽電池', 1500, 738, { size: 34, color: C.white, font: 'Zen Maru Gothic', weight: 700 });
       return cam(s, tl, d, { z0: 1.0, z1: 1.05, x0: 960 });
     },

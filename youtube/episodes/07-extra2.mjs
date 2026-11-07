@@ -154,8 +154,8 @@ const S07 = {
   // 「…大ヒットとなった。」→ 子どもがのびる手で遊ぶ
   7: { after: [(tl, d, t) => {
     const ext = 0.5 - 0.5 * Math.cos(tl * 3);
-    let s = fill('#fff2c8') + glow(900, 500, 700, '#fff', 0.35) + mid(kid, 560, { hair: 'messy', shirt: C.orange, arms: P.hold, blink: blinking(t, 1), expr: 'smile', look: [1, 0] });
-    s += extendHand(620, 780, 1.4, ext) + ball(620 + 6 * (22 + 48 * ext) * 1.4 + 110, 780, 60, C.blue);
+    let s = fill('#fff2c8') + glow(900, 500, 700, '#fff', 0.35) + mid(kid, 560, { hair: 'messy', shirt: C.orange, arms: P.raise, blink: blinking(t, 1), expr: 'smile', look: [1, 0] });
+    s += extendHand(790, 860, 1.2, ext) + ball(790 + 6 * (22 + 48 * ext) * 1.2 + 100, 860, 55, C.blue);
     s += enter(sign('おもしろい！', 1400, 300, { size: 80, fill: RED, color: C.white }), tl, 0.4, { cx: 1400, cy: 300 });
     return cam(s, tl, d, { z0: 1.0, z1: 1.05 });
   }] },
@@ -290,8 +290,8 @@ const S11 = {
     return cam(s, tl, d, { z0: 1.0, z1: 1.05 });
   }] },
   // 「…子どもたちの遊びの中心になる。」→ コントローラーを握る子ども
-  5: { after: [(tl, d, t) => cam(fill('#ffe9d0') + glow(960, 500, 700, '#fff', 0.35) + mid(kid, 760, { hair: 'messy', shirt: C.blue, arms: P.hold, blink: blinking(t, 3), expr: 'smile', tilt: Math.sin(tl * 6) * 5 }) +
-    rect(640, 700, 240, 110, { fill: '#c9c0b4' }) + xf(dpad(0, 0, 0.4), { x: 700, y: 755 }) + tvConsole(1450, 640, 0.7, Math.max(0, Math.sin(tl * 5))), tl, d, { z0: 1.0, z1: 1.05, x0: 1000 })] },
+  5: { after: [(tl, d, t) => cam(fill('#ffe9d0') + glow(960, 500, 700, '#fff', 0.35) + mid(kid, 760, { hair: 'messy', shirt: C.blue, arms: P.raise, blink: blinking(t, 3), expr: 'smile', tilt: Math.sin(tl * 6) * 5 }) +
+    rect(880, 820, 240, 110, { fill: '#c9c0b4' }) + xf(dpad(0, 0, 0.4), { x: 940, y: 875 }) + tvConsole(1450, 640, 0.7, Math.max(0, Math.sin(tl * 5))), tl, d, { z0: 1.0, z1: 1.05, x0: 1000 })] },
   // 「1985年には「スーパーマリオブラザーズ」が登場し、」→ 新聞で大人気
   6: { after: [(tl, d) => cam(fill('#e8e2d4') + xf(paper('大人気！', 0, 0), { x: 960, y: 520, s: popS(tl, 0.1, 0.5), r: tw(tl, 0.1, 0.6, -360, -4, ease.out), cx: 0, cy: 0 }) +
     enter(sign('社会現象', 1500, 860, { size: 80, fill: RED, color: C.white }), tl, 0.7, { cx: 1500, cy: 860 }).replace(/translate\(1500 860\)/, 'translate(1500 800)'), tl, d, { z0: 1.0, z1: 1.05 })] },
@@ -465,7 +465,7 @@ const S16 = {
   }] },
   // 「…新しい遊び方で大ヒットする。」→ 外でも遊べる
   9: { after: [(tl, d, t) => cam(fill('#cfe6f5') + rect(-200, 800, 2400, 400, { fill: '#8fbf6a', color: null }) + ellipse(1600, 220, 90, 90, { fill: C.yellow, w: 5 }) + poly([[200, 800], [300, 520], [400, 800]], { fill: C.green }) +
-    mid(kid, 900, { hair: 'messy', shirt: C.orange, arms: P.hold, blink: blinking(t, 1), expr: 'smile', look: [0, 0.5] }) + hybridConsole(900, 820, 0.42, 0) + enter(sign('外でも', 1420, 360, { size: 90, fill: C.white }), tl, 0.3, { cx: 1420, cy: 360 }), tl, d, { z0: 1.0, z1: 1.05 })] },
+    mid(kid, 900, { hair: 'messy', shirt: C.orange, arms: P.hold, blink: blinking(t, 1), expr: 'smile', look: [0, 0.5] }) + hybridConsole(900, 890, 0.42, 0) + enter(sign('外でも', 1420, 360, { size: 90, fill: C.white }), tl, 0.3, { cx: 1420, cy: 360 }), tl, d, { z0: 1.0, z1: 1.05 })] },
   // 「テレビにつないでも、持ち出しても遊べる。」→ テレビから本体を抜く
   10: { before: [(tl, d) => {
     const k = tw(tl, 0.4, d * 0.8, 0, 1, ease.inOut);

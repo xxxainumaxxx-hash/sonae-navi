@@ -6,4 +6,4 @@ m bgm4 "Upbeat optimistic pop with a retro 8-bit chiptune lead over real drums a
 m bgm5 "Melancholic gentle solo piano with soft strings, reflective and quiet, slow." 48000; wait
 m bgm6 "Hopeful warm piano and strings, gradually building with light percussion, uplifting and inspiring finale." 130000 &
 s sfx_pop "soft cute cartoon pop, short bubble pop" 0.5; wait
-s sfx_swish "very light paper card flick, short" 0.5
+s sfx_soft "very soft gentle airy whoosh, low pitched, subtle and smooth, no click, short" 0.6

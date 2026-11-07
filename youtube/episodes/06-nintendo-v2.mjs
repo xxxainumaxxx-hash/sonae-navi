@@ -139,7 +139,7 @@ export const scenes = [
         enter(sign('看板商品', 960, 180, { size: 80, fill: RED, color: C.white }), tl, 0.4, { cx: 960, cy: 180 }), tl, d, { z0: 1.0, z1: 1.04 }),
       // 8 ちなみに「任天堂」という社名は、「運を天に任せる」という意味だと言われている。（伏線）
       (tl, d) => cam(fill(CREAM) + big('任', 560, 560, 300, RED) + big('天', 960, 560, 300, RED) + big('堂', 1360, 560, 300, RED) +
-        typeText('運を天に任せる', 960, 820, tl, { size: 100, color: INK, delay: 1.2, cps: 8, font: 'Yomogi', weight: 400 }), tl, d, { z0: 1.0, z1: 1.08 }),
+        typeText('運を天に任せる', 960, 820, tl, { size: 100, color: INK, delay: 0.3, cps: 12, font: 'Yomogi', weight: 400 }), tl, d, { z0: 1.0, z1: 1.08 }),
       // 9 カード遊びの店にふさわしい名前だ。
       (tl, d) => cam(fill(CREAM) + big('任天堂', 960, 460, 200, RED) + hanafuda(500, 800, 1.2, -12 + Math.sin(tl * 3) * 6, 0) + hanafuda(1420, 800, 1.2, 12, 2) +
         xf(text('🎲', 960, 860, { size: 160 }), { r: tl * 90, cx: 960, cy: 810 }), tl, d, { z0: 1.06, z1: 1.0 }),
@@ -202,7 +202,7 @@ export const scenes = [
         [[400, C.blue, 'messy', 1.9], [800, C.pink, 'side', 1.6], [1180, C.green, 'messy', 1.6], [1560, C.orange, 'side', 1.9]].forEach(([x, col, h, sc], i) => {
           s += kid({ x, y: 1240, s: sc, shirt: col, hair: h, blink: blinking(t, i), arms: P.hold, tilt: Math.sin(tl * 3 + i) * 5, expr: 'smile', flip: x > 960 });
         });
-        for (let i = 0; i < 5; i++) s += playingCard(700 + i * 130, 820 - Math.abs(Math.sin(tl * 4 + i)) * 40, 0.55, -20 + i * 10, i % 2 ? '♥' : '♠', i % 2 ? RED : INK);
+        for (let i = 0; i < 5; i++) s += playingCard(700 + i * 130, 520 - Math.abs(Math.sin(tl * 4 + i)) * 50, 0.55, -20 + i * 10, i % 2 ? '♥' : '♠', i % 2 ? RED : INK);
         return cam(s, tl, d, { z0: 1.08, z1: 1.0 });
       },
       // 7 任天堂は株式を上場し、トランプでは国内トップクラスの会社になった。
