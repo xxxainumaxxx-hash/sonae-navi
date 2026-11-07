@@ -1,15 +1,15 @@
-// ショート01：白黒がカラーに勝った理由（縦・約15秒・ループ）
+// ショート01：ゲームボーイは、なぜ勝った？（縦・約22秒・ループ）
 // ルール：scripts/SHORTS_RULES.md
 import { C, text, ellipse, poly, line } from '../lib/crayon.mjs';
-import { tw, popS, xf, enter, bob, camera, shake, blinking, clamp } from '../lib/anim.mjs';
+import { tw, popS, xf, enter, bob, shake, blinking } from '../lib/anim.mjs';
 import { kid } from '../lib/cfolk.mjs';
-import { bwHandheld, colorHandheld, battery, sign, trophy, band, playingCard } from '../lib/cprops.mjs';
+import { bwHandheld, colorHandheld, battery, sign, trophy, band } from '../lib/cprops.mjs';
 
 export const meta = {
   id: 's01-gameboy',
   format: 'short',
-  title: '白黒のゲーム機が、カラーに勝った理由',
-  telop: '白黒 vs カラー<br>勝ったのは？',
+  title: 'ゲームボーイは、なぜカラーに勝てたのか',
+  telop: 'ゲームボーイは<br>なぜ勝った？',
   theme: 'crayon',
 };
 
@@ -23,54 +23,79 @@ function cat(x, y, t) {
   b += bwHandheld(-40, 0, 0.18, (t * 0.6) % 1);
   return `<g transform="translate(${x} ${y})">${b}</g>`;
 }
+const big = (str, x, y, size, color) =>
+  `<text x="${x}" y="${y}" font-family="Zen Maru Gothic" font-weight="900" font-size="${size}" text-anchor="middle" fill="${color}" stroke="${C.white}" stroke-width="${size * 0.14}" stroke-linejoin="round" paint-order="stroke fill">${str}</text>`;
 
 export const scenes = [
   {
     narration: [
-      '白黒が、カラーに圧勝した。', // 1行目＝結論（最後のセリフからつながる）
-      '1989年、ライバルはカラー画面。',
-      'でも、電池はすぐ切れる。',
-      'しかも、値段も高い。',
-      '白黒は、安くて電池が長持ち。',
-      'アメリカでは、テトリス付き。',
-      'あなたなら、どっちを買う？',
-      '子どもたちの答えは、はっきりしていた。',
+      '白黒のゲームボーイが、カラーに圧勝した。', // 0 結論（最後のセリフからつながる）
+      '1989年、任天堂が出した携帯ゲーム機。', // 1
+      '1年後、セガのゲームギアが登場。', // 2
+      'こっちは、きれいなカラー画面。', // 3
+      'なのに、なぜ白黒が勝った？', // 4
+      'ゲームギアは、電池が数時間でなくなる。', // 5
+      'ゲームボーイは、電池4本で約30時間。', // 6
+      '値段も、12,500円と19,800円。', // 7
+      'しかも、テトリスが大ヒット。', // 8
+      'あなたなら、どっちを買う？', // 9
+      '子どもたちの答えは、はっきりしていた。', // 10 → 1行目へループ
     ],
     draw: (t, c) => {
-      const t1 = c.at(1), t2 = c.at(2), tP = c.at(3), t3 = c.at(4), tT = c.at(5), t4 = c.at(6), t5 = c.at(7);
+      const A = (k) => c.at(k);
       let s = band(-20, 1960, '#f3ecdf');
-      const lvB = tw(t, t2, t2 + 1.6, 1, 0, (k) => k);
-      const winner = t < t1 || t > t5 + 0.6; // 冒頭と最後（ループのつなぎ目）は勝者の構図
-      // 2台のゲーム機
-      s += xf(bwHandheld(0, 0, winner ? 1.05 : 0.9, (t * 0.7) % 1, 0), { x: winner ? 540 : 280, y: winner ? 820 : 760, s: 1, cx: 0, cy: 0 });
-      if (!winner) {
-        s += xf(colorHandheld(0, 0, 0.66, lvB < 0.05 ? 1 : 0), { x: 800 + shake(t, t2 + 1.6, 0.4, 10), y: 740, s: popS(t, t1), cx: 0, cy: 0 });
-        s += enter(sign('カラー', 790, 560, { size: 54, fill: C.white }), t, t1 + 0.1, { cx: 790, cy: 560 });
-        s += enter(sign('白黒', 290, 470, { size: 54, fill: C.white }), t, t1 + 0.1, { cx: 290, cy: 470 });
-        if (t > t2) {
-          s += battery(790, 990, 0.85, lvB);
-          s += enter(sign('高い！', 900, 430, { size: 50, fill: C.pink, rot: 8 }), t, tP, { cx: 900, cy: 430 });
-        }
-        if (t > t3) {
-          s += battery(290, 990, 0.85, 1);
-          s += enter(sign('安い！長持ち！', 300, 1095, { size: 44, fill: C.yellow, rot: -4 }), t, t3 + 0.2, { cx: 300, cy: 1095 });
-        }
-        if (t > tT && t < t4) {
-          for (let i = 0; i < 4; i++) s += xf(`<rect x="-40" y="-40" width="80" height="80" fill="${[C.red, C.blue, C.green, C.yellow][i]}" stroke="${C.ink}" stroke-width="6"/>`, { x: 200 + i * 90, y: tw(t, tT + i * 0.15, tT + i * 0.15 + 0.5, 380, 640 + (i % 2) * 70, (k) => k), s: popS(t, tT + i * 0.15), cx: 0, cy: 0 });
-        }
-        if (t > t4 && t < t5) {
-          s += enter(text('？', 540, 520, { size: 200, color: C.red, font: 'Zen Maru Gothic', weight: 900 }), t, t4, { cx: 540, cy: 460 });
-        }
+      const winner = t < A(1) || t > A(10) + 0.6; // 冒頭と最後（ループのつなぎ目）は勝者の構図
+      if (winner) {
+        s += xf(bwHandheld(0, 0, 1.05, (t * 0.7) % 1, 0), { x: 540, y: 820 });
+        s += xf(trophy(0, 0, 0.75), { x: 540, y: 500 + bob(t, 8, 1.2) });
+      } else if (t < A(2)) {
+        // ゲームボーイの紹介
+        s += xf(bwHandheld(0, 0, 1.05, (t * 0.7) % 1, 0), { x: 540, y: 800, s: popS(t, A(1)), cx: 0, cy: 0 });
+        s += enter(sign('1989年・任天堂', 540, 440, { size: 56, fill: C.white }), t, A(1) + 0.2, { cx: 540, cy: 440 });
       } else {
-        s += xf(trophy(0, 0, 0.75), { x: 540, y: 500 + bob(t, 8, 1.2), s: 1, cx: 0, cy: 0 });
+        const gx = tw(t, A(2), A(2) + 0.4, 540, 280);
+        const ggDead = tw(t, A(5), A(5) + 1.4, 1, 0, (k) => k);
+        // ゲームボーイ（左）とゲームギア（右）
+        s += xf(bwHandheld(0, 0, 0.9, (t * 0.7) % 1, 0), { x: gx, y: 700 });
+        s += xf(colorHandheld(0, 0, 0.66, ggDead < 0.05 ? 1 : 0), { x: 800 + shake(t, A(5) + 1.4, 0.4, 10), y: 700, s: popS(t, A(2) + 0.2), cx: 0, cy: 0 });
+        s += enter(sign('ゲームボーイ', 280, 420, { size: 44, fill: C.white }), t, A(2) + 0.3, { cx: 280, cy: 420 });
+        s += enter(sign('ゲームギア', 800, 520, { size: 44, fill: C.white }), t, A(2) + 0.3, { cx: 800, cy: 520 });
+        if (t > A(3) && t < A(5)) {
+          // カラー画面のキラキラ
+          for (let i = 0; i < 5; i++) {
+            const a = (i / 5) * Math.PI * 2 + t * 2;
+            s += xf(big('✦', 0, 0, 50, [C.yellow, C.pink, C.sky, C.green, C.orange][i]), { x: 800 + Math.cos(a) * 230, y: 690 + Math.sin(a) * 140, s: popS(t, A(3) + i * 0.1), cx: 0, cy: -18 });
+          }
+        }
+        if (t > A(4) && t < A(5)) s += enter(big('？', 540, 380, 170, C.red), t, A(4), { cx: 540, cy: 320 });
+        // 電池：ゲームギアは数時間でなくなる / ゲームボーイは約30時間
+        if (t > A(5)) {
+          s += battery(800, 950, 0.85, ggDead) + enter(big('数時間', 800, 900, 50, C.red), t, A(5) + 0.3, { cx: 800, cy: 880 });
+        }
+        if (t > A(6)) {
+          s += battery(280, 950, 0.85, 1) + enter(big('約30時間', 280, 900, 50, C.green), t, A(6) + 0.2, { cx: 280, cy: 880 });
+        }
+        // 値段
+        if (t > A(7) && t < A(10)) {
+          s += enter(sign('12,500円', 280, 1080, { size: 50, fill: C.yellow, rot: -4 }), t, A(7) + 0.2, { cx: 280, cy: 1080 });
+          s += enter(sign('19,800円', 800, 1080, { size: 50, fill: C.pink, rot: 4 }), t, A(7) + 0.6, { cx: 800, cy: 1080 });
+        }
+        // テトリス
+        if (t > A(8) && t < A(9)) {
+          for (let i = 0; i < 4; i++) {
+            s += xf(`<rect x="-30" y="-30" width="60" height="60" fill="${[C.red, C.blue, C.green, C.yellow][i]}" stroke="${C.ink}" stroke-width="5"/>`,
+              { x: 190 + i * 60, y: tw(t, A(8) + i * 0.15, A(8) + i * 0.15 + 0.5, 300, 610 + (i % 2) * 60, (k) => k), s: popS(t, A(8) + i * 0.15), cx: 0, cy: 0 });
+          }
+          s += enter(sign('テトリス大ヒット', 540, 300, { size: 48, fill: C.yellow }), t, A(8) + 0.3, { cx: 540, cy: 300 });
+        }
+        if (t > A(9) && t < A(10)) s += enter(big('どっち？', 540, 360, 110, C.red), t, A(9), { cx: 540, cy: 320 });
       }
-      // 子どもたち：最後は白黒に向かって走ってくる → 冒頭の「勝者」構図に戻る
+      // 子どもたち：最後に白黒へ向かって走ってくる → 冒頭の「勝者」構図に戻る
       const kids = [[130, C.blue, 'messy'], [290, C.pink, 'side'], [790, C.green, 'messy'], [950, C.orange, 'side']];
       kids.forEach(([x, col, h], i) => {
-        let kx = x, ky = 1190;
-        if (t > t5 && t < t5 + 0.6) kx = x + (x < 540 ? -1 : 1) * tw(t, t5, t5 + 0.6, 260, 0);
-        const show = winner || t > t5;
-        if (show) s += kid({ x: kx, y: ky - Math.abs(Math.sin(t * 9 + i)) * 18, s: 0.58, shirt: col, hair: h, arms: CHEER, blink: blinking(t, i), expr: 'smile', flip: x > 540 });
+        let kx = x;
+        if (t > A(10) && t < A(10) + 0.6) kx = x + (x < 540 ? -1 : 1) * tw(t, A(10), A(10) + 0.6, 260, 0);
+        if (winner || t > A(10)) s += kid({ x: kx, y: 1190 - Math.abs(Math.sin(t * 9 + i)) * 18, s: 0.58, shirt: col, hair: h, arms: CHEER, blink: blinking(t, i), expr: 'smile', flip: x > 540 });
       });
       s += cat(200, 1470, t);
       return s;
