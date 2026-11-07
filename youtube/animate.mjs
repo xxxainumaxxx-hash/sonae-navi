@@ -149,7 +149,8 @@ await Promise.all(Array.from({ length: NW }, async (_, w) => {
   }
   await close();
 }));
-if (checkEvery || ONLY) { console.log(`確認用: ${FR}`); process.exit(0); }
+// --audio を付けると、--frames のときも音声（_audio.m4a）だけ作り直す
+if ((checkEvery || ONLY) && !process.argv.includes('--audio')) { console.log(`確認用: ${FR}`); process.exit(0); }
 
 // ---------- 音声をつなぐ ----------
 const aArgs = [], parts = [];
@@ -160,6 +161,7 @@ tl.forEach((s, k) => {
 const audio = path.join(OUT, '_audio.m4a');
 sh('ffmpeg', ['-y', '-v', 'error', ...aArgs, '-filter_complex', parts.join(';') + ';' + tl.map((_, k) => `[a${k}]`).join('') + `concat=n=${tl.length}:v=0:a=1[a]`,
   '-map', '[a]', '-c:a', 'aac', '-b:a', '160k', audio]);
+if (checkEvery || ONLY) { console.log(`音声: ${audio}`); process.exit(0); }
 
 const final = path.join(OUT, `${epId}.mp4`);
 sh('ffmpeg', ['-y', '-v', 'error', '-framerate', String(FPS), '-i', path.join(FR, 'f%05d.png'), '-i', audio,

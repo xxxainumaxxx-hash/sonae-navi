@@ -51,7 +51,7 @@ export const scenes = [
   // ───── つかみ（約2秒ごとにカット）
   {
     narration: NAR[0],
-    draw: (t, c) => shots(t, c, [
+    list: (c) => [
       // 0 花札を手で塗っていた、京都の小さな店。
       (tl, d) => {
         if (tl < d * 0.6) return cam(fill(SEPIA) + paintingCloseup(tl), tl, d * 0.6, { z0: 1.0, z1: 1.1, x0: 960, x1: 1060, y0: 540 });
@@ -90,7 +90,7 @@ export const scenes = [
         xf(big('130年', 1400, 420, 170, C.white, { stroke: INK }), { s: popS(tl, 0.3), cx: 1400, cy: 360 }) + typeText('生き残った理由', 1400, 600, tl, { size: 80, color: C.yellow, delay: 0.6 }), tl, d, { z0: 1.0, z1: 1.06, x0: 900 }),
       // 6 物語は、1889年の京都から始まる。
       (tl) => fill('#111') + typeText('1889年　京都', 960, 580, tl, { size: 110, color: C.white, cps: 6, font: 'Yomogi', weight: 400 }),
-    ]),
+    ],
   },
   // ───── 第1章のタイトル（約2.2秒・声なし）
   {
@@ -101,7 +101,7 @@ export const scenes = [
   // ───── 京都の花札屋
   {
     narration: NAR[1],
-    draw: (t, c) => shots(t, c, [
+    list: (c) => [
       // 0 始まりは1889年、京都。
       (tl, d) => cam(fill(SEPIA) + glow(960, 300, 900, '#fff', 0.2) + townRow(860, 9, -400, 340) + rect(-200, 860, 2400, 400, { fill: '#cdb38a', color: null }) +
         enter(sign('1889年・京都', 960, 160, { size: 80, fill: C.white }), tl, 0.2, { cx: 960, cy: 160 }), tl, d, { z0: 1.0, z1: 1.0, x0: 760, x1: 1160 }),
@@ -159,12 +159,12 @@ export const scenes = [
       // 12 任天堂は、カードの会社として着実に大きくなっていった。
       (tl, d, t) => cam(fill(SEPIA) + townRow(760, 9, -400, 340) + shop(960, 900, 1.3) + bust(crafts, 1550, { s: 2.4, blink: blinking(t, 1), arms: P.cheer }) +
         enter(sign('カードの会社', 600, 180, { size: 70, fill: C.white }), tl, 0.3, { cx: 600, cy: 180 }), tl, d, { z0: 1.1, z1: 1.0 }),
-    ]),
+    ],
   },
   // ───── 22歳の社長
   {
     narration: NAR[2],
-    draw: (t, c) => shots(t, c, [
+    list: (c) => [
       // 0 時代は進み、1949年。
       (tl) => fill('#111') + typeText('1949年', 960, 580, tl, { size: 130, color: C.white, cps: 6, font: 'Yomogi', weight: 400 }),
       // 1 任天堂を継いだのは、わずか22歳の山内溥。創業者のひ孫だった。
@@ -226,6 +226,8 @@ export const scenes = [
         for (let r = 0; r < 8; r++) s += line([[1400, r * 160], [2000, r * 160]], { w: 6, color: INK, passes: 1 });
         return cam(s, tl, d, { z0: 1.0, z1: 1.12, x0: 960, x1: 1200 });
       },
-    ]),
+    ],
   },
 ];
+// list(c) を持つ場面は、それを1行＝1カットで並べて描く
+for (const s of scenes) if (s.list) s.draw = (t, c) => shots(t, c, s.list(c));

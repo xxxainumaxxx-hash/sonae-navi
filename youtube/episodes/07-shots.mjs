@@ -8,7 +8,8 @@ import {
   townRow, desk, building, plane, train, dpad, bwHandheld, colorHandheld, battery, bubble, rainCloud, trophy, ball, band,
   calculator, lightGun, target, loveMeter, toyRobot, dustyPile, goldSeal, redGoggle, dualScreen, remote, hybridConsole, houseFrame, gate,
 } from '../lib/cprops.mjs';
-import { cam, typeText, countUp, big, fill, glow } from '../lib/shots.mjs';
+import { shots, cam, typeText, countUp, big, fill, glow } from '../lib/shots.mjs';
+import { withExtras, EXTRA } from './07-extra1.mjs';
 import { scenes as v2 } from './06-nintendo-v2.mjs';
 
 const RED = '#d23a33', CREAM = '#fbf3e6', INK = '#2b2622', SEPIA = '#ead2a6', NIGHT = '#23263a', GRAY = '#9aa0a8', DUSK = '#3b2a3a';
@@ -34,9 +35,9 @@ export const chapterCard = (no, title) => (t) => fill(RED) + glow(960, 540, 700,
 
 export const SHOTS = {
   // 冒頭の3場面は試作（v2）の絵を使う
-  '01': v2[0].draw,
-  '03': v2[2].draw,
-  '04': v2[3].draw,
+  '01': (t, c) => shots(t, c, withExtras(v2[0].list(c), EXTRA['01'])),
+  '03': (t, c) => shots(t, c, withExtras(v2[2].list(c), EXTRA['03'])),
+  '04': (t, c) => shots(t, c, withExtras(v2[3].list(c), EXTRA['04'])),
 
   // ───── カードの限界と、失敗つづき
   '05': [
