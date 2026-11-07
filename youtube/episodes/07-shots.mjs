@@ -449,3 +449,22 @@ export const SHOTS = {
       xf(sign('チャンネル登録', 1400, 520, { size: 90, fill: C.white, color: RED, rot: -4 }), { s: popS(tl, 0.3), cx: 1400, cy: 520 }), tl, d, { z0: 1.0, z1: 1.06, x0: 960 }),
   ],
 };
+
+// 第2〜4章：長い行の途中に別の絵を足す（07-extra2.mjs）
+import { EXTRA2 } from './07-extra2.mjs';
+for (const [k, ex] of Object.entries(EXTRA2)) SHOTS[k] = withExtras(SHOTS[k], ex);
+
+// すみっこのネコ（小ネタ）：[声ファイル, 行, ネコが持っているもの]
+import { sneakyCat as cat } from '../lib/cprops.mjs';
+const CATS = [
+  ['07', 4, () => ball(0, 0, 26, C.red)],
+  ['11', 7, () => dpad(0, 0, 0.3)],
+  ['13', 8, () => bwHandheld(0, 0, 0.18, 0)],
+  ['16', 10, () => ''],
+  ['17', 7, () => ''],
+];
+const withCat = (f, toy) => (tl, d, t) => f(tl, d, t) + cat(lerp(-160, 140, ease.out(clamp((tl - 0.4) / 0.7))), 1010, tl, toy());
+for (const [k, i, toy] of CATS) {
+  const e = SHOTS[k][i];
+  SHOTS[k][i] = Array.isArray(e) ? e.map((f) => withCat(f, toy)) : withCat(e, toy);
+}

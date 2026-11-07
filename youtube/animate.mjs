@@ -9,6 +9,7 @@ import path from 'node:path';
 import { pathToFileURL, fileURLToPath } from 'node:url';
 import { defs, paper, setTheme } from './lib/crayon.mjs';
 import { openShooter, svgDoc } from './lib/shot.mjs';
+import { CUTS } from './lib/shots.mjs';
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const epId = process.argv[2];
@@ -26,7 +27,7 @@ const OUT = path.join(ROOT, 'out', epId), FR = path.join(OUT, checkEvery ? 'chec
 const VOICE = path.join(ROOT, 'voice', epId);
 // --resume：描き出し済みのコマを残して続きから（途中で止まったとき用）
 const RESUME = process.argv.includes('--resume');
-if (!RESUME) fs.rmSync(FR, { recursive: true, force: true });
+if (!RESUME && !process.argv.includes('--timeline') && !process.argv.includes('--audio')) fs.rmSync(FR, { recursive: true, force: true });
 fs.mkdirSync(FR, { recursive: true });
 fs.mkdirSync(VOICE, { recursive: true });
 const pad = (n, w = 2) => String(n).padStart(w, '0');
@@ -121,7 +122,7 @@ function frameHtml(f) {
   const gt = f / FPS;
   const s = tl.find((x) => gt >= x.start && gt < x.start + x.d) || tl[tl.length - 1];
   const t = gt - s.start;
-  const ctx = { d: s.d, mouth: mouthAt(s, t), at: (k) => (s.subs.length ? s.subs[s.lineStart[Math.min(k, s.lineStart.length - 1)]].from : 0), n: s.lineStart.length, subs: s.subs };
+  const ctx = { start: s.start, d: s.d, mouth: mouthAt(s, t), at: (k) => (s.subs.length ? s.subs[s.lineStart[Math.min(k, s.lineStart.length - 1)]].from : 0), n: s.lineStart.length, subs: s.subs };
   const boil = Math.floor(f / 3) % 3; // 1秒4回の線ゆれ
   const art = svgDoc(defs(boil) + paper(W, H) + s.sc.draw(t, ctx), W, H);
   const telop = ep.meta.telop ? `<div class="telop">${ep.meta.telop}</div>` : '';
@@ -138,6 +139,14 @@ const CSS = SHORT
      .telop{position:absolute;left:40px;right:40px;top:150px;padding:22px 10px;text-align:center;background:#2b2622;color:#ffd84a;
        font-family:'Zen Maru Gothic';font-weight:900;font-size:66px;line-height:1.25;border-radius:26px}`
   : '';
+// --timeline：絵は描き出さず、場面とカットの時刻（BGM・効果音用）を timeline.json に書く
+if (process.argv.includes('--timeline')) {
+  for (let f = 0; f < Math.ceil(TOTAL * FPS); f++) frameHtml(f);
+  const scenes = tl.map((s) => ({ start: +s.start.toFixed(3), d: +s.d.toFixed(3), chapter: s.sc.chapter || null, key: s.sc.key || null, lines: s.lineStart.map((k) => +(s.start + (s.subs[k] ? s.subs[k].from : 0)).toFixed(3)) }));
+  const cuts = [...CUTS.values()].sort((a, b) => a.t - b.t);
+  fs.writeFileSync(path.join(OUT, 'timeline.json'), JSON.stringify({ total: TOTAL, scenes, cuts }, null, 1));
+  console.log(`timeline: ${scenes.length}場面 / ${cuts.length}カット`); process.exit(0);
+}
 await Promise.all(Array.from({ length: NW }, async (_, w) => {
   const { shot, close } = await openShooter(ROOT, path.join(OUT, `_w${w}`), { w: W, h: H, css: CSS });
   for (let k = w; k < frames.length; k += NW) {

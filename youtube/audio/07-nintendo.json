@@ -1,0 +1,20 @@
+{
+ "bgm_vol": 0.22,
+ "bgm": [
+  { "start": 0, "file": "bgm0.mp3", "note": "つかみ：なぞめいた始まり" },
+  { "start": 30.73, "file": "bgm1.mp3", "note": "第1章：京都の花札屋（和の楽しい曲）" },
+  { "start": 140.75, "file": "bgm2.mp3", "note": "カードの限界と失敗つづき（ちょっと不穏・コミカル）" },
+  { "start": 201.44, "file": "bgm3.mp3", "note": "第2章：ひまつぶしのおもちゃ（発明・わくわく）" },
+  { "start": 363.16, "file": "bgm4.mp3", "note": "第3章：ファミコン・ゲームボーイ（明るいレトロ）" },
+  { "start": 519.74, "file": "bgm5.mp3", "vol": 0.9, "note": "第4章前半：横井の挫折（しんみりピアノ）" },
+  { "start": 564.68, "file": "bgm6.mp3", "note": "第4章後半〜まとめ（希望・盛り上がり）" }
+ ],
+ "sfx": {
+  "whip": { "file": "sfx_whoosh.mp3", "vol": 0.35 },
+  "whipUp": { "file": "sfx_whoosh.mp3", "vol": 0.35 },
+  "dive": { "file": "sfx_pop.mp3", "vol": 0.3 },
+  "punch": { "file": "sfx_swish.mp3", "vol": 0.25 },
+  "chapter": { "file": "sfx_hyoshigi.mp3", "vol": 0.55 },
+  "end": { "file": "sfx_end.mp3", "vol": 0.4, "before_end": 3.0 }
+ }
+}

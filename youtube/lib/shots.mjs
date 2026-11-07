@@ -30,6 +30,8 @@ function flat(c, list) {
   }
   return out;
 }
+// 効果音用：カットの切りかわり（場面の頭からの秒と、切りかえ方）を記録する
+export const CUTS = new Map();
 export function shots(t, c, list) {
   const L = flat(c, list);
   let k = 0;
@@ -39,6 +41,7 @@ export function shots(t, c, list) {
   const tin = t - L[k].a, T = 0.3;
   const kinds = ['punch', 'whip', 'punch', 'dive', 'whipUp', 'cut'];
   const kind = k === 0 ? 'dive' : kinds[(k * 7 + Math.round(c.d)) % kinds.length];
+  if (c.start !== undefined) CUTS.set(`${(c.start + L[k].a).toFixed(2)}`, { t: +(c.start + L[k].a).toFixed(3), kind, first: k === 0 });
   if (tin < T) {
     const e = ease.out(clamp(tin / T));
     if (kind === 'punch') inner = wrap(inner, lerp(1.06, 1, e), 960, 540);
