@@ -470,3 +470,15 @@ export const scenes = [
     },
   },
 ];
+
+// サムネイル（1920x1080で描いて1280x720に縮小）：顔＋ひと言、左→右の変化
+export function thumbnail() {
+  let s = band(-20, 1120, '#2b3044') + spot(1350, 520, 520);
+  s += hanafuda(380, 560, 2.3, -10, 0);
+  s += `<path d="M640,560 L980,560" stroke="${C.white}" stroke-width="40" stroke-linecap="round"/><path d="M960,480 L1080,560 L960,640Z" fill="${C.white}"/>`;
+  s += handheld(1400, 520, 1.25, 0.3);
+  s += xf(trophy(0, 0, 0.9), { x: 1720, y: 230, s: 1, cx: 0, cy: 0 });
+  s += big('花札屋', 380, 210, 150, C.yellow) + big('世界の任天堂', 1380, 960, 130, C.yellow);
+  s += pres({ x: 820, y: 1100, s: 1.2, expr: 'wow', arms: [160, 10, 160, 10], look: [1, -0.6] });
+  return s;
+}
