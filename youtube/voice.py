@@ -63,6 +63,22 @@ def year_kana(y):
     return THOU[th] + HUND[h] + tens + ones
 
 
+KDIG = '〇一二三四五六七八九'
+
+
+def kanji_num(n):
+    """1980 → 千九百八十、19800 → 一万九千八百（年号と値段は漢数字で読ませると自然。聞き比べで決定）"""
+    def under(n):
+        out = ''
+        for v, u in ((1000, '千'), (100, '百'), (10, '十')):
+            d, n = divmod(n, v)
+            if d:
+                out += ('' if d == 1 else KDIG[d]) + u
+        return out + (KDIG[n] if n else '')
+    man, rest = divmod(n, 10000)
+    return (under(man) + '万' if man else '') + under(rest)
+
+
 def speakable(line, table):
     # 長い言葉を優先して、1回で置きかえる（「横井軍平」を残したまま「横井」だけ置きかえられるように）
     if table:
@@ -70,17 +86,14 @@ def speakable(line, table):
         pat = re.compile('|'.join(re.escape(k) for k, _ in table))
         line = pat.sub(lambda m: d[m.group(0)], line)
     # 「14,800円」のような3桁区切りのカンマは読み間違えるので、声では外す（字幕はそのまま）
-    line = re.sub(r'(?<![\d])(1\d{3}|20\d{2})年', lambda m: year_kana(int(m.group(1))) + 'ねん', line)
+    line = re.sub(r'(?<![\d])(1\d{3}|20\d{2})年', lambda m: kanji_num(int(m.group(1))) + '年', line)
     # 短い言葉の「」は、声では外す（前後で変に区切れるので）。長いセリフの「」は残す
     # ただし「ボタン「十字キー」」のように名詞のすぐ後ろなら、読点で区切る
     line = re.sub(r'(?<=[ァ-ヶー一-龥])「([^」]{1,6})」', r'、\1', line)
     line = re.sub(r'「([^」]{1,6})」', r'\1', line)
     line = re.sub(r'(?<=\d),(?=\d{3})', '', line)
     # 5桁以上の数は「万」で区切ると正しく読む（14800 → 1万4800）
-    def man(m):
-        n = int(m.group(0)); hi, lo = divmod(n, 10000)
-        return f'{hi}万' + (str(lo) if lo else '')
-    line = re.sub(r'(?<![\d.])\d{5,8}(?![\d.])', man, line)
+    line = re.sub(r'(?<![\d.])\d{5,8}(?![\d.])', lambda m: kanji_num(int(m.group(0))), line)
     return line
 
 
