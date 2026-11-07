@@ -29,7 +29,8 @@ export function kid({
   const L = arm(-1, A[0], A[1]), R = arm(1, A[2], A[3]);
   const sleeve = jacket || shirt;
   for (const a of [L, R]) b += line(a.pts, { w: 22, color: C.ink, passes: 1 }) + line(a.pts, { w: 13, color: sleeve, passes: 1, amp: 1 });
-  // 体
+  // 体（下にベタ塗りを敷いて、アップでも背景が透けないようにする）
+  b += `<path d="M-58,-193 L58,-193 L76,-68 L-76,-68Z" fill="${shirt}"/>`;
   b += poly([[-60, -195], [60, -195], [78, -66], [-78, -66]], { fill: shirt });
   if (jacket) {
     b += poly([[-60, -195], [-14, -195], [-8, -66], [-78, -66]], { fill: jacket });
@@ -40,6 +41,7 @@ export function kid({
   // 頭（tilt で少しかしげる）
   let h = '';
   h += ellipse(-82, -272, 14, 19, { fill: skin, w: 6 }) + ellipse(82, -272, 14, 19, { fill: skin, w: 6 });
+  h += `<ellipse cx="0" cy="-278" rx="81" ry="77" fill="${skin}"/>`;
   h += ellipse(0, -278, 84, 80, { fill: skin });
   h += ellipse(-46, -250, 15, 9, { fill: C.pink, color: null }) + ellipse(46, -250, 15, 9, { fill: C.pink, color: null });
   if (hair === 'messy') {

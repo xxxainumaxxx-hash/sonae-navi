@@ -31,14 +31,18 @@ const pad = (n, w = 2) => String(n).padStart(w, '0');
 const sh = (cmd, args, opts = {}) => execFileSync(cmd, args, { maxBuffer: 1 << 28, ...opts });
 
 fs.writeFileSync(path.join(VOICE, 'script.txt'), `${ep.meta.title}\n場面ごとに音声を作って、【】のファイル名でこのフォルダに保存してください。\n\n` +
-  ep.scenes.map((s, i) => `【${pad(i + 1)}.mp3】\n${s.narration.join('')}\n`).join('\n'));
+  ep.scenes.map((s, i) => (s.narration || []).length ? `【${pad(i + 1)}.mp3】\n${s.narration.join('')}\n` : '').filter(Boolean).join('\n'));
 
 // ---------- タイムライン（声の長さ or 文字数から） ----------
 let T0 = 0;
 const tl = ep.scenes.map((sc, i) => {
+  sc.narration = sc.narration || [];
   let voice = path.join(VOICE, `${pad(i + 1)}.mp3`);
-  const has = fs.existsSync(voice);
-  if (has && SHORT) {
+  const has = sc.narration.length > 0 && fs.existsSync(voice);
+  // voice.py が作ったタイミング情報（各行の開始・終了秒）があれば、絵をそれにぴったり合わせる
+  const tjson = path.join(VOICE, `${pad(i + 1)}.json`);
+  const timing = has && fs.existsSync(tjson) ? JSON.parse(fs.readFileSync(tjson, 'utf8')) : null;
+  if (has && SHORT && !timing) {
     // 0.3秒以上の無音（息継ぎ・間）をすべて詰める
     const tight = path.join(OUT, `_tight${pad(i + 1)}.wav`);
     sh('ffmpeg', ['-y', '-v', 'error', '-i', voice, '-af',
@@ -47,7 +51,8 @@ const tl = ep.scenes.map((sc, i) => {
   }
   const chars = sc.narration.map((t) => t.length), total = chars.reduce((a, c) => a + c, 0);
   const speech = has ? parseFloat(sh('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', voice]).toString()) : total / CPS;
-  const d = LEAD + speech + TAIL;
+  // 声の無い場面（章タイトルなど）は silent 秒だけ
+  const d = sc.narration.length ? LEAD + speech + TAIL : (sc.silent || 2);
   // 長い文は句読点で字幕を分ける（ロング30字・ショート15字が目安）。at(k) は k 行目の最初の字幕の開始時刻
   const MAXC = SHORT ? 15 : 30;
   const split = (line) => {
@@ -61,7 +66,16 @@ const tl = ep.scenes.map((sc, i) => {
   const subs = [], lineStart = []; let t = LEAD;
   sc.narration.forEach((line, k) => {
     lineStart.push(subs.length);
-    for (const piece of split(line)) { const len = (piece.length / total) * speech; subs.push({ line: piece, from: t, to: t + len }); t += len; }
+    const pieces = split(line);
+    if (timing) {
+      // 実際に読まれた時刻：この行の開始〜次の行の開始を、字幕の分割ぶんに割る
+      const a = LEAD + timing.lines[k].start;
+      const b = k + 1 < sc.narration.length ? LEAD + timing.lines[k + 1].start : LEAD + speech;
+      let u = a;
+      for (const piece of pieces) { const len = (piece.length / line.length) * (b - a); subs.push({ line: piece, from: u, to: u + len }); u += len; }
+    } else {
+      for (const piece of pieces) { const len = (piece.length / total) * speech; subs.push({ line: piece, from: t, to: t + len }); t += len; }
+    }
   });
   // 口パク用の音量（1コマごと）
   let env = null;
@@ -101,7 +115,7 @@ function frameHtml(f) {
   const gt = f / FPS;
   const s = tl.find((x) => gt >= x.start && gt < x.start + x.d) || tl[tl.length - 1];
   const t = gt - s.start;
-  const ctx = { d: s.d, mouth: mouthAt(s, t), at: (k) => s.subs[s.lineStart[Math.min(k, s.lineStart.length - 1)]].from, subs: s.subs };
+  const ctx = { d: s.d, mouth: mouthAt(s, t), at: (k) => (s.subs.length ? s.subs[s.lineStart[Math.min(k, s.lineStart.length - 1)]].from : 0), n: s.lineStart.length, subs: s.subs };
   const boil = Math.floor(f / 3) % 3; // 1秒4回の線ゆれ
   const art = svgDoc(defs(boil) + paper(W, H) + s.sc.draw(t, ctx), W, H);
   const telop = ep.meta.telop ? `<div class="telop">${ep.meta.telop}</div>` : '';
