@@ -48,10 +48,28 @@ def readings():
     return sorted(((k, v) for k, v in d.items() if not k.startswith('_')), key=lambda kv: -len(kv[0]))
 
 
+ONES = ['', 'いち', 'に', 'さん', 'よん', 'ご', 'ろく', 'なな', 'はち', 'きゅう']
+HUND = ['', 'ひゃく', 'にひゃく', 'さんびゃく', 'よんひゃく', 'ごひゃく', 'ろっぴゃく', 'ななひゃく', 'はっぴゃく', 'きゅうひゃく']
+THOU = ['', 'せん', 'にせん']
+
+
+def year_kana(y):
+    """1980 → せんきゅうひゃくはちじゅう（年号は数字のままだと読み間違えるので、ひらがなにする）"""
+    th, rest = divmod(y, 1000)
+    h, rest = divmod(rest, 100)
+    t, o = divmod(rest, 10)
+    tens = (ONES[t] if t > 1 else '') + ('じゅう' if t else '')
+    ones = {4: 'よ'}.get(o, ONES[o]) if o else ''  # 「〜4年」は「よねん」
+    return THOU[th] + HUND[h] + tens + ones
+
+
 def speakable(line, table):
     for k, v in table:
         line = line.replace(k, v)
     # 「14,800円」のような3桁区切りのカンマは読み間違えるので、声では外す（字幕はそのまま）
+    line = re.sub(r'(?<![\d])(1\d{3}|20\d{2})年', lambda m: year_kana(int(m.group(1))) + 'ねん', line)
+    # 短い言葉の「」は、声では外す（前後で変に区切れるので）。長いセリフの「」は残す
+    line = re.sub(r'「([^」]{1,6})」', r'\1', line)
     line = re.sub(r'(?<=\d),(?=\d{3})', '', line)
     # 5桁以上の数は「万」で区切ると正しく読む（14800 → 1万4800）
     def man(m):
