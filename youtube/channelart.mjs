@@ -90,6 +90,8 @@ function icon() {
   s += scribble(150, 170, 120, K.scrib, 16) + scribble(620, 640, 120, K.scrib, 16);
   s += `<circle cx="400" cy="430" r="300" fill="${K.iconCircle}"/>`;
   s += person(400, 1080, 2.9);
+  // ふちの輪（白い画面でもぼやけないように）。YouTube は丸く切るので、円の内側に描く
+  if (K.sketch) s += `<circle cx="400" cy="400" r="378" fill="none" stroke="#2f3b5c" stroke-width="44"/>` + `<circle cx="400" cy="400" r="352" fill="none" stroke="#d23a33" stroke-width="10"/>`;
   return s;
 }
 
