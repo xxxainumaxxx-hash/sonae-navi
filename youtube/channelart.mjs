@@ -70,10 +70,8 @@ const sitCat = (x, y) => {
 const PV = process.argv[4] || 'P1';
 function person(x, y, sc) {
   if (PV === 'P1') {
-    // ① 紺のスーツに赤いネクタイ。指し棒でロゴを指す（解説役のビジネスマン）
-    const hand = [x + 147 * sc / 0.95 * 0.95, y - 246 * sc / 0.95 * 0.95];
-    return kid({ x, y, s: sc, hair: 'side', hairColor: '#2a2420', shirt: '#ffffff', jacket: '#2f3b5c', tie: RED, pants: '#2c3350', expr: 'smile', arms: [12, 8, 125, 10] }) +
-      line([[hand[0] - 6 * sc, hand[1] + 4 * sc], [hand[0] + 175 * sc, hand[1] - 70 * sc]], { w: 8 * sc, color: '#6b4a2a', passes: 1 }) + ellipse(hand[0] + 177 * sc, hand[1] - 71 * sc, 7 * sc, 7 * sc, { fill: RED, w: 3 });
+    // ① 紺のスーツに赤いネクタイ。手でロゴを指す（解説役）
+    return kid({ x, y, s: sc, hair: 'side', hairColor: '#2a2420', shirt: '#ffffff', jacket: '#2f3b5c', tie: RED, pants: '#2c3350', expr: 'smile', arms: [12, 8, 125, 10] });
   }
   if (PV === 'P2') {
     // ② メガネにシャツの腕まくり、ベスト。電卓を持つ（会計・数字に強い人）
