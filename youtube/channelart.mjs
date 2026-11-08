@@ -24,6 +24,7 @@ const PAL = {
   G: { name: 'クラフト紙', bg: '#d4ad7a', strip: '#e3c08f', title: '#2b2622', titleStroke: '#f8ecd8', sub: '#b8342e', iconBg: '#d4ad7a', iconCircle: '#f1dcbc', scrib: '#c49a63', scrib2: '#e6c79c', logo: ['#2b2622', '#b8342e', '#2b2622', '#2a6fbf', '#2b2622', '#2f8a4a'] },
   H: { name: '夜の紫', bg: '#33284f', strip: '#3f3262', title: '#f6f0ff', titleStroke: '#170f2a', sub: '#ffd23a', iconBg: '#33284f', iconCircle: '#57478a', scrib: '#4a3c74', scrib2: '#43366a', logo: ['#f6f0ff', '#ffd23a', '#f6f0ff', '#ff9ac0', '#f6f0ff', '#9fe0ff'] },
   I: { name: 'さくら', bg: '#f6d9d2', strip: '#fbe9e4', title: '#2b2622', titleStroke: '#ffffff', sub: '#c0392b', iconBg: '#e88f86', iconCircle: '#fbe9e4', scrib: '#efc0b8', scrib2: '#f3cfc8', logo: ['#c0392b', '#2b2622', '#2a6fbf', '#c0392b', '#2b2622', '#2f9a4a'] },
+  S: { name: 'スケッチブック', sketch: true, bg: '#b98a5a', strip: '#fbf8f0', title: '#2b2622', titleStroke: '#fbf8f0', sub: '#d23a33', iconBg: '#fbf8f0', iconCircle: '#f3ead6', scrib: '#e8dcc4', scrib2: '#efe4cf', logo: ['#d23a33', '#2b2622', '#2a6fbf', '#e08a1e', '#2b2622', '#2f9a4a'] },
 };
 const V = process.argv[2] || 'A', K = PAL[V];
 
@@ -83,7 +84,24 @@ function banner() {
   s += taxi(260, 450, 0.8) + crayon(2300, 420, 1.2, 20, '#3a8ad8') + crayon(200, 1000, 1.0, -30, RED);
   // 中央の帯（どの画面でも見える 1546×423）
   const x0 = (W - 1546) / 2, y0 = (H - 423) / 2;
-  s += `<rect x="${x0}" y="${y0}" width="1546" height="423" rx="40" fill="${K.strip}"/>`;
+  if (K.sketch) {
+    // 机の木目
+    s = `<rect width="${W}" height="${H}" fill="${K.bg}"/>`;
+    for (let i = 0; i < 16; i++) s += line([[0, 60 + i * 92 + (i % 3) * 8], [W, 70 + i * 92 - (i % 2) * 10]], { w: 4, color: '#a5784b', passes: 1 });
+    s += `<rect width="${W}" height="${H}" filter="url(#paper)" opacity="0.8"/>`;
+    // スケッチブックの紙（影・紙・ざらつき）とリング
+    const px = x0 - 130, py = y0 + 4, pw = 1546 + 260, ph = 423 + 120;
+    s += `<rect x="${px + 18}" y="${py + 24}" width="${pw}" height="${ph}" rx="10" fill="#000" opacity="0.25"/>`;
+    s += `<rect x="${px}" y="${py}" width="${pw}" height="${ph}" rx="10" fill="${K.strip}"/>` + `<rect x="${px}" y="${py}" width="${pw}" height="${ph}" rx="10" filter="url(#paper)"/>`;
+    s += `<rect x="${px}" y="${py}" width="${pw}" height="${ph}" rx="10" fill="none" stroke="#d8ccb4" stroke-width="4"/>`;
+    for (let i = 0; i < 26; i++) { const rx = px + 50 + i * ((pw - 100) / 25);
+      s += `<circle cx="${rx}" cy="${py + 30}" r="9" fill="#5a4a3a"/>` + `<path d="M${rx - 10},${py + 32} C${rx - 12},${py - 14} ${rx + 12},${py - 14} ${rx + 10},${py + 32}" fill="none" stroke="#8a8f96" stroke-width="7" stroke-linecap="round"/>`; }
+    // 机の上の小物：クレヨン、消しゴム、消しかす
+    s += crayon(px + pw + 120, y0 + 60, 1.3, 95, '#2a6fbf') + crayon(px + pw + 70, y0 + 330, 1.3, 75, '#e08a1e') + crayon(px - 140, y0 + 250, 1.3, -80, '#2f9a4a');
+    s += xf(rect(-60, -30, 120, 60, { fill: '#f6c7c0' }) + rect(-60, -30, 45, 60, { fill: '#5a8fd0', w: 4 }), { x: px - 120, y: y0 + 470, r: -18 });
+  } else {
+    s += `<rect x="${x0}" y="${y0}" width="1546" height="423" rx="40" fill="${K.strip}"/>`;
+  }
   s += xf(guide({ x: 0, y: 0, s: 0.95, expr: 'smile', arms: [12, 8, 125, 10] }), { x: x0 + 190, y: y0 + 405 });
   s += crayon(x0 + 350, y0 + 175, 0.6, -35, RED);
   s += LOGO('らくがき経済', W / 2 - 20, y0 + 215, 150, K.logo, K.titleStroke);
