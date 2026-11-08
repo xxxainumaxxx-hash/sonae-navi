@@ -83,14 +83,39 @@ function banner() {
   s += LOGO('らくがき経済', W / 2 - 20, y0 + 215, 150, K.logo, K.titleStroke);
   s += line([[W / 2 - 420, y0 + 252], [W / 2 - 150, y0 + 262], [W / 2 + 150, y0 + 250], [W / 2 + 390, y0 + 258]], { w: 12, color: K.sub, passes: 2 });
   s += TITLE('会社とお金の話を、らくがきで。', W / 2 - 20, y0 + 345, 54, K.title, K.titleStroke);
-  // 右はし：上がるグラフ、ビル、コインの山。その横にすわったネコ
-  const R = x0 + 1175;
-  s += building(R + 40, y0 + 330, 70, 150, '#d8b080') + building(R + 115, y0 + 330, 55, 95, '#c49a6a');
-  [0, 1, 2, 3].forEach((i) => { s += ellipse(R + 175, y0 + 365 - i * 17, 30, 11, { fill: '#f2c230', w: 4 }); });
-  s += text('¥', R + 175, y0 + 280, { size: 42, color: '#f2c230', font: 'Zen Maru Gothic', weight: 900 });
-  const g = [[R + 10, y0 + 250], [R + 60, y0 + 200], [R + 100, y0 + 222], [R + 190, y0 + 110]];
-  s += line(g, { w: 13, color: '#3fbf5a', passes: 2 }) + poly([[R + 212, y0 + 80], [R + 168, y0 + 104], [R + 214, y0 + 134]], { fill: '#3fbf5a', w: 5 });
-  s += sitCat(R + 300, y0 + 310);
+  // 右はし（案：node channelart.mjs A 1〜4）
+  const R = x0 + 1175, RV = process.argv[3] || '1';
+  const coinStack = (x, y, n) => { let c = ''; for (let i = 0; i < n; i++) c += ellipse(x, y - i * 17, 30, 11, { fill: '#f2c230', w: 4 }); return c; };
+  const arrowUp = (pts, col = '#3fbf5a') => { const [p, q] = pts.slice(-2); const a = Math.atan2(q[1] - p[1], q[0] - p[0]);
+    const tip = [q[0] + Math.cos(a) * 34, q[1] + Math.sin(a) * 34];
+    return line(pts, { w: 13, color: col, passes: 2 }) + poly([tip, [q[0] + Math.cos(a + 2) * 26, q[1] + Math.sin(a + 2) * 26], [q[0] + Math.cos(a - 2) * 26, q[1] + Math.sin(a - 2) * 26]], { fill: col, w: 5 }); };
+  if (RV === '1') {
+    // ① グラフ＋ビル＋コイン＋すわったネコ
+    s += building(R + 40, y0 + 330, 70, 150, '#d8b080') + building(R + 115, y0 + 330, 55, 95, '#c49a6a') + coinStack(R + 175, y0 + 365, 4);
+    s += text('¥', R + 175, y0 + 280, { size: 42, color: '#f2c230', font: 'Zen Maru Gothic', weight: 900 });
+    s += arrowUp([[R + 10, y0 + 250], [R + 60, y0 + 200], [R + 100, y0 + 222], [R + 190, y0 + 110]]);
+    s += sitCat(R + 300, y0 + 310);
+  } else if (RV === '2') {
+    // ② 小さなノートに、ぐるぐる・矢印・円グラフのメモ書き
+    s += xf(rect(-150, -150, 300, 300, { fill: '#fdfbf3' }) + [0, 1, 2, 3, 4].map((i) => line([[-130, -95 + i * 52], [130, -95 + i * 52]], { w: 3, color: '#9cc3e4', passes: 1 })).join('') +
+      `<circle cx="-60" cy="-40" r="55" fill="#ff8a7a" stroke="${INK}" stroke-width="5"/><path d="M-60,-40 L-60,-95 A55,55 0 0,1 -8,-58 Z" fill="#8fd0ff" stroke="${INK}" stroke-width="5"/>` +
+      text('¥', 60, -20, { size: 70, color: '#d23a33', font: 'Yusei Magic' }) + arrowUp([[-110, 110], [-40, 70], [10, 90], [100, 30]]), { x: R + 205, y: y0 + 215, r: 6, s: 0.85 });
+    s += crayon(R + 300, y0 + 360, 0.5, -40, '#f2b544');
+  } else if (RV === '3') {
+    // ③ ひらめきの電球と、お金の袋（アイデアがお金になる）
+    s += xf(bulb(0, 0, 0.8, 1), { x: R + 150, y: y0 + 130 }) + sparkles(R + 150, y0 + 70, 55, '#f2c230');
+    s += arrowUp([[R + 190, y0 + 175], [R + 215, y0 + 205]], '#f2b544');
+    s += ellipse(R + 245, y0 + 300, 80, 75, { fill: '#c9a36a' }) + poly([[R + 215, y0 + 228], [R + 275, y0 + 228], [R + 290, y0 + 205], [R + 200, y0 + 205]], { fill: '#c9a36a', w: 5 }) +
+      text('¥', R + 245, y0 + 325, { size: 70, color: INK, font: 'Yusei Magic' }) + coinStack(R + 140, y0 + 380, 3);
+  } else {
+    // ④ ネコがお昼寝。まわりに会社の小物（お店・工場・コイン・電球）が、ふわふわ浮かぶ
+    s += ellipse(R + 180, y0 + 360, 90, 40, { fill: '#9aa0a8' }) + ellipse(R + 110, y0 + 340, 42, 36, { fill: '#9aa0a8' }) +
+      poly([[R + 82, y0 + 318], [R + 86, y0 + 282], [R + 106, y0 + 308]], { fill: '#9aa0a8', w: 5 }) + poly([[R + 114, y0 + 306], [R + 132, y0 + 280], [R + 138, y0 + 312]], { fill: '#9aa0a8', w: 5 }) +
+      line([[R + 92, y0 + 340], [R + 104, y0 + 344]], { w: 4, color: INK, passes: 1 }) + line([[R + 116, y0 + 340], [R + 128, y0 + 344]], { w: 4, color: INK, passes: 1 }) +
+      line([[R + 265, y0 + 360], [R + 300, y0 + 330], [R + 290, y0 + 300]], { w: 10, color: INK, passes: 1 });
+    s += text('z', R + 165, y0 + 290, { size: 40, color: K.title, font: 'Yusei Magic' }) + text('Z', R + 195, y0 + 255, { size: 56, color: K.title, font: 'Yusei Magic' });
+    s += building(R + 60, y0 + 230, 60, 110, '#d8b080') + xf(bulb(0, 0, 0.55, 1), { x: R + 260, y: y0 + 90 }) + coinStack(R + 280, y0 + 240, 3) + gear(R + 150, y0 + 90, 45, 20);
+  }
   return { s, W, H };
 }
 
