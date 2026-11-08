@@ -1,5 +1,6 @@
 // ショート（縦 1080×1920）用の共通の道具
-// 画面の使い方：上のテロップ 150〜340／絵の主役 380〜1280／字幕 1290〜1380／その下はスマホのボタンと説明文で隠れる
+// 画面の使い方（YouTube の画面に隠れない所）：右はしの x880 より右はボタン列、y1520 より下はチャンネル名と説明文で隠れる。
+// 上のテロップ 150〜340／絵の主役 380〜1280／字幕 1290〜1380／その下はスマホのボタンと説明文で隠れる
 import { C, text, ellipse, rect, line, poly } from '../lib/crayon.mjs';
 import { kid, worker } from '../lib/cfolk.mjs';
 import { sneakyCat } from '../lib/cprops.mjs';
@@ -23,5 +24,5 @@ export const T = (str, x, y, size, color, stroke = INK) =>
 // 黒い画面に年号などを1文字ずつ
 export const blackType = (str, tl, size = 130) => fill('#111') + typeText(str, 540, 900, tl, { size, color: C.white, cps: 7, font: 'Yomogi', weight: 400 });
 // すみっこのネコ（全カット共通の小ネタ）
-export const catCorner = (t, toy = '') => sneakyCat(170, 1500, t, toy);
+export const catCorner = (t, toy = '') => sneakyCat(150, 1440, t, toy);
 export { fill, glow, typeText, text, ellipse, rect, line, poly, C, ease, clamp, lerp };

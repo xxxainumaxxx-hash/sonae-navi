@@ -10,7 +10,7 @@ export const meta = { id: 's04-america', format: 'short', title: 'ゲーム機�
 // おもちゃ売り場の棚（ゲーム機とロボットが並ぶ）
 const shelf = (tl, withSign = true) => {
   let s = fill('#fff2c8') + rect(-100, 1160, 1280, 50, { fill: '#b07a46' }) + rect(-100, 700, 1280, 30, { fill: '#b07a46' });
-  s += ball(120, 650, 45, C.blue) + toyRobot(940, 600, 0.6) + tvConsole(380, 1100, 0.65, Math.max(0, Math.sin(tl * 5))) + toyRobot(820, 1080, 1.0, Math.sin(tl * 3) * 6);
+  s += ball(120, 650, 45, C.blue) + toyRobot(780, 600, 0.6) + tvConsole(340, 1100, 0.65, Math.max(0, Math.sin(tl * 5))) + toyRobot(710, 1080, 1.0, Math.sin(tl * 3) * 6);
   if (withSign) s += sign('おもちゃ売り場', 540, 620, { size: 80, fill: RED, color: C.white });
   return s;
 };
@@ -27,11 +27,11 @@ const LIST = [
     return cam(s, tl, d, { z0: 1.0, z1: 1.05 });
   },
   // 2 ゲームは売れない、と言われていた。
-  (tl, d, t) => cam(fill('#e2e6ee') + dustyPile(330, 1250, 1.1) + vmid(salary, 760, { flip: true, look: [-1, 0], arms: [12, 8, 60, 60], blink: blinking(t, 8), expr: 'angry', tilt: Math.sin(tl * 9) * 6 }) +
+  (tl, d, t) => cam(fill('#e2e6ee') + dustyPile(330, 1250, 1.1) + vmid(salary, 680, { flip: true, look: [-1, 0], arms: [12, 8, 60, 60], blink: blinking(t, 8), expr: 'angry', tilt: Math.sin(tl * 9) * 6 }) +
     enter(bubble('ゲーム？いらない！', 540, 620, { size: 66 }), tl, 0.2, { cx: 540, cy: 620 }), tl, d, { z0: 1.0, z1: 1.05 }),
   // 3 そこで、ロボットのおもちゃとセットに。
   (tl, d) => cam(fill('#fff2c8') + glow(540, 900, 600, C.yellow, 0.3) + xf(tvConsole(0, 0, 0.7, 0), { x: 300, y: 1000, s: popS(tl, 0.1), cx: 0, cy: -150 }) +
-    xf(T('＋', 540, 900, 160, RED, C.white), { s: popS(tl, 0.5), cx: 540, cy: 850 }) + xf(toyRobot(0, 0, 1.3, Math.sin(tl * 3) * 6), { x: 800, y: 980, s: popS(tl, 0.8), cx: 0, cy: 0 }) +
+    xf(T('＋', 510, 900, 160, RED, C.white), { s: popS(tl, 0.5), cx: 540, cy: 850 }) + xf(toyRobot(0, 0, 1.3, Math.sin(tl * 3) * 6), { x: 730, y: 980, s: popS(tl, 0.8), cx: 0, cy: 0 }) +
     T('セットで売る', 540, 640, 100, INK, C.white), tl, d, { z0: 1.0, z1: 1.06 }),
   // 4 置いた場所は、おもちゃ売り場。
   (tl, d) => cam(shelf(tl), tl, d, { z0: 1.12, z1: 1.0, y0: 900 }),
@@ -44,7 +44,7 @@ const LIST = [
     (tl, d, t) => cam(fill('#d6e6f5') + vmid(kid, 540, { hair: 'side', shirt: C.blue, arms: P.hips, blink: blinking(t, 2), expr: 'angry' }) + T('ずるい？', 540, 660, 150, C.blue, C.white), tl, d, { z0: 1.0, z1: 1.05 }),
   ],
   // 7 任天堂の作戦は、たったひとつ。（→ 1行目の絵へ）
-  (tl, d, t) => cam(fill(RED) + glow(540, 900, 600, '#fff', 0.2) + vmid(pres, 540, { arms: [12, 8, 175, 0], blink: blinking(t, 3), expr: 'smile' }) + xf(T('1', 900, 720, 260, C.yellow, INK), { s: popS(tl, 0.3), cx: 900, cy: 640 }), tl, d, { z0: 1.0, z1: 1.06 }),
+  (tl, d, t) => cam(fill(RED) + glow(540, 900, 600, '#fff', 0.2) + vmid(pres, 540, { arms: [12, 8, 175, 0], blink: blinking(t, 3), expr: 'smile' }) + xf(T('1', 800, 720, 260, C.yellow, INK), { s: popS(tl, 0.3), cx: 800, cy: 640 }), tl, d, { z0: 1.0, z1: 1.06 }),
 ];
 
 export const scenes = [{

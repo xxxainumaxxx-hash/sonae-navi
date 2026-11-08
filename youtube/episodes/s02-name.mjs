@@ -33,7 +33,7 @@ const LIST = [
   // 2 始まりは1889年、花札のお店。
   [
     (tl) => blackType('1889年', tl),
-    (tl, d, t) => cam(fill(SEPIA) + townRow(1000, 4, -300, 340) + shop(540, 1080, 1.3) + crafts({ x: 830, y: 1500, s: 1.6, blink: blinking(t, 1), arms: P.cheer, expr: 'smile', flip: true }) +
+    (tl, d, t) => cam(fill(SEPIA) + townRow(1000, 4, -300, 340) + shop(540, 1080, 1.3) + crafts({ x: 740, y: 1500, s: 1.6, blink: blinking(t, 1), arms: P.cheer, expr: 'smile', flip: true }) +
       enter(sign('花札のお店', 540, 600, { size: 80, fill: C.white }), tl, 0.2, { cx: 540, cy: 600 }), tl, d, { z0: 1.0, z1: 1.05 }),
   ],
   // 3 花札は、運で勝負が決まる遊び。
@@ -59,8 +59,8 @@ const LIST = [
     (tl, d, t) => {
       let s = fill('#fff2c8') + `<polygon points="540,-400 2400,-400 2400,2400 540,2400" fill="#d6e6f5"/>`;
       s += kid({ x: 280, y: 1480, s: 1.5, hair: 'messy', shirt: C.orange, arms: P.cheer, blink: blinking(t, 1), expr: 'smile' }) + dice(280, 700, 1.0, tl * 200);
-      s += kid({ x: 800, y: 1480, s: 1.5, hair: 'side', glasses: true, shirt: C.blue, arms: P.think, blink: blinking(t, 2), flip: true }) + xf(rect(-70, -90, 140, 180, { fill: '#7a8fb0' }) + line([[0, -90], [0, 90]], { w: 5, passes: 1 }), { x: 800, y: 700 });
-      s += T('運まかせ', 280, 900, 80, INK, C.white) + T('実力', 800, 900, 80, INK, C.white) + xf(T('VS', 540, 760, 110, RED, C.white), { s: popS(tl, 0.3), cx: 540, cy: 720 });
+      s += kid({ x: 720, y: 1480, s: 1.5, hair: 'side', glasses: true, shirt: C.blue, arms: P.think, blink: blinking(t, 2), flip: true }) + xf(rect(-70, -90, 140, 180, { fill: '#7a8fb0' }) + line([[0, -90], [0, 90]], { w: 5, passes: 1 }), { x: 720, y: 700 });
+      s += T('運まかせ', 280, 900, 80, INK, C.white) + T('実力', 720, 900, 80, INK, C.white) + xf(T('VS', 540, 760, 110, RED, C.white), { s: popS(tl, 0.3), cx: 540, cy: 720 });
       return cam(s, tl, d, { z0: 1.0, z1: 1.05 });
     },
     (tl, d) => cam(fill(RED) + glow(540, 860, 600, '#fff', 0.2) + T('あなたは？', 540, 800, 150, C.white, INK) + enter(bubble('コメントで教えて', 540, 1040, { size: 70 }), tl, 0.3, { cx: 540, cy: 1040 }), tl, d, { z0: 1.0, z1: 1.06 }),
@@ -68,7 +68,7 @@ const LIST = [
   // 6 この3文字に、隠れている言葉は…（→ 1行目へ）
   (tl, d) => {
     let s = fill('#1d2030') + glow(540, 860, 600, '#fff6d8', 0.2) + nin(tl);
-    s += xf(big('？', 860, 760, 200, C.yellow), { s: popS(tl, 0.5), cx: 860, cy: 700 }) + xf(big('？', 240, 1120, 160, C.yellow), { s: popS(tl, 0.8), cx: 240, cy: 1070 });
+    s += xf(big('？', 790, 760, 200, C.yellow), { s: popS(tl, 0.5), cx: 790, cy: 700 }) + xf(big('？', 240, 1120, 160, C.yellow), { s: popS(tl, 0.8), cx: 240, cy: 1070 });
     return cam(s, tl, d, { z0: 1.0, z1: 1.08 });
   },
 ];
