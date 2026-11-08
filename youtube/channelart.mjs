@@ -6,8 +6,8 @@ import { fileURLToPath } from 'node:url';
 import { defs, paper, setTheme, C, line, rect, ellipse, poly, text, sparkles } from './lib/crayon.mjs';
 import { openShooter, svgDoc } from './lib/shot.mjs';
 import { xf } from './lib/anim.mjs';
-import { guide } from './lib/cfolk.mjs';
-import { bulb, hanafuda, bwHandheld, taxi, gear, trophy, sneakyCat, extendHand, building, playingCard } from './lib/cprops.mjs';
+import { guide, kid } from './lib/cfolk.mjs';
+import { calculator, bulb, hanafuda, bwHandheld, taxi, gear, trophy, sneakyCat, extendHand, building, playingCard } from './lib/cprops.mjs';
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const OUT = path.join(ROOT, 'out', 'channel');
@@ -66,12 +66,32 @@ const sitCat = (x, y) => {
   return s;
 };
 
+// 「経済っぽい人」の案（node channelart.mjs S 1 P1〜P3）。人は (x, y) に s 倍で立つ
+const PV = process.argv[4] || 'P1';
+function person(x, y, sc) {
+  if (PV === 'P1') {
+    // ① 紺のスーツに赤いネクタイ。指し棒でロゴを指す（解説役のビジネスマン）
+    const hand = [x + 147 * sc / 0.95 * 0.95, y - 246 * sc / 0.95 * 0.95];
+    return kid({ x, y, s: sc, hair: 'side', hairColor: '#2a2420', shirt: '#ffffff', jacket: '#2f3b5c', tie: RED, pants: '#2c3350', expr: 'smile', arms: [12, 8, 125, 10] }) +
+      line([[hand[0] - 6 * sc, hand[1] + 4 * sc], [hand[0] + 175 * sc, hand[1] - 70 * sc]], { w: 8 * sc, color: '#6b4a2a', passes: 1 }) + ellipse(hand[0] + 177 * sc, hand[1] - 71 * sc, 7 * sc, 7 * sc, { fill: RED, w: 3 });
+  }
+  if (PV === 'P2') {
+    // ② メガネにシャツの腕まくり、ベスト。電卓を持つ（会計・数字に強い人）
+    return kid({ x, y, s: sc, hair: 'side', hairColor: '#3a2d25', glasses: true, shirt: '#e8f0fa', jacket: '#5a6e8a', tie: '#2a6fbf', pants: '#3b4a6b', expr: 'smile', arms: [40, -60, 40, -60] }) +
+      calculator(x + 2 * sc, y - 115 * sc, 0.33 * sc);
+  }
+  // ③ 新聞の経済面を広げて読む人（ニュースを読み解く）
+  return kid({ x, y, s: sc, hair: 'side', hairColor: '#2a2420', glasses: true, shirt: '#ffffff', jacket: '#555b66', tie: '#c0392b', pants: '#3b3f48', expr: 'smile', arms: [40, -60, 40, -60], look: [0.3, 0.2] }) +
+    xf(rect(-95, -70, 190, 140, { fill: '#f4f0e6' }) + text('経済', -40, -22, { size: 34, font: 'Zen Maru Gothic', weight: 900 }) +
+      line([[-80, 10], [80, 10]], { w: 4, color: '#9a9488', passes: 1 }) + line([[-80, 35], [80, 35]], { w: 4, color: '#9a9488', passes: 1 }) +
+      line([[20, -40], [45, -15], [60, -30], [85, -55]], { w: 5, color: '#2f9a4a', passes: 1 }), { x: x + 4 * sc, y: y - 112 * sc, s: 0.85 * sc });
+}
+
 function icon() {
   let s = `<rect width="800" height="800" fill="${K.iconBg}"/>`;
   s += scribble(150, 170, 120, K.scrib, 16) + scribble(620, 640, 120, K.scrib, 16);
   s += `<circle cx="400" cy="430" r="300" fill="${K.iconCircle}"/>`;
-  s += guide({ x: 400, y: 1080, s: 2.9, expr: 'smile', arms: [12, 8, 125, 10], look: [0.4, -0.2] });
-  s += crayon(610, 520, 0.95, -35, RED);
+  s += person(400, 1080, 2.9);
   return s;
 }
 
@@ -102,8 +122,7 @@ function banner() {
   } else {
     s += `<rect x="${x0}" y="${y0}" width="1546" height="423" rx="40" fill="${K.strip}"/>`;
   }
-  s += xf(guide({ x: 0, y: 0, s: 0.95, expr: 'smile', arms: [12, 8, 125, 10] }), { x: x0 + 190, y: y0 + 405 });
-  s += crayon(x0 + 350, y0 + 175, 0.6, -35, RED);
+  s += person(x0 + 190, y0 + 405, 0.95);
   s += LOGO('らくがき経済', W / 2 - 20, y0 + 215, 150, K.logo, K.titleStroke);
   s += line([[W / 2 - 420, y0 + 252], [W / 2 - 150, y0 + 262], [W / 2 + 120, y0 + 250], [W / 2 + 320, y0 + 258]], { w: 12, color: K.sub, passes: 2 });
   s += TITLE('会社とお金の話を、らくがきで。', W / 2 - 20, y0 + 345, 54, K.title, K.titleStroke);
@@ -144,10 +163,10 @@ function banner() {
 }
 
 const { shot, close } = await openShooter(ROOT, path.join(OUT, '_w'), { w: 800, h: 800 });
-await shot(svgDoc(defs(0) + icon(), 800, 800), path.join(OUT, `icon${V}.png`));
+await shot(svgDoc(defs(0) + icon(), 800, 800), path.join(OUT, `icon${V}${PV}.png`));
 await close();
 const b = banner();
 const sh2 = await openShooter(ROOT, path.join(OUT, '_w2'), { w: b.W, h: b.H });
-await sh2.shot(svgDoc(defs(0) + b.s, b.W, b.H), path.join(OUT, `banner${V}.png`));
+await sh2.shot(svgDoc(defs(0) + b.s, b.W, b.H), path.join(OUT, `banner${V}${PV}.png`));
 await sh2.close();
 console.log(OUT);
