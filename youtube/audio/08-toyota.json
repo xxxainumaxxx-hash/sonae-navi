@@ -1,0 +1,21 @@
+{
+ "bgm_vol": 0.22,
+ "bgm": [
+  { "scene": 1, "file": "ty0.mp3", "note": "つかみ" },
+  { "scene": 2, "file": "ty1.mp3", "note": "第1章前半：村の機織り（和）" },
+  { "scene": 6, "file": "ty2.mp3", "note": "第2章：止まる機械・発明" },
+  { "scene": 10, "file": "ty3.mp3", "note": "第3章：車づくり" },
+  { "scene": 14, "file": "ty4.mp3", "note": "第4章前半：倒産寸前" },
+  { "scene": 16, "file": "ty5.mp3", "note": "ムダをなくす工場" },
+  { "scene": 17, "file": "ty6.mp3", "note": "まとめ" },
+  { "scene": 18, "file": "ty7.mp3", "note": "終了画面" }
+ ],
+ "sfx": {
+  "whip": { "file": "sfx_whoosh.mp3", "vol": 0.35 },
+  "whipUp": { "file": "sfx_whoosh.mp3", "vol": 0.35 },
+  "dive": { "file": "sfx_pop.mp3", "vol": 0.3 },
+  "punch": { "file": "sfx_soft.mp3", "vol": 0.2 },
+  "chapter": { "file": "sfx_hyoshigi.mp3", "vol": 0.55 },
+  "end": { "file": "sfx_end.mp3", "vol": 0.4, "scene": 18 }
+ }
+}
