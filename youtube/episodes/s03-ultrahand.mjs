@@ -69,5 +69,5 @@ export const scenes = [{
     'あなたのひまつぶし、商品になりそう？',
     'たったひとつの、ひまつぶし。',
   ],
-  draw: (t, c) => shots(t, c, LIST) + catCorner(t, extendHand(0, 0, 0.18, 0.5 + 0.5 * Math.sin(t * 3))),
+  draw: (t, c) => shots(t, c, LIST) + catCorner(t, extendHand(0, 0, 0.18, 0.5 + 0.5 * Math.sin(t * 3)), c, 7),
 }];

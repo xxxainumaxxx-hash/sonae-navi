@@ -23,6 +23,12 @@
   "punch": {
    "file": "sfx_soft.mp3",
    "vol": 0.2
+  },
+  "cat": {
+   "file": "sfx_pop.mp3",
+   "vol": 0.45,
+   "line": 9,
+   "offset": 0.3
   }
  }
 }

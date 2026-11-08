@@ -83,5 +83,5 @@ export const scenes = [{
     'あなたは、運まかせ派？実力派？',
     'この3文字に、隠れている言葉は…',
   ],
-  draw: (t, c) => shots(t, c, LIST) + catCorner(t, hanafuda(0, 0, 0.25, 15 + Math.sin(t * 3) * 10, 2)),
+  draw: (t, c) => shots(t, c, LIST) + catCorner(t, hanafuda(0, 0, 0.25, 15 + Math.sin(t * 3) * 10, 2), c, 5),
 }];

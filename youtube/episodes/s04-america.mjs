@@ -58,5 +58,5 @@ export const scenes = [{
     'これ、うまい作戦？ずるい？',
     '任天堂の作戦は、たったひとつ。',
   ],
-  draw: (t, c) => shots(t, c, LIST) + catCorner(t, toyRobot(0, 0, 0.2, Math.sin(t * 3) * 8)),
+  draw: (t, c) => shots(t, c, LIST) + catCorner(t, toyRobot(0, 0, 0.2, Math.sin(t * 3) * 8), c, 6),
 }];

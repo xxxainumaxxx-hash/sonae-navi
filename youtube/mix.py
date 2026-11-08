@@ -65,6 +65,9 @@ def main():
     for s in tl['scenes']:
         if s['chapter'] and 'chapter' in sfx:
             events.append((s['start'] + 0.05, sfx['chapter']))
+    if 'cat' in sfx:  # ショートのネコが「本編はこちら」と指さす時
+        e = sfx['cat']
+        events.append((tl['scenes'][0]['lines'][e['line']] + e.get('offset', 0.3), e))
     if 'end' in sfx:
         e = sfx['end']
         events.append((tl['scenes'][e['scene'] - 1]['start'] + 0.1 if 'scene' in e else total - e.get('before_end', 3.5), e))

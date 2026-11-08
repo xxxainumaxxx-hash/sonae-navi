@@ -112,5 +112,5 @@ export const scenes = [{
     'あなたなら、どっちを買う？',
     '子どもたちの答えは、はっきりしていた。',
   ],
-  draw: (t, c) => shots(t, c, LIST) + catCorner(t, GB(0, 0, 0.12, t)),
+  draw: (t, c) => shots(t, c, LIST) + catCorner(t, GB(0, 0, 0.12, t), c, 9),
 }];
