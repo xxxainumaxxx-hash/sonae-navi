@@ -43,6 +43,29 @@ const LOGO = (str, cx, y, size, cols, stroke) => {
   }).join('');
 };
 
+// すわったネコ：右の前足を上げて、クレヨンの先を tip に当てている
+const sitCat = (x, y, tip) => {
+  const G = '#9aa0a8';
+  let s = '';
+  s += line([[x + 55, y + 50], [x + 95, y + 20], [x + 90, y - 30]], { w: 10, color: INK, passes: 1 });               // しっぽ
+  s += ellipse(x, y + 20, 62, 72, { fill: G });                                                                       // からだ
+  s += ellipse(x - 25, y + 88, 20, 12, { fill: G, w: 5 }) + ellipse(x + 25, y + 88, 20, 12, { fill: G, w: 5 });       // 足
+  s += ellipse(x, y - 70, 48, 42, { fill: G });                                                                       // あたま
+  s += poly([[x - 40, y - 92], [x - 34, y - 135], [x - 12, y - 104]], { fill: G, w: 5 }) + poly([[x + 12, y - 104], [x + 34, y - 135], [x + 40, y - 92]], { fill: G, w: 5 });
+  s += ellipse(x - 26, y - 76, 5, 7, { fill: INK, w: 3 }) + ellipse(x - 4, y - 76, 5, 7, { fill: INK, w: 3 });   // 目（左＝グラフの方を見る）
+  s += line([[x - 18, y - 58], [x - 12, y - 54], [x - 6, y - 58]], { w: 4, color: INK, passes: 1 });
+  // うで（肩 → 前足）、前足にクレヨン
+  const paw = [tip[0] + 70, tip[1] + 62];
+  const sh = [x - 50, y + 5];
+  s += line([sh, [paw[0] + 8, paw[1] + 6]], { w: 22, color: INK, passes: 1 }) + line([sh, [paw[0] + 8, paw[1] + 6]], { w: 14, color: G, passes: 1 });
+  const ang = Math.atan2(tip[1] - paw[1], tip[0] - paw[0]) * 180 / Math.PI;
+  s += ellipse(paw[0] + 6, paw[1] + 4, 17, 15, { fill: G, w: 5 });
+  const len = Math.hypot(tip[0] - paw[0], tip[1] - paw[1]);
+  s += xf(rect(0, -12, len - 26, 24, { fill: '#3fbf5a', w: 5 }) + rect(14, -12, 22, 24, { fill: '#e8f6ea', w: 3 }) + poly([[len - 26, -12], [len, 0], [len - 26, 12]], { fill: '#2f9a4a', w: 4 }), { x: paw[0], y: paw[1], r: ang });
+  s += sparkles(tip[0] - 6, tip[1] - 8, 26, '#f2c230');
+  return s;
+};
+
 function icon() {
   let s = `<rect width="800" height="800" fill="${K.iconBg}"/>`;
   s += scribble(150, 170, 120, K.scrib, 16) + scribble(620, 640, 120, K.scrib, 16);
@@ -67,15 +90,14 @@ function banner() {
   s += LOGO('らくがき経済', W / 2 - 20, y0 + 215, 150, K.logo, K.titleStroke);
   s += line([[W / 2 - 420, y0 + 252], [W / 2 - 150, y0 + 262], [W / 2 + 150, y0 + 250], [W / 2 + 390, y0 + 258]], { w: 12, color: K.sub, passes: 2 });
   s += TITLE('会社とお金の話を、らくがきで。', W / 2 - 20, y0 + 345, 54, K.title, K.titleStroke);
-  // 右はし：ネコがクレヨンで上がるグラフを描いている（会社とお金）。うしろにビル、横にコインの山
-  const R = x0 + 1240;
-  s += building(R + 60, y0 + 300, 80, 170, '#d8b080') + building(R + 145, y0 + 300, 60, 110, '#c49a6a');
-  s += line([[R + 10, y0 + 300], [R + 285, y0 + 300]], { w: 6, color: '#9aa0a8', passes: 1 });
-  const g = [[R + 20, y0 + 190], [R + 85, y0 + 140], [R + 135, y0 + 165], [R + 230, y0 + 60]];
-  s += line(g, { w: 14, color: '#3fbf5a', passes: 2 }) + poly([[R + 255, y0 + 28], [R + 205, y0 + 55], [R + 258, y0 + 86]], { fill: '#3fbf5a', w: 5 });
-  [0, 1, 2, 3, 4].forEach((i) => { s += ellipse(R + 255, y0 + 290 - i * 18, 34, 12, { fill: '#f2c230', w: 4 }); });
-  s += text('¥', R + 255, y0 + 190, { size: 48, color: '#f2c230', font: 'Zen Maru Gothic', weight: 900 });
-  s += sneakyCat(R + 175, y0 + 395, 0, crayon(0, 0, 0.32, -60, '#3fbf5a'));
+  // 右はし：すわったネコが前足でクレヨンを持ち、上がるグラフを描いている。グラフの線はクレヨンの先で終わる
+  const R = x0 + 1175;
+  s += building(R + 40, y0 + 330, 70, 150, '#d8b080') + building(R + 115, y0 + 330, 55, 95, '#c49a6a');
+  [0, 1, 2, 3].forEach((i) => { s += ellipse(R + 175, y0 + 365 - i * 17, 30, 11, { fill: '#f2c230', w: 4 }); });
+  s += text('¥', R + 175, y0 + 280, { size: 42, color: '#f2c230', font: 'Zen Maru Gothic', weight: 900 });
+  const tip = [R + 175, y0 + 175];
+  s += line([[R + 10, y0 + 250], [R + 60, y0 + 200], [R + 100, y0 + 222], tip], { w: 13, color: '#3fbf5a', passes: 2 });
+  s += sitCat(R + 320, y0 + 300, tip);
   return { s, W, H };
 }
 
