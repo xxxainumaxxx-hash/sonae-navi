@@ -86,7 +86,10 @@ function person(x, y, sc) {
 }
 
 // アイコンの背景色（node channelart.mjs S 1 P1 紺 など。5番目の引数）
-const IBG = { 紺: ['#2f3b5c', '#3e4d75'], からし: ['#e9b832', '#f2c94c'], 赤: ['#c8423a', '#d6564e'], ティール: ['#1d5257', '#2a6a70'], 緑: ['#3f8a5a', '#4f9d6a'], 水色: ['#8fc4e8', '#a6d2ef'] };
+const IBG = { 紺: ['#2f3b5c', '#3e4d75'], からし: ['#e9b832', '#f2c94c'], 赤: ['#c8423a', '#d6564e'], ティール: ['#1d5257', '#2a6a70'], 緑: ['#3f8a5a', '#4f9d6a'], 水色: ['#8fc4e8', '#a6d2ef'],
+  オレンジ: ['#f08a3c', '#f5a15c'], レモン: ['#f6e05e', '#f9e98a'], 黄緑: ['#a6cf5a', '#b9db78'], ミント: ['#8fd6bd', '#a9e1cd'], ターコイズ: ['#3fb4c4', '#62c4d1'],
+  ラベンダー: ['#b8a6e0', '#c9bbe8'], ピーチ: ['#f6b49a', '#f9c7b3'], ピンク: ['#f39ab8', '#f6b3c9'], ベージュ: ['#e6cfa6', '#eedcbc'], 灰青: ['#8a9bb0', '#9fb0c3'],
+  黒板: ['#2d4a3c', '#3c5e4d'], 白: ['#ffffff', '#f2eee4'] };
 const IB = IBG[process.argv[5]] || [K.iconBg, K.iconCircle];
 function icon() {
   let s = `<rect width="800" height="800" fill="${IB[0]}"/>`;
