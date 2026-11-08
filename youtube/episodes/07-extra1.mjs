@@ -213,7 +213,7 @@ const Y = {
   // 4 「1959年には、アメリカの人気キャラクターを印刷した」→ アメリカから来たキャラクター
   4: { before: [(tl, d) => {
     let s = fill('#cfe6f5') + glow(960, 300, 900, '#fff', 0.3) + rect(-200, 760, 2400, 500, { fill: '#5a9ad0', color: null });
-    s += plane(tw(tl, 0, d * 0.7, 2200, -300), 220, 1.0);
+    s += plane(tw(tl, 0, d * 0.7, -300, 2200), 220, 1.0);
     s += typeText('1959年　アメリカの人気キャラクター', 960, 150, tl, { size: 58, color: INK, delay: 0.2 });
     s += xf(cardBox(0, 0, 2.6, C.yellow), { x: 960, y: 560, s: popS(tl, 0.5), r: Math.sin(tl * 3) * 4, cx: 0, cy: 0 });
     s += sparkles(1280, 380, 60, RED) + sparkles(640, 720, 50, RED);
