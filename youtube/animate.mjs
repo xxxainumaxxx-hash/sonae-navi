@@ -20,6 +20,7 @@ const ep = await import(pathToFileURL(path.join(ROOT, 'episodes', `${epId}.mjs`)
 const FPS = 12;
 // ショート：縦型・前後の間ゼロ・無音カット。ロング：横型
 const SHORT = ep.meta.format === 'short';
+const MAXC_SHOW = SHORT ? 14 : 28; // 字幕1行に入る文字数の目安
 const W = SHORT ? 1080 : 1920, H = SHORT ? 1920 : 1080;
 setCanvas(W, H);
 const LEAD = SHORT ? 0.05 : 0.35, TAIL = SHORT ? 0.15 : 0.6;
@@ -128,7 +129,9 @@ function frameHtml(f) {
   const art = svgDoc(defs(boil) + paper(W, H) + s.sc.draw(t, ctx), W, H);
   const telop = ep.meta.telop ? `<div class="telop">${ep.meta.telop}</div>` : '';
   const sub = s.subs.find((u) => t >= (u === s.subs[0] ? 0 : u.from) && t < u.to + (u === s.subs[s.subs.length - 1] ? TAIL : 0));
-  return art + telop + (sub ? `<div class="sub"><span>${sub.line}</span></div>` : '');
+  // 1行に入りきらない字幕は、かぎかっこ「の前で改行する（「のびる／手」のような変な折り返しを防ぐ）
+  const wrapSub = (str) => (str.length > MAXC_SHOW && str.indexOf('「') > 0 ? str.replace(/(.)「/, '$1<br>「') : str);
+  return art + telop + (sub ? `<div class="sub"><span>${wrapSub(sub.line)}</span></div>` : '');
 }
 
 const NW = Math.max(1, Math.min(4, os.cpus().length - 1));
