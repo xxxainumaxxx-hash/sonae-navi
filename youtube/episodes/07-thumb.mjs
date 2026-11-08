@@ -1,68 +1,74 @@
 // 任天堂（本番）のサムネイル 3案：node thumbnail.mjs 07-thumb A（B / C）
-// サムネ専用の描き方：
-//  ・主役の顔を画面の半分くらいまで大きく、感情（驚き・焦り・にやり）をはっきり
-//  ・文字は5〜6文字だけ、極太＋黒と白の二重フチ、少し傾ける
-//  ・集中線の背景で目を引く／主役にはステッカーのような白いフチと影
-import { C, sparkles } from '../lib/crayon.mjs';
+// 参考チャンネルのサムネから学んだ型：
+//  ・背景は「場面」（店・会社・工場）。飾りの集中線ではなく、場所がわかる絵
+//  ・上に大きな白い文字（暗い影つき）、4〜5文字
+//  ・左に人物（表情はっきり）、右に主役の物を大きく。脇役が驚いて見ている
+//  ・まわりを暗くして、主役にスポットライト。上がる／下がるグラフの線を重ねる
+import { C, line, rect, ellipse, poly, text, sparkles } from '../lib/crayon.mjs';
 import { xf } from '../lib/anim.mjs';
-import { kid, worker } from '../lib/cfolk.mjs';
-import { hanafuda, extendHand, ball } from '../lib/cprops.mjs';
+import { kid, worker, guide } from '../lib/cfolk.mjs';
+import { hanafuda, bwHandheld, taxi, riceBox, extendHand, ball, gear, townRow, shop, trophy } from '../lib/cprops.mjs';
 import { fill } from '../lib/shots.mjs';
 
 export const meta = { id: '07-thumb', title: '任天堂サムネイル', theme: 'crayon' };
 
-const RED = '#d23a33', INK = '#1e1a17', YEL = '#ffd23a';
+const RED = '#d23a33', INK = '#1e1a17';
 const pres = (o) => kid({ hair: 'side', hairColor: '#2a2420', shirt: C.white, jacket: '#2f3b5c', tie: RED, pants: '#2c3350', ...o });
 
-// ステッカーのような白フチ＋影
-const FX = `<filter id="stk" x="-20%" y="-20%" width="140%" height="140%">
-  <feMorphology operator="dilate" radius="16" in="SourceAlpha" result="d"/>
-  <feFlood flood-color="#ffffff"/><feComposite in2="d" operator="in" result="w"/>
-  <feOffset in="d" dx="10" dy="14" result="o"/><feFlood flood-color="#000" flood-opacity="0.35"/><feComposite in2="o" operator="in" result="sh"/>
-  <feMerge><feMergeNode in="sh"/><feMergeNode in="w"/><feMergeNode in="SourceGraphic"/></feMerge></filter>`;
-const sticker = (inner) => `<g filter="url(#stk)">${inner}</g>`;
-// 集中線
-const burst = (cx, cy, c1, c2, n = 28) => {
-  let s = fill(c1);
-  for (let i = 0; i < n; i += 2) {
-    const a1 = (i / n) * Math.PI * 2, a2 = ((i + 1) / n) * Math.PI * 2;
-    s += `<polygon points="${cx},${cy} ${cx + Math.cos(a1) * 3000},${cy + Math.sin(a1) * 3000} ${cx + Math.cos(a2) * 3000},${cy + Math.sin(a2) * 3000}" fill="${c2}"/>`;
-  }
-  return s;
+// まわりを暗く（ビネット）＋主役にスポットライト
+const vignette = (op = 0.55) => `<radialGradient id="vg" cx="50%" cy="50%" r="75%"><stop offset="55%" stop-color="#000" stop-opacity="0"/><stop offset="100%" stop-color="#000" stop-opacity="${op}"/></radialGradient><rect x="-50" y="-50" width="2020" height="1180" fill="url(#vg)"/>`;
+const spot = (x, y, r, col = '#fff3c8', op = 0.5) => `<radialGradient id="sp${x}"><stop offset="0%" stop-color="${col}" stop-opacity="${op}"/><stop offset="100%" stop-color="${col}" stop-opacity="0"/></radialGradient><ellipse cx="${x}" cy="${y}" rx="${r}" ry="${r * 0.9}" fill="url(#sp${x})"/>`;
+// 上の大きな白い文字（暗い影＋細いフチ）
+const TITLE = (str, size = 200, y = 210) =>
+  `<text x="963" y="${y + 12}" font-family="Zen Maru Gothic" font-weight="900" font-size="${size}" text-anchor="middle" fill="#000" fill-opacity="0.55" stroke="#000" stroke-opacity="0.55" stroke-width="${size * 0.12}" stroke-linejoin="round">${str}</text>` +
+  `<text x="960" y="${y}" font-family="Zen Maru Gothic" font-weight="900" font-size="${size}" text-anchor="middle" fill="#fff" stroke="${INK}" stroke-width="${size * 0.06}" stroke-linejoin="round" paint-order="stroke fill">${str}</text>`;
+// グラフの線（太い・フチつき）
+const chart = (pts, col) => {
+  const p = pts.map((q) => q.join(',')).join(' '), [a, b] = pts.slice(-2);
+  const ang = Math.atan2(b[1] - a[1], b[0] - a[0]), h = 70;
+  const tip = [b[0] + Math.cos(ang) * h, b[1] + Math.sin(ang) * h];
+  const l = [b[0] + Math.cos(ang + 2.2) * h * 0.7, b[1] + Math.sin(ang + 2.2) * h * 0.7], r = [b[0] + Math.cos(ang - 2.2) * h * 0.7, b[1] + Math.sin(ang - 2.2) * h * 0.7];
+  return `<polyline points="${p}" fill="none" stroke="${INK}" stroke-width="46" stroke-linejoin="round" stroke-linecap="round"/><polyline points="${p}" fill="none" stroke="${col}" stroke-width="28" stroke-linejoin="round" stroke-linecap="round"/>` +
+    `<polygon points="${tip} ${l} ${r}" fill="${col}" stroke="${INK}" stroke-width="9"/>`;
 };
-// 極太の二重フチ文字
-const BIG = (str, x, y, size, color, rot = 0) => {
-  const t = (st, sw, f) => `<text x="${x}" y="${y}" font-family="Zen Maru Gothic" font-weight="900" font-size="${size}" text-anchor="middle" fill="${f}" stroke="${st}" stroke-width="${sw}" stroke-linejoin="round" paint-order="stroke fill">${str}</text>`;
-  return `<g transform="rotate(${rot} ${x} ${y})">${t(INK, size * 0.34, INK)}${t(C.white, size * 0.2, C.white)}${t(color, 0, color)}</g>`;
+// 木の板の壁（花札屋の中）
+const woodWall = () => {
+  let s = fill('#5a3a24');
+  for (let i = 0; i < 12; i++) s += rect(i * 170 - 20, -40, 160, 1200, { fill: i % 2 ? '#6b4630' : '#61402a', w: 4 });
+  return s;
 };
 
 const VARIANTS = {
-  // A：元・花札屋（驚く社長と、大きな花札）
+  // A：花札屋 → 世界一のゲーム会社（暗い花札屋の中、光るゲーム機）
   A: () => {
-    let s = FX + burst(1250, 560, '#c42f29', '#e0463e');
-    s += sticker(xf(hanafuda(0, 0, 3.2, -12, 1), { x: 1560, y: 500 }));
-    s += sticker(pres({ x: 600, y: 1720, s: 4.3, expr: 'wow', arms: [160, 10, 160, 10], look: [1, -0.3] }));
-    s += sparkles(1830, 200, 90, YEL) + sparkles(1160, 860, 80, YEL);
-    s += BIG('元・花札屋', 1340, 1010, 200, YEL, -4);
+    let s = woodWall() + rect(-40, 820, 2000, 300, { fill: '#3a2618' });
+    s += [0, 1, 2, 3, 4].map((i) => hanafuda(140 + i * 150, 330, 0.55, -6 + i * 4, i % 4)).join('') + rect(60, 410, 780, 18, { fill: '#2a1a10' });
+    s += chart([[860, 900], [1100, 760], [1250, 800], [1500, 480], [1760, 300]], '#4fd65a');
+    s += spot(1380, 560, 560) + xf(`<rect x="-150" y="-240" width="300" height="480" fill="#f3efe2"/>` + bwHandheld(0, 0, 1, 0.3), { x: 1380, y: 600, s: 1.25, r: 8 }) + sparkles(1680, 420, 70, '#ffd23a') + sparkles(1110, 470, 60, '#ffd23a');
+    s += kid({ x: 520, y: 1520, s: 3.2, hair: 'bald', hairColor: '#3a2d25', mustache: true, shirt: '#7a5a3a', expr: 'wow', arms: [20, -100, 160, 10], look: [1, -0.2] });
+    s += vignette(0.6) + TITLE('元・花札屋');
     return s;
   },
-  // B：倒産の危機（焦る社長と、急降下のグラフ）
+  // B：倒産寸前（夜の社長室、急降下のグラフ、うしろに失敗した事業）
   B: () => {
-    let s = FX + burst(700, 520, '#2a2d38', '#3a3f4e');
-    const pts = '1050,180 1300,330 1440,280 1650,640 1880,800';
-    s += `<polyline points="${pts}" fill="none" stroke="${INK}" stroke-width="64" stroke-linejoin="round" stroke-linecap="round"/>`;
-    s += `<polyline points="${pts}" fill="none" stroke="${RED}" stroke-width="40" stroke-linejoin="round" stroke-linecap="round"/>`;
-    s += `<polygon points="1950,860 1770,850 1880,700" fill="${RED}" stroke="${INK}" stroke-width="10"/>`;
-    s += sticker(pres({ x: 600, y: 1720, s: 4.3, expr: 'worry', sweat: true, arms: [60, 95, 60, 95], look: [1, 0.2] }));
-    s += BIG('倒産の危機', 1360, 1010, 200, '#ff5a4e', 3);
+    let s = fill('#3b1f24') + `<radialGradient id="rb"><stop offset="0%" stop-color="#8a2a2a"/><stop offset="100%" stop-color="#2a1418"/></radialGradient><rect x="-50" y="-50" width="2020" height="1180" fill="url(#rb)"/>`;
+    s += xf(taxi(0, 0, 1.0), { x: 1450, y: 760, o: 0.85 }) + xf(riceBox(0, 0, 0.8), { x: 1760, y: 700, o: 0.85 });
+    s += chart([[700, 300], [950, 380], [1100, 340], [1350, 620], [1620, 640], [1840, 940]], RED);
+    s += rect(-40, 900, 2000, 220, { fill: '#4a2c1c' });
+    s += spot(640, 600, 520, '#ffd8b0', 0.35) + pres({ x: 640, y: 1560, s: 3.3, expr: 'worry', sweat: true, arms: [60, 95, 60, 95], look: [1, 0.3] });
+    s += guide({ x: 1180, y: 1300, s: 1.6, expr: 'wow', arms: [160, 10, 160, 10], look: [-1, -0.3], flip: true });
+    s += vignette(0.6) + TITLE('倒産寸前');
     return s;
   },
-  // C：ひまつぶし（にやりと笑う横井と、のびる手）
+  // C：ひまつぶし（夜の工場、スポットライトの中でのびる手を伸ばす横井）
   C: () => {
-    let s = FX + burst(560, 560, '#f2c230', '#ffd95a');
-    s += sticker(worker({ x: 520, y: 1720, s: 4.3, expr: 'smile', arms: [12, 8, 125, 10], look: [1, -0.2] }));
-    s += sticker(extendHand(1170, 600, 1.55, 0.75) + ball(1790, 600, 85, RED));
-    s += BIG('ひまつぶし', 1330, 990, 210, '#ff5a4e', -3);
+    let s = fill('#26303a') + [0, 1, 2, 3].map((i) => rect(80 + i * 470, 300, 360, 620, { fill: '#323e4a', w: 5 })).join('') + gear(260, 380, 110, 15, '#56606c') + gear(1650, 420, 130, 30, '#56606c');
+    s += rect(-40, 880, 2000, 260, { fill: '#1c242c' });
+    s += `<polygon points="560,-40 880,-40 1150,1100 280,1100" fill="#fff6d0" opacity="0.16"/>` + spot(720, 640, 480, '#fff3c8', 0.45);
+    s += worker({ x: 600, y: 1540, s: 3.2, expr: 'smile', arms: [12, 8, 125, 10], look: [1, -0.2] });
+    s += extendHand(1080, 700, 1.5, 0.8) + ball(1730, 700, 75, RED) + sparkles(1800, 560, 60, '#ffd23a');
+    s += pres({ x: 1720, y: 1400, s: 1.6, expr: 'wow', arms: [12, 8, 12, 8], look: [-1, -0.3], flip: true });
+    s += vignette(0.6) + TITLE('ひまつぶし');
     return s;
   },
 };
