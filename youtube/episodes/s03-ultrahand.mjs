@@ -1,19 +1,61 @@
 // ショート03：任天堂を救ったひまつぶし（縦・ループ）
-import { C, text } from '../lib/crayon.mjs';
-import { tw, popS, xf, enter, bob, blinking, clamp } from '../lib/anim.mjs';
-import { kid, worker } from '../lib/cfolk.mjs';
-import { extendHand, ball, sign, band, sneakyCat, bubble, rainCloud, gear } from '../lib/cprops.mjs';
+// 最後「たったひとつの、ひまつぶし。」→ 最初「のびる手のおもちゃが、任天堂を救った。」
+import { tw, popS, xf, enter, bob, shake, blinking } from '../lib/anim.mjs';
+import { extendHand, ball, sign, bubble, rainCloud, gear, chartDown, bulb } from '../lib/cprops.mjs';
+import { shots } from '../lib/shots.mjs';
+import { RED, CREAM, INK, P, kid, worker, pres, vmid, vclose, cam, T, blackType, catCorner, fill, glow, typeText, text, ellipse, rect, line, C, ease, clamp, lerp } from './short-kit.mjs';
 
 export const meta = { id: 's03-ultrahand', format: 'short', title: '任天堂を救ったひまつぶし', telop: '任天堂を救ったのは<br>社員のひまつぶし', theme: 'crayon' };
 
-const pres = (o) => kid({ hair: 'side', hairColor: '#2a2420', shirt: C.white, jacket: '#2f3b5c', tie: C.red, pants: '#2c3350', ...o });
-const HOLD = [20, -100, 20, -100], CHEER = [160, 10, 160, 10];
-// 決めカット：のびる手でボールをつかむ若者（冒頭と最後）
-const hero = (t) => {
-  const ext = 0.5 - 0.5 * Math.cos(t * 2.4);
-  return worker({ x: 260, y: 1150, s: 1.0, arms: HOLD, blink: blinking(t, 5), look: [1, 0] }) + extendHand(320, 1040, 0.85, ext) +
-    ball(320 + 6 * (22 + 48 * ext) * 0.85 + 60, 1040, 34, C.red);
+const ext = (tl) => 0.5 - 0.5 * Math.cos(tl * 2.6);
+// のびる手が画面を横切ってボールをつかむ（冒頭と最後）
+const heroHand = (tl) => {
+  const e = ext(tl), tip = 60 + 6 * (22 + 48 * e) * 1.5 + 120;
+  return extendHand(60, 880, 1.5, e) + ball(e > 0.85 ? tip : 900, e > 0.85 ? 880 : 1000 - Math.abs(Math.sin(tl * 3)) * 80, 70, RED);
 };
+
+const LIST = [
+  // 0 のびる手のおもちゃが、任天堂を救った。
+  [
+    (tl, d) => cam(fill('#fff2c8') + glow(540, 880, 600, C.yellow, 0.35) + heroHand(tl) + T('のびる手', 540, 700, 120, RED, C.white), tl, d, { z0: 1.0, z1: 1.06 }),
+    (tl, d, t) => cam(fill('#fff2c8') + glow(540, 880, 600, C.yellow, 0.35) + vmid(worker, 540, { arms: P.cheer, blink: blinking(t, 5), expr: 'smile' }) +
+      enter(sign('任天堂を救った', 540, 620, { size: 80, fill: RED, color: C.white }), tl, 0.2, { cx: 540, cy: 620 }), tl, d, { z0: 1.0, z1: 1.05 }),
+  ],
+  // 1 1960年代、会社はピンチだった。
+  [
+    (tl) => blackType('1960年代', tl, 120),
+    (tl, d, t) => cam(fill('#6b707c') + rainCloud(540, 520, tl, 1.4) + vmid(pres, 540, { expr: 'worry', sweat: true, arms: P.shrug, blink: blinking(t, 2), tilt: Math.sin(tl * 2) * 3 }), tl, d, { z0: 1.0, z1: 1.06 }),
+  ],
+  // 2 点検係の若い社員が、
+  (tl, d, t) => cam(fill('#d6e4dc') + gear(860, 620, 140, tl * 80) + gear(980, 800, 80, -tl * 100, '#8e8a84') + vmid(worker, 460, { arms: P.idle, blink: blinking(t, 5), look: [1, 0] }) +
+    enter(sign('点検係', 330, 620, { size: 80, fill: C.white }), tl, 0.1, { cx: 330, cy: 620 }), tl, d, { z0: 1.0, z1: 1.06 }),
+  // 3 ひまつぶしに作った「のびる手」。
+  (tl, d, t) => cam(fill('#e4ecd8') + ellipse(850, 560, 110, 110, { fill: C.white, w: 7 }) + line([[850, 560], [850 + Math.sin(tl * 3) * 80, 560 - Math.cos(tl * 3) * 80]], { w: 8, passes: 1 }) +
+    vmid(worker, 460, { arms: P.raise, blink: blinking(t, 5), look: [1, 0], expr: 'smile' }) + extendHand(700, 1400, 1.0, ext(tl)) + enter(bubble('ひまつぶし♪', 420, 620, { size: 60 }), tl, 0.2, { cx: 420, cy: 620 }), tl, d, { z0: 1.0, z1: 1.05 }),
+  // 4 社長が見て、ひとこと。
+  (tl, d, t) => cam(fill('#d6e4dc') + rect(620, 380, 420, 1000, { fill: '#b98a58' }) + vmid(pres, tw(tl, 0, 0.6, 1200, 820, ease.out), { flip: true, look: [-1, 0], blink: blinking(t, 3), expr: 'wow' }) +
+    xf(T('！', 560, 700, 200, RED, C.white), { s: popS(tl, 0.5), cx: 560, cy: 640 }), tl, d, { z0: 1.0, z1: 1.04 }),
+  // 5 「それを商品にしろ」（決め台詞：顔のアップ）
+  (tl, d, t) => cam(fill(RED) + glow(540, 900, 600, '#fff', 0.2) + vclose(pres, 540, { arms: P.point, blink: blinking(t, 3), expr: 'smile' }) +
+    enter(bubble('それを商品にしろ', 540, 600, { size: 72 }), tl, 0.05, { cx: 540, cy: 600 }), tl, d, { z0: 1.0, z1: 1.1 }),
+  // 6 結果、大ヒット。
+  (tl, d) => {
+    let s = fill('#fff2c8') + glow(540, 900, 600, C.yellow, 0.3);
+    const n = Math.floor(clamp(tl / (d * 0.8)) * 12);
+    for (let i = 0; i < n; i++) s += xf(rect(-110, -70, 220, 140, { fill: [C.sky, C.pink, C.yellow][i % 3] }) + extendHand(-80, 0, 0.3, 0.3), { x: 220 + (i % 3) * 320, y: 1240 - Math.floor(i / 3) * 170 });
+    s += enter(sign('大ヒット！', 540, 620, { size: 110, fill: RED, color: C.white, rot: -5 }), tl, 0.1, { cx: 540, cy: 620 });
+    return cam(s, tl, d, { z0: 1.08, z1: 1.0 });
+  },
+  // 7 あなたのひまつぶし、商品になりそう？
+  [
+    (tl, d, t) => cam(fill('#e8f0fa') + glow(540, 860, 600, '#fff', 0.4) + vmid(kid, 540, { hair: 'messy', shirt: C.orange, arms: P.think, blink: blinking(t, 4), look: [0.3, -0.6] }) +
+      xf(bulb(820, 560, 1.0, 1), { s: popS(tl, 0.6), cx: 820, cy: 560 }), tl, d, { z0: 1.0, z1: 1.05 }),
+    (tl, d) => cam(fill(RED) + glow(540, 860, 600, '#fff', 0.2) + T('商品に', 540, 760, 150, C.white, INK) + T('なりそう？', 540, 940, 150, C.yellow, INK) +
+      enter(bubble('コメントで教えて', 540, 1120, { size: 66 }), tl, 0.3, { cx: 540, cy: 1120 }), tl, d, { z0: 1.0, z1: 1.06 }),
+  ],
+  // 8 たったひとつの、ひまつぶし。（→ 1行目の絵へ）
+  (tl, d) => cam(fill('#1d2030') + `<ellipse cx="540" cy="880" rx="560" ry="300" fill="#fff6d0" opacity="0.2"/>` + heroHand(tl), tl, d, { z0: 1.06, z1: 1.0 }),
+];
 
 export const scenes = [{
   narration: [
@@ -27,34 +69,5 @@ export const scenes = [{
     'あなたのひまつぶし、商品になりそう？',
     'たったひとつの、ひまつぶし。',
   ],
-  draw: (t, c) => {
-    let s = band(-20, 1960, '#e6efe8');
-    s += gear(880, 500, 90, t * 40) + gear(990, 610, 60, -t * 55, '#8e8a84');
-    if (t > c.at(8)) {
-      // 最後：社長が若者とおもちゃを指さす（たったひとつの、ひまつぶし）→ 2周目の頭で「大ヒット！」
-      s += hero(t);
-      s += pres({ x: 820, y: 1150, s: 0.95, flip: true, look: [-1, 0], arms: [12, 8, 125, 10], blink: blinking(t, 3), expr: 'smile' });
-      s += enter(text('！', 760, 640, { size: 180, color: C.red, font: 'Zen Maru Gothic', weight: 900 }), t, c.at(8) + 0.2, { cx: 760, cy: 580 });
-    } else if (t < c.at(1)) {
-      s += hero(t) + enter(sign('大ヒット！', 540, 560, { size: 80, fill: C.yellow, rot: -4 }), t, 0, { cx: 540, cy: 560 });
-    } else if (t < c.at(2)) {
-      s += pres({ x: 540, y: 1150, s: 1.1, expr: 'worry', sweat: true, arms: [60, 95, 60, 95], blink: blinking(t, 2) }) + rainCloud(540, 520, t, 0.9);
-    } else if (t < c.at(4)) {
-      s += hero(t);
-      if (t > c.at(3)) s += enter(bubble('ひまつぶし♪', 400, 600, { size: 50 }), t, c.at(3), { cx: 400, cy: 600 });
-    } else if (t < c.at(6)) {
-      s += hero(t);
-      s += enter(pres({ x: 820, y: 1150, s: 0.95, flip: true, look: [-1, 0], arms: t > c.at(5) ? [12, 8, 125, 10] : [12, 8, 12, 8], blink: blinking(t, 3) }), t, c.at(4), { how: 'right', dist: 600 });
-      if (t > c.at(5)) s += enter(bubble('それを商品にしろ', 600, 560, { size: 50 }), t, c.at(5), { cx: 600, cy: 560 });
-    } else if (t < c.at(7)) {
-      const n = Math.floor(clamp((t - c.at(6)) / 1.2) * 9);
-      for (let i = 0; i < n; i++) s += `<g transform="translate(${180 + (i % 3) * 300} ${1150 - Math.floor(i / 3) * 170})">${extendHand(0, 0, 0.4, 0.2)}</g>`;
-      s += enter(sign('大ヒット！', 540, 560, { size: 80, fill: C.yellow, rot: -4 }), t, c.at(6), { cx: 540, cy: 560 });
-    } else {
-      s += kid({ x: 540, y: 1150, s: 1.1, hair: 'messy', shirt: C.orange, arms: [12, 8, 30, -180], blink: blinking(t, 4) });
-      s += enter(text('？', 760, 620, { size: 200, color: C.red, font: 'Zen Maru Gothic', weight: 900 }), t, c.at(7), { cx: 760, cy: 560 });
-    }
-    s += sneakyCat(200, 1470, t, extendHand(0, 0, 0.18, 0.5 + 0.5 * Math.sin(t * 3)));
-    return s;
-  },
+  draw: (t, c) => shots(t, c, LIST) + catCorner(t, extendHand(0, 0, 0.18, 0.5 + 0.5 * Math.sin(t * 3))),
 }];

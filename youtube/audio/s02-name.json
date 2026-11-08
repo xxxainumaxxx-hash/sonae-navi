@@ -1,0 +1,28 @@
+{
+ "bgm_vol": 0.28,
+ "bgm": [
+  {
+   "scene": 1,
+   "file": "bgm1.mp3",
+   "offset": 20
+  }
+ ],
+ "sfx": {
+  "whip": {
+   "file": "sfx_whoosh.mp3",
+   "vol": 0.35
+  },
+  "whipUp": {
+   "file": "sfx_whoosh.mp3",
+   "vol": 0.35
+  },
+  "dive": {
+   "file": "sfx_pop.mp3",
+   "vol": 0.3
+  },
+  "punch": {
+   "file": "sfx_soft.mp3",
+   "vol": 0.2
+  }
+ }
+}

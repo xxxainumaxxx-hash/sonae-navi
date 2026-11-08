@@ -9,7 +9,7 @@ import path from 'node:path';
 import { pathToFileURL, fileURLToPath } from 'node:url';
 import { defs, paper, setTheme } from './lib/crayon.mjs';
 import { openShooter, svgDoc } from './lib/shot.mjs';
-import { CUTS } from './lib/shots.mjs';
+import { CUTS, setCanvas } from './lib/shots.mjs';
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const epId = process.argv[2];
@@ -21,6 +21,7 @@ const FPS = 12;
 // ショート：縦型・前後の間ゼロ・無音カット。ロング：横型
 const SHORT = ep.meta.format === 'short';
 const W = SHORT ? 1080 : 1920, H = SHORT ? 1920 : 1080;
+setCanvas(W, H);
 const LEAD = SHORT ? 0.05 : 0.35, TAIL = SHORT ? 0.15 : 0.6;
 const CPS = SHORT ? 8.5 : 7.5; // 声が無いときの読む速さ（文字/秒）
 const OUT = path.join(ROOT, 'out', epId), FR = path.join(OUT, checkEvery ? 'check' : 'anim');

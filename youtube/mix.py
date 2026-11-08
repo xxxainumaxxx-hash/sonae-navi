@@ -44,7 +44,7 @@ def main():
         vol = s.get('vol', 1.0)
         parts.append(
             f'[{k}:a]aresample=44100,aformat=channel_layouts=stereo,loudnorm=I=-16:TP=-2:LRA=11,'
-            f'atrim=0:{length:.3f},asetpts=PTS-STARTPTS,afade=t=in:d=0.8,afade=t=out:st={max(0, length - 1.5):.3f}:d=1.5,'
+            f'atrim={s.get("offset", 0)}:{s.get("offset", 0) + length:.3f},asetpts=PTS-STARTPTS,afade=t=in:d=0.8,afade=t=out:st={max(0, length - 1.5):.3f}:d=1.5,'
             f'volume={vol},adelay={int(a * 1000)}:all=1[b{i}]')
         labels.append(f'[b{i}]')
     parts.append(''.join(labels) + f'amix=inputs={len(labels)}:normalize=0:duration=longest,apad,atrim=0:{total:.3f}[bgm]')

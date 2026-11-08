@@ -2,11 +2,15 @@
 import { C } from './crayon.mjs';
 import { tw, ease, clamp, lerp } from './anim.mjs';
 
+// 画面の大きさ（横動画 1920×1080／ショート 1080×1920）。animate.mjs が setCanvas で設定する
+let CW = 1920, CH = 1080;
+export function setCanvas(w, h) { CW = w; CH = h; }
+
 // ナレーションの k 行目が読まれている間は、list[k] のカットを出す。
 // 各カットには (tl＝そのカット内の秒, dur＝カットの長さ, t＝場面全体の秒) が渡される。
 // list[k] を配列 [f1, f2, …] にすると、その行の途中で別の絵に切りかわる（字幕の区切りに合わせる）。
 // カットの変わり目には、パッと寄って落ち着く／横に流れる／ズームで飛びこむ、を混ぜる。
-const wrap = (inner, z, x, y) => `<g transform="translate(960 540) scale(${z.toFixed(4)}) translate(${(-x).toFixed(1)} ${(-y).toFixed(1)})">${inner}</g>`;
+const wrap = (inner, z, x, y) => `<g transform="translate(${CW / 2} ${CH / 2}) scale(${z.toFixed(4)}) translate(${(-x).toFixed(1)} ${(-y).toFixed(1)})">${inner}</g>`;
 function flat(c, list) {
   // [{f, a, b}]：絵ごとの開始・終了時刻
   const out = [];
@@ -44,11 +48,11 @@ export function shots(t, c, list) {
   if (c.start !== undefined) CUTS.set(`${(c.start + L[k].a).toFixed(2)}`, { t: +(c.start + L[k].a).toFixed(3), kind, first: k === 0 });
   if (tin < T) {
     const e = ease.out(clamp(tin / T));
-    if (kind === 'punch') inner = wrap(inner, lerp(1.06, 1, e), 960, 540);
-    if (kind === 'dive') inner = wrap(inner, lerp(1.3, 1, e), 960, 540) + `<rect x="-200" y="-200" width="2320" height="1480" fill="#fff" opacity="${(0.45 * (1 - e)).toFixed(3)}"/>`;
+    if (kind === 'punch') inner = wrap(inner, lerp(1.06, 1, e), CW / 2, CH / 2);
+    if (kind === 'dive') inner = wrap(inner, lerp(1.3, 1, e), CW / 2, CH / 2) + `<rect x="-400" y="-400" width="2800" height="2800" fill="#fff" opacity="${(0.45 * (1 - e)).toFixed(3)}"/>`;
     if ((kind === 'whip' || kind === 'whipUp') && k > 0) {
       const prev = draw(k - 1, L[k].a - 0.001);
-      const dx = kind === 'whip' ? 1920 : 0, dy = kind === 'whipUp' ? 1080 : 0;
+      const dx = kind === 'whip' ? CW : 0, dy = kind === 'whipUp' ? CH : 0;
       inner = `<g transform="translate(${(-dx * e).toFixed(1)} ${(-dy * e).toFixed(1)})">${prev}</g><g transform="translate(${(dx * (1 - e)).toFixed(1)} ${(dy * (1 - e)).toFixed(1)})">${inner}</g>`;
     }
   }
@@ -56,10 +60,10 @@ export function shots(t, c, list) {
 }
 
 // カット内でカメラをゆっくり動かす（寄る・引く・横へ流れる）
-export function cam(inner, tl, dur, { z0 = 1, z1 = 1.08, x0 = 960, x1 = x0, y0 = 540, y1 = y0 } = {}) {
+export function cam(inner, tl, dur, { z0 = 1, z1 = 1.08, x0 = CW / 2, x1 = x0, y0 = CH / 2, y1 = y0 } = {}) {
   const k = ease.inOut(clamp(tl / dur));
-  const z = 1 + (lerp(z0, z1, k) - 1) * 1.8, x = 960 + (lerp(x0, x1, k) - 960) * 1.3, y = 540 + (lerp(y0, y1, k) - 540) * 1.3;
-  return `<g transform="translate(960 540) scale(${z.toFixed(4)}) translate(${(-x).toFixed(1)} ${(-y).toFixed(1)})">${inner}</g>`;
+  const z = 1 + (lerp(z0, z1, k) - 1) * 1.8, x = CW / 2 + (lerp(x0, x1, k) - CW / 2) * 1.3, y = CH / 2 + (lerp(y0, y1, k) - CH / 2) * 1.3;
+  return `<g transform="translate(${CW / 2} ${CH / 2}) scale(${z.toFixed(4)}) translate(${(-x).toFixed(1)} ${(-y).toFixed(1)})">${inner}</g>`;
 }
 
 // 1文字ずつ打たれて出る文字（タイプライター風）
@@ -83,7 +87,7 @@ export function big(str, x, y, size, color, { stroke = C.white } = {}) {
 }
 
 // 画面いっぱいの色（クレヨンのざらつき無しのベタ。背景用）
-export const fill = (col) => `<rect x="-200" y="-200" width="2320" height="1480" fill="${col}"/>`;
+export const fill = (col) => `<rect x="-400" y="-400" width="2800" height="2800" fill="${col}"/>`;
 // 中心が明るいスポットライト
 let _g = 0;
 export const glow = (x, y, r, col = '#fff6d8', op = 0.22) => {
