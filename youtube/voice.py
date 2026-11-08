@@ -14,7 +14,7 @@ MODEL = 'eleven_v3'
 GAP_MAX = 0.30   # これより長い間は
 GAP_KEEP = 0.25  # この長さに詰める
 TEMPO = 1.35
-HEAD, TAIL = 0.05, 0.3  # 語尾が切れないよう、うしろは少し長めに残す
+HEAD, TAIL = 0.12, 0.3  # 語尾が切れないよう、うしろは少し長めに残す
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 
