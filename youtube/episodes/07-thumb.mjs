@@ -1,7 +1,7 @@
 // 任天堂（本番）のサムネイル 3案：node thumbnail.mjs 07-thumb A（B / C）
 // 参考チャンネルのサムネから学んだ型：
 //  ・背景は「場面」（店・会社・工場）。飾りの集中線ではなく、場所がわかる絵
-//  ・上に大きな白い文字（暗い影つき）、4〜5文字
+//  ・上に大きな白い文字（暗い影つき）で「題材の名前」だけ（任天堂）。話の中身は絵で見せる
 //  ・左に人物（表情はっきり）、右に主役の物を大きく。脇役が驚いて見ている
 //  ・まわりを暗くして、主役にスポットライト。上がる／下がるグラフの線を重ねる
 import { C, line, rect, ellipse, poly, text, sparkles } from '../lib/crayon.mjs';
@@ -46,7 +46,7 @@ const VARIANTS = {
     s += chart([[860, 900], [1100, 760], [1250, 800], [1500, 480], [1760, 300]], '#4fd65a');
     s += spot(1380, 560, 560) + xf(`<rect x="-150" y="-240" width="300" height="480" fill="#f3efe2"/>` + bwHandheld(0, 0, 1, 0.3), { x: 1380, y: 600, s: 1.25, r: 8 }) + sparkles(1680, 420, 70, '#ffd23a') + sparkles(1110, 470, 60, '#ffd23a');
     s += kid({ x: 520, y: 1520, s: 3.2, hair: 'bald', hairColor: '#3a2d25', mustache: true, shirt: '#7a5a3a', expr: 'wow', arms: [20, -100, 160, 10], look: [1, -0.2] });
-    s += vignette(0.6) + TITLE('元・花札屋');
+    s += vignette(0.6) + TITLE('任天堂', 280, 255);
     return s;
   },
   // B：倒産寸前（夜の社長室、急降下のグラフ、うしろに失敗した事業）
@@ -57,7 +57,7 @@ const VARIANTS = {
     s += rect(-40, 900, 2000, 220, { fill: '#4a2c1c' });
     s += spot(640, 600, 520, '#ffd8b0', 0.35) + pres({ x: 640, y: 1560, s: 3.3, expr: 'worry', sweat: true, arms: [60, 95, 60, 95], look: [1, 0.3] });
     s += guide({ x: 1180, y: 1300, s: 1.6, expr: 'wow', arms: [160, 10, 160, 10], look: [-1, -0.3], flip: true });
-    s += vignette(0.6) + TITLE('倒産寸前');
+    s += vignette(0.6) + TITLE('任天堂', 280, 255);
     return s;
   },
   // C：ひまつぶし（夜の工場、スポットライトの中でのびる手を伸ばす横井）
@@ -68,7 +68,7 @@ const VARIANTS = {
     s += worker({ x: 600, y: 1540, s: 3.2, expr: 'smile', arms: [12, 8, 125, 10], look: [1, -0.2] });
     s += extendHand(1080, 700, 1.5, 0.8) + ball(1730, 700, 75, RED) + sparkles(1800, 560, 60, '#ffd23a');
     s += pres({ x: 1720, y: 1400, s: 1.6, expr: 'wow', arms: [12, 8, 12, 8], look: [-1, -0.3], flip: true });
-    s += vignette(0.6) + TITLE('ひまつぶし');
+    s += vignette(0.6) + TITLE('任天堂', 280, 255);
     return s;
   },
 };
