@@ -176,7 +176,7 @@ export const scenes = [
       (tl, d) => {
         let s = fill('#cfe6f5') + xf(playingCard(0, 0, 3.0, Math.sin(tl * 2) * 6, '♠'), { x: 960, y: 600 }) + rainCloud(960, 120, tl, 2.0);
         for (let i = 0; i < 8; i++) { const k = (tl * 1.5 + i * 0.13) % 1; s += ellipse(700 + i * 70, lerp(260, 900, k), 10, 18, { fill: C.sky, w: 3 }); }
-        s += typeText('1953年　プラスチック製', 960, 1000, tl, { size: 60, color: INK }).replace('y="1000"', 'y="160"');
+        s += typeText('1953年　プラスチック製', 380, 1000, tl, { size: 54, color: INK }).replace('y="1000"', 'y="170"'); // 雲にかからないよう左上
         s += enter(sign('水に強い！', 1500, 900, { size: 70, fill: C.yellow }), tl, d * 0.6, { cx: 1500, cy: 900 });
         return cam(s, tl, d, { z0: 1.05, z1: 1.0 });
       },

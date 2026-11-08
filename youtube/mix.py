@@ -33,6 +33,8 @@ def main():
 
     # ---- BGM（区間ごと）
     sections = cfg['bgm']
+    for sec in sections:  # 区間は場面の番号（1から）でも書ける：声の長さが変わっても自動でずれる
+        if 'scene' in sec: sec['start'] = tl['scenes'][sec['scene'] - 1]['start']
     for i, s in enumerate(sections):
         a = s['start']
         b = sections[i + 1]['start'] if i + 1 < len(sections) else total
@@ -64,7 +66,8 @@ def main():
         if s['chapter'] and 'chapter' in sfx:
             events.append((s['start'] + 0.05, sfx['chapter']))
     if 'end' in sfx:
-        events.append((total - sfx['end'].get('before_end', 3.5), sfx['end']))
+        e = sfx['end']
+        events.append((tl['scenes'][e['scene'] - 1]['start'] + 0.1 if 'scene' in e else total - e.get('before_end', 3.5), e))
     # 効果音は numpy で1本の音にまとめる（ffmpeg で何百本も重ねると遅いので）
     import numpy as np
     SR = 44100

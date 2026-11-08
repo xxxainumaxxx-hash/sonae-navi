@@ -7,3 +7,4 @@ m bgm5 "Melancholic gentle solo piano with soft strings, reflective and quiet, s
 m bgm6 "Hopeful warm piano and strings, gradually building with light percussion, uplifting and inspiring finale." 130000 &
 s sfx_pop "soft cute cartoon pop, short bubble pop" 0.5; wait
 s sfx_soft "very soft gentle airy whoosh, low pitched, subtle and smooth, no click, short" 0.6
+m bgm7 "Cheerful warm outro for a YouTube video end screen: light piano, pizzicato strings, soft koto accents, gentle percussion, happy and relaxed, ends with a clean final chord." 24000

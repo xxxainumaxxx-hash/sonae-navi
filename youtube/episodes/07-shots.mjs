@@ -390,7 +390,7 @@ export const SHOTS = {
       enter(bubble('ゲームをする人を増やそう', 1350, 600, { size: 54 }), tl, d * 0.5, { cx: 1350, cy: 600 }), tl, d, { z0: 1.0, z1: 1.06, x0: 1000 }),
     (tl, d) => cam(fill('#eaf2f6') + xf(dualScreen(0, 0, 1.1, (Math.sin(tl * 3) + 1) / 2), { x: 620, y: 560, s: popS(tl, 0.1), cx: 0, cy: 0 }) + xf(remote(0, 0, 1.4, Math.sin(tl * 4) * 35), { x: 1380, y: 560, s: popS(tl, d * 0.5), cx: 0, cy: 0 }) +
       typeText('DS', 620, 160, tl, { size: 90, color: INK }) + typeText('Wii', 1380, 160, tl, { size: 90, color: INK, delay: d * 0.5 }), tl, d, { z0: 1.0, z1: 1.04 }),
-    (tl, d, t) => cam(fill('#f3ecdf') + mid(salary, 700, { arms: P.hold, blink: blinking(t, 3), look: [0.5, 0.6] }) + dualScreen(700, 860, 0.5, (Math.sin(tl * 4) + 1) / 2) +
+    (tl, d, t) => cam(fill('#f3ecdf') + mid(salary, 700, { arms: P.hold, blink: blinking(t, 3), look: [0.5, 0.6], jacket: '#2f4a7a', shirt: '#f4efe4' }) + dualScreen(700, 860, 0.5, (Math.sin(tl * 4) + 1) / 2) +
       typeText('計算・音読', 1400, 320, tl, { size: 80, color: INK }) + enter(sign('大人もハマった', 1400, 640, { size: 70, fill: C.yellow }), tl, d * 0.5, { cx: 1400, cy: 640 }), tl, d, { z0: 1.0, z1: 1.05, x0: 1000 }),
     (tl, d) => cam(fill('#eaf2f6') + xf(remote(0, 0, 1.6, Math.sin(tl * 4) * 30), { x: 560, y: 560 }) + enter(sign('性能は低め', 1350, 300, { size: 70, fill: C.white }), tl, 0.2, { cx: 1350, cy: 300 }) +
       xf(big(countUp(100000000, tl - d * 0.4, 1.4), 1350, 640, 100, RED), { s: popS(tl, d * 0.4), cx: 1350, cy: 600 }) + typeText('台以上', 1350, 760, tl, { size: 56, color: INK, delay: d * 0.4 + 1.2 }), tl, d, { z0: 1.0, z1: 1.04 }),
@@ -468,3 +468,18 @@ for (const [k, i, toy] of CATS) {
   const e = SHOTS[k][i];
   SHOTS[k][i] = Array.isArray(e) ? e.map((f) => withCat(f, toy)) : withCat(e, toy);
 }
+
+// ───── 終了画面（20秒・声なし）：YouTube の「終了画面」の動画2本とチャンネル登録ボタンを、この枠の上に置く
+// 枠の位置（1920×1080）：左の動画 x160〜900・y300〜716／右の動画 x1020〜1760・y300〜716／登録ボタン 中心(960, 900)
+export const endScreen = (t) => {
+  let s = fill(RED) + glow(960, 500, 900, '#ffffff', 0.14);
+  for (let i = 0; i < 10; i++) {
+    const k = (t * 0.05 + i * 0.1) % 1;
+    s += xf([hanafuda, (x, y, sc, r) => playingCard(x, y, sc, r, '♠'), (x, y, sc) => bwHandheld(x, y, sc * 0.5, 0)][i % 3](0, 0, 0.5, i * 20), { x: (i * 211) % 1920, y: lerp(1180, -100, k), r: t * 20 + i * 30, o: 0.25 });
+  }
+  s += typeText('次に見るならこちら', 960, 200, t, { size: 80, color: C.white, cps: 14 });
+  for (const x of [160, 1020]) s += `<rect x="${x}" y="300" width="740" height="416" rx="24" fill="#ffffff" fill-opacity="0.12" stroke="#ffffff" stroke-width="6" stroke-dasharray="22 14"/>`;
+  s += `<circle cx="960" cy="900" r="92" fill="#ffffff" fill-opacity="0.12" stroke="#ffffff" stroke-width="6" stroke-dasharray="18 12"/>`;
+  s += cat(lerp(-160, 150, ease.out(clamp((t - 1) / 0.8))), 1010, t, '');
+  return s;
+};

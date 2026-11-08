@@ -1,6 +1,6 @@
 // 任天堂（本番）第2〜4章：長い行の途中に入れる「別の絵」
 // before＝元の絵の前、after＝元の絵の後ろに入る。行の長さを均等に分け、字幕の区切りに近いところで切りかわる。
-import { C, text, line, ellipse, rect, poly, arrow, sparkles, bigUp } from '../lib/crayon.mjs';
+import { C, text, line, ellipse, rect, poly, arrow, sparkles, bigUp, blob } from '../lib/crayon.mjs';
 import { tw, popS, xf, enter, bob, shake, blinking, ease, lerp, clamp } from '../lib/anim.mjs';
 import { kid, worker } from '../lib/cfolk.mjs';
 import {
@@ -164,7 +164,7 @@ const S07 = {
     const k = tw(tl, 0, d * 0.9, 0, 1, (x) => x);
     let s = fill('#e6e0d4') + rect(1300, 220, 420, 700, { fill: '#b98a58' }) + rect(1340, 260, 340, 120, { fill: C.white, w: 5 }) + text('開発部門', 1510, 340, { size: 56, font: 'Zen Maru Gothic', weight: 900 });
     s += ellipse(1640, 600, 18, 18, { fill: C.yellow, w: 4 }) + rect(-200, 920, 2400, 300, { fill: '#a89c8a', color: null });
-    s += worker({ x: lerp(360, 1100, k), y: 1060, s: 1.6, legs: Math.sin(tl * 8), blink: blinking(t, 5), look: [1, 0], arms: P.hold }) + box(lerp(360, 1100, k), 640, 220, 140, '#d8b080', 'おもちゃ', 40);
+    s += worker({ x: lerp(360, 1100, k), y: 1060, s: 1.6, legs: Math.sin(tl * 8), blink: blinking(t, 5), look: [1, 0], arms: [40, -60, 40, -60] }) + box(lerp(360, 1100, k), 850, 230, 130, '#d8b080', 'おもちゃ', 40);
     return cam(s, tl, d, { z0: 1.0, z1: 1.04 });
   }] },
 };
@@ -233,8 +233,9 @@ const S09 = {
   // 「手のひらサイズのゲーム機だ。」→ 手のひらにのる
   3: { after: [(tl, d) => {
     let s = fill('#fdf1dc') + glow(960, 500, 600, '#fff', 0.35);
-    s += ellipse(960, 700, 360, 200, { fill: C.skin, w: 8 }) + [0, 1, 2, 3].map((i) => ellipse(700 + i * 150, 560, 60, 110, { fill: C.skin, w: 7 })).join('');
-    s += xf(handheld(0, 0, 0.9, tl % 1), { x: 960, y: 640 - Math.abs(Math.sin(tl * 3)) * 20 });
+    s += blob(860, 860, 200, 400, 60, { fill: C.skin, w: 8 }) + [0, 1, 2, 3].map((i) => blob(745 + i * 112, 300 + Math.abs(i - 1.5) * 40, 92, 300, 44, { fill: C.skin, w: 7 })).join('');
+    s += `<rect x="700" y="480" width="520" height="440" rx="150" fill="${C.skin}"/>` + blob(700, 480, 520, 440, 150, { fill: C.skin, w: 8 }) + xf(blob(-50, -190, 100, 260, 48, { fill: C.skin, w: 7 }), { x: 690, y: 700, r: -50 });
+    s += xf(handheld(0, 0, 0.75, tl % 1), { x: 960, y: 690 - Math.abs(Math.sin(tl * 3)) * 16 });
     s += enter(sign('手のひらサイズ', 960, 180, { size: 80, fill: C.yellow }), tl, 0.3, { cx: 960, cy: 180 });
     return cam(s, tl, d, { z0: 1.0, z1: 1.05 });
   }] },
@@ -458,8 +459,8 @@ const S16 = {
   5: { before: [(tl, d) => cam(fill('#eaf2f6') + head('性能くらべ', tl) + bars(tl, [[0.9, GRAY, 'ライバル'], [0.85, GRAY, 'ライバル'], [0.35, C.sky, 'Wii']], { x0: 560, gap: 400 }), tl, d, { z0: 1.0, z1: 1.04 })] },
   // 「もちろん、順調なことばかりではない。」→ 雨雲とでこぼこ道
   7: { before: [(tl, d, t) => {
-    let s = fill('#7d828c') + rect(-200, 820, 2400, 400, { fill: '#5a5e66', color: null }) + building(960, 820, 420, 520, '#d8b080') + text('任天堂', 960, 260, { size: 70, color: RED, font: 'Zen Maru Gothic', weight: 900 });
-    for (let i = 0; i < 3; i++) s += ellipse(500 + i * 450, 160, 160, 70, { fill: '#5a5e66', w: 5 });
+    let s = fill('#7d828c') + rect(-200, 820, 2400, 400, { fill: '#5a5e66', color: null }) + building(960, 820, 420, 420, '#d8b080') + rect(810, 300, 300, 90, { fill: C.white }) + text('任天堂', 960, 368, { size: 64, color: RED, font: 'Zen Maru Gothic', weight: 900 });
+    for (let i = 0; i < 3; i++) s += ellipse(500 + i * 450, 130, 160, 60, { fill: '#5a5e66', w: 5 });
     for (let i = 0; i < 16; i++) { const k = (tl * 1.6 + i * 0.063) % 1; s += line([[300 + (i * 97) % 1400, 200 + k * 600], [290 + (i * 97) % 1400, 240 + k * 600]], { w: 5, color: '#cfe6f5', passes: 1 }); }
     return cam(s, tl, d, { z0: 1.0, z1: 1.05 });
   }] },

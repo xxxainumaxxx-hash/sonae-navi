@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { SHOTS, chapterCard } from './07-shots.mjs';
+import { SHOTS, chapterCard, endScreen } from './07-shots.mjs';
 import { shots } from '../lib/shots.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -25,3 +25,5 @@ for (const block of body.split(/^(?=## 第|### 【)/m)) {
   const sh = SHOTS[no];
   scenes.push({ key: sc[1], name: sc[2], narration: lines, draw: typeof sh === 'function' ? sh : (t, c) => shots(t, c, sh) });
 }
+// 最後に、関連動画とチャンネル登録を出すための終了画面（20秒）
+scenes.push({ key: 'end', name: '終了画面', narration: [], silent: 20, draw: endScreen });
