@@ -18,6 +18,12 @@ const PAL = {
   A: { name: '紺×クリーム', logo: ['#fbf3e6', '#f2b544', '#fbf3e6', '#ff8a7a', '#fbf3e6', '#8fd0ff'], bg: '#1f2d4a', strip: '#26375a', title: '#fbf3e6', titleStroke: '#0f1828', sub: '#f2b544', iconBg: '#1f2d4a', iconCircle: '#2f4470', scrib: '#3d5486', scrib2: '#33496f' },
   B: { name: '黒板', logo: ['#f4f1e6', '#f2c94c', '#f4f1e6', '#ff9a8a', '#f4f1e6', '#9fe0c0'], bg: '#24392f', strip: '#2d4a3c', title: '#f4f1e6', titleStroke: '#13221b', sub: '#f2c94c', iconBg: '#24392f', iconCircle: '#35564a', scrib: '#4f7465', scrib2: '#3f6052' },
   C: { name: '白い紙×赤', logo: ['#d23a33', '#2b2622', '#3a7bd5', '#d23a33', '#2b2622', '#2f9a4a'], bg: '#fbf7ee', strip: '#ffffff', title: '#2b2622', titleStroke: '#ffffff', sub: '#d23a33', iconBg: '#d23a33', iconCircle: '#fbf7ee', scrib: '#f0c8c4', scrib2: '#e6e0d2' },
+  D: { name: 'からし', bg: '#e9b832', strip: '#f2c94c', title: '#2b2622', titleStroke: '#fff8e6', sub: '#c0392b', iconBg: '#e9b832', iconCircle: '#fbe7a6', scrib: '#d9a425', scrib2: '#f5d66e', logo: ['#2b2622', '#c0392b', '#2b2622', '#2a6fbf', '#2b2622', '#2f9a4a'] },
+  E: { name: '赤', bg: '#b8342e', strip: '#cc4038', title: '#fff8ec', titleStroke: '#5a1412', sub: '#ffd23a', iconBg: '#b8342e', iconCircle: '#e06a5f', scrib: '#a02a25', scrib2: '#d4554c', logo: ['#fff8ec', '#ffd23a', '#fff8ec', '#ffe0a0', '#fff8ec', '#bfe8ff'] },
+  F: { name: 'ティール', bg: '#1d5257', strip: '#246167', title: '#f4f1e6', titleStroke: '#0c2a2d', sub: '#ffb36b', iconBg: '#1d5257', iconCircle: '#33787d', scrib: '#2f6e73', scrib2: '#2a6469', logo: ['#f4f1e6', '#ffd23a', '#f4f1e6', '#ff9a8a', '#f4f1e6', '#b5f0d0'] },
+  G: { name: 'クラフト紙', bg: '#d4ad7a', strip: '#e3c08f', title: '#2b2622', titleStroke: '#f8ecd8', sub: '#b8342e', iconBg: '#d4ad7a', iconCircle: '#f1dcbc', scrib: '#c49a63', scrib2: '#e6c79c', logo: ['#2b2622', '#b8342e', '#2b2622', '#2a6fbf', '#2b2622', '#2f8a4a'] },
+  H: { name: '夜の紫', bg: '#33284f', strip: '#3f3262', title: '#f6f0ff', titleStroke: '#170f2a', sub: '#ffd23a', iconBg: '#33284f', iconCircle: '#57478a', scrib: '#4a3c74', scrib2: '#43366a', logo: ['#f6f0ff', '#ffd23a', '#f6f0ff', '#ff9ac0', '#f6f0ff', '#9fe0ff'] },
+  I: { name: 'さくら', bg: '#f6d9d2', strip: '#fbe9e4', title: '#2b2622', titleStroke: '#ffffff', sub: '#c0392b', iconBg: '#e88f86', iconCircle: '#fbe9e4', scrib: '#efc0b8', scrib2: '#f3cfc8', logo: ['#c0392b', '#2b2622', '#2a6fbf', '#c0392b', '#2b2622', '#2f9a4a'] },
 };
 const V = process.argv[2] || 'A', K = PAL[V];
 
@@ -81,7 +87,7 @@ function banner() {
   s += xf(guide({ x: 0, y: 0, s: 0.95, expr: 'smile', arms: [12, 8, 125, 10] }), { x: x0 + 190, y: y0 + 405 });
   s += crayon(x0 + 350, y0 + 175, 0.6, -35, RED);
   s += LOGO('らくがき経済', W / 2 - 20, y0 + 215, 150, K.logo, K.titleStroke);
-  s += line([[W / 2 - 420, y0 + 252], [W / 2 - 150, y0 + 262], [W / 2 + 150, y0 + 250], [W / 2 + 390, y0 + 258]], { w: 12, color: K.sub, passes: 2 });
+  s += line([[W / 2 - 420, y0 + 252], [W / 2 - 150, y0 + 262], [W / 2 + 120, y0 + 250], [W / 2 + 320, y0 + 258]], { w: 12, color: K.sub, passes: 2 });
   s += TITLE('会社とお金の話を、らくがきで。', W / 2 - 20, y0 + 345, 54, K.title, K.titleStroke);
   // 右はし（案：node channelart.mjs A 1〜4）
   const R = x0 + 1175, RV = process.argv[3] || '1';
@@ -91,9 +97,9 @@ function banner() {
     return line(pts, { w: 13, color: col, passes: 2 }) + poly([tip, [q[0] + Math.cos(a + 2) * 26, q[1] + Math.sin(a + 2) * 26], [q[0] + Math.cos(a - 2) * 26, q[1] + Math.sin(a - 2) * 26]], { fill: col, w: 5 }); };
   if (RV === '1') {
     // ① グラフ＋ビル＋コイン＋すわったネコ
-    s += building(R + 40, y0 + 330, 70, 150, '#d8b080') + building(R + 115, y0 + 330, 55, 95, '#c49a6a') + coinStack(R + 175, y0 + 365, 4);
-    s += text('¥', R + 175, y0 + 280, { size: 42, color: '#f2c230', font: 'Zen Maru Gothic', weight: 900 });
-    s += arrowUp([[R + 10, y0 + 250], [R + 60, y0 + 200], [R + 100, y0 + 222], [R + 190, y0 + 110]]);
+    s += building(R + 60, y0 + 345, 70, 140, '#d8b080') + building(R + 130, y0 + 345, 55, 90, '#c49a6a') + coinStack(R + 190, y0 + 375, 4);
+    s += text('¥', R + 190, y0 + 290, { size: 42, color: '#f2c230', font: 'Zen Maru Gothic', weight: 900 });
+    s += arrowUp([[R + 45, y0 + 205], [R + 85, y0 + 165], [R + 120, y0 + 185], [R + 195, y0 + 95]]);
     s += sitCat(R + 300, y0 + 310);
   } else if (RV === '2') {
     // ② 小さなノートに、ぐるぐる・矢印・円グラフのメモ書き
