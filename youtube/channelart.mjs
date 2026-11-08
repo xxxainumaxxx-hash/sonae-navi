@@ -85,13 +85,13 @@ function person(x, y, sc) {
       line([[20, -40], [45, -15], [60, -30], [85, -55]], { w: 5, color: '#2f9a4a', passes: 1 }), { x: x + 4 * sc, y: y - 112 * sc, s: 0.85 * sc });
 }
 
+// アイコンの背景色（node channelart.mjs S 1 P1 紺 など。5番目の引数）
+const IBG = { 紺: ['#2f3b5c', '#3e4d75'], からし: ['#e9b832', '#f2c94c'], 赤: ['#c8423a', '#d6564e'], ティール: ['#1d5257', '#2a6a70'], 緑: ['#3f8a5a', '#4f9d6a'], 水色: ['#8fc4e8', '#a6d2ef'] };
+const IB = IBG[process.argv[5]] || [K.iconBg, K.iconCircle];
 function icon() {
-  let s = `<rect width="800" height="800" fill="${K.iconBg}"/>`;
-  s += scribble(150, 170, 120, K.scrib, 16) + scribble(620, 640, 120, K.scrib, 16);
-  s += `<circle cx="400" cy="430" r="300" fill="${K.iconCircle}"/>`;
+  let s = `<rect width="800" height="800" fill="${IB[0]}"/>`;
+  s += scribble(150, 170, 120, IB[1], 16) + scribble(620, 640, 120, IB[1], 16);
   s += person(400, 1080, 2.9);
-  // ふちの輪（白い画面でもぼやけないように）。YouTube は丸く切るので、円の内側に描く
-  if (K.sketch) s += `<circle cx="400" cy="400" r="378" fill="none" stroke="#2f3b5c" stroke-width="44"/>` + `<circle cx="400" cy="400" r="352" fill="none" stroke="#d23a33" stroke-width="10"/>`;
   return s;
 }
 
@@ -163,7 +163,7 @@ function banner() {
 }
 
 const { shot, close } = await openShooter(ROOT, path.join(OUT, '_w'), { w: 800, h: 800 });
-await shot(svgDoc(defs(0) + icon(), 800, 800), path.join(OUT, `icon${V}${PV}.png`));
+await shot(svgDoc(defs(0) + icon(), 800, 800), path.join(OUT, `icon${V}${PV}${process.argv[5] || ''}.png`));
 await close();
 const b = banner();
 const sh2 = await openShooter(ROOT, path.join(OUT, '_w2'), { w: b.W, h: b.H });
