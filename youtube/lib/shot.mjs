@@ -11,7 +11,8 @@ export async function openShooter(root, workDir, { w = 1920, h = 1080, css = '' 
   const fontCss = ['@fontsource/yomogi/japanese-400.css', '@fontsource/yomogi/latin-400.css',
     '@fontsource/zen-maru-gothic/japanese-700.css', '@fontsource/zen-maru-gothic/latin-700.css',
     '@fontsource/zen-maru-gothic/japanese-900.css', '@fontsource/zen-maru-gothic/latin-900.css',
-    '@fontsource/dela-gothic-one/japanese-400.css', '@fontsource/dela-gothic-one/latin-400.css']
+    '@fontsource/dela-gothic-one/japanese-400.css', '@fontsource/dela-gothic-one/latin-400.css',
+    '@fontsource/yusei-magic/japanese-400.css', '@fontsource/yusei-magic/latin-400.css']
     .map((p) => `<link rel="stylesheet" href="${pathToFileURL(path.join(root, 'node_modules', p))}">`).join('');
   fs.mkdirSync(workDir, { recursive: true });
   const shell = path.join(workDir, '_shell.html');
@@ -34,7 +35,7 @@ export async function openShooter(root, workDir, { w = 1920, h = 1080, css = '' 
     await page.evaluate((h) => { document.getElementById('root').innerHTML = h; }, html);
     await page.evaluate(async () => {
       const txt = document.body.innerText + [...document.querySelectorAll('text')].map((t) => t.textContent).join('');
-      await Promise.all(['400 10px Yomogi', "700 10px 'Zen Maru Gothic'", "900 10px 'Zen Maru Gothic'", "400 10px 'Dela Gothic One'"]
+      await Promise.all(['400 10px Yomogi', "700 10px 'Zen Maru Gothic'", "900 10px 'Zen Maru Gothic'", "400 10px 'Dela Gothic One'", "400 10px 'Yusei Magic'"]
         .map((f) => document.fonts.load(f, txt || 'あ')));
       await document.fonts.ready;
     });

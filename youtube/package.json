@@ -7,7 +7,9 @@
   },
   "dependencies": {
     "@fontsource/dela-gothic-one": "^5.3.0",
+    "@fontsource/hachi-maru-pop": "^5.3.0",
     "@fontsource/yomogi": "5.3.0",
+    "@fontsource/yusei-magic": "^5.3.0",
     "@fontsource/zen-maru-gothic": "5.3.1"
   }
 }

@@ -15,9 +15,9 @@ setTheme('crayon');
 const RED = '#d23a33', INK = '#2b2622';
 // 色の組み合わせ（node channelart.mjs A／B／C）
 const PAL = {
-  A: { name: '紺×クリーム', bg: '#1f2d4a', strip: '#26375a', title: '#fbf3e6', titleStroke: '#0f1828', sub: '#f2b544', iconBg: '#1f2d4a', iconCircle: '#2f4470', scrib: '#3d5486', scrib2: '#33496f' },
-  B: { name: '黒板', bg: '#24392f', strip: '#2d4a3c', title: '#f4f1e6', titleStroke: '#13221b', sub: '#f2c94c', iconBg: '#24392f', iconCircle: '#35564a', scrib: '#4f7465', scrib2: '#3f6052' },
-  C: { name: '白い紙×赤', bg: '#fbf7ee', strip: '#ffffff', title: '#2b2622', titleStroke: '#ffffff', sub: '#d23a33', iconBg: '#d23a33', iconCircle: '#fbf7ee', scrib: '#f0c8c4', scrib2: '#e6e0d2' },
+  A: { name: '紺×クリーム', logo: ['#fbf3e6', '#f2b544', '#fbf3e6', '#ff8a7a', '#fbf3e6', '#8fd0ff'], bg: '#1f2d4a', strip: '#26375a', title: '#fbf3e6', titleStroke: '#0f1828', sub: '#f2b544', iconBg: '#1f2d4a', iconCircle: '#2f4470', scrib: '#3d5486', scrib2: '#33496f' },
+  B: { name: '黒板', logo: ['#f4f1e6', '#f2c94c', '#f4f1e6', '#ff9a8a', '#f4f1e6', '#9fe0c0'], bg: '#24392f', strip: '#2d4a3c', title: '#f4f1e6', titleStroke: '#13221b', sub: '#f2c94c', iconBg: '#24392f', iconCircle: '#35564a', scrib: '#4f7465', scrib2: '#3f6052' },
+  C: { name: '白い紙×赤', logo: ['#d23a33', '#2b2622', '#3a7bd5', '#d23a33', '#2b2622', '#2f9a4a'], bg: '#fbf7ee', strip: '#ffffff', title: '#2b2622', titleStroke: '#ffffff', sub: '#d23a33', iconBg: '#d23a33', iconCircle: '#fbf7ee', scrib: '#f0c8c4', scrib2: '#e6e0d2' },
 };
 const V = process.argv[2] || 'A', K = PAL[V];
 
@@ -33,6 +33,15 @@ const scribble = (cx, cy, r, col, w = 14) => {
 };
 const TITLE = (str, x, y, size, color = INK, stroke = '#fff') =>
   `<text x="${x}" y="${y}" font-family="Zen Maru Gothic" font-weight="900" font-size="${size}" text-anchor="middle" fill="${color}" stroke="${stroke}" stroke-width="${size * 0.18}" stroke-linejoin="round" paint-order="stroke fill">${str}</text>`;
+
+// 手書き風のロゴ（1文字ずつ少し傾けて、色を変える）
+const LOGO = (str, cx, y, size, cols, stroke) => {
+  const chars = [...str], step = size * 0.98, x0 = cx - (step * (chars.length - 1)) / 2;
+  return chars.map((ch, i) => {
+    const x = x0 + i * step, r = [-6, 4, -3, 5, -4, 3][i % 6], dy = [0, -10, 6, -6, 8, -4][i % 6];
+    return `<g transform="translate(${x} ${y + dy}) rotate(${r})" filter="url(#wobble)"><text x="0" y="0" font-family="Yusei Magic" font-size="${size}" text-anchor="middle" fill="${cols[i % cols.length]}" stroke="${stroke}" stroke-width="${size * 0.14}" stroke-linejoin="round" paint-order="stroke fill">${ch}</text></g>`;
+  }).join('');
+};
 
 function icon() {
   let s = `<rect width="800" height="800" fill="${K.iconBg}"/>`;
@@ -55,8 +64,9 @@ function banner() {
   s += `<rect x="${x0}" y="${y0}" width="1546" height="423" rx="40" fill="${K.strip}"/>`;
   s += xf(guide({ x: 0, y: 0, s: 0.95, expr: 'smile', arms: [12, 8, 125, 10] }), { x: x0 + 190, y: y0 + 405 });
   s += crayon(x0 + 350, y0 + 175, 0.6, -35, RED);
-  s += TITLE('らくがき経済', W / 2 + 40, y0 + 210, 170, K.title, K.titleStroke);
-  s += TITLE('有名な会社の「まさかの始まり」を、らくがきで。', W / 2 + 40, y0 + 330, 47, K.sub, K.titleStroke);
+  s += LOGO('らくがき経済', W / 2 + 40, y0 + 215, 165, K.logo, K.titleStroke);
+  s += line([[W / 2 - 400, y0 + 252], [W / 2 - 100, y0 + 262], [W / 2 + 200, y0 + 250], [W / 2 + 480, y0 + 258]], { w: 12, color: K.sub, passes: 2 });
+  s += TITLE('会社とお金の話を、らくがきで。', W / 2 + 40, y0 + 345, 58, K.title, K.titleStroke);
   // 右はし：上がるグラフのらくがき（経済）
   const g = [[x0 + 1370, y0 + 330], [x0 + 1410, y0 + 270], [x0 + 1440, y0 + 295], [x0 + 1490, y0 + 200]];
   s += line(g, { w: 16, color: '#3fbf5a', passes: 2 }) + poly([[x0 + 1505, y0 + 160], [x0 + 1462, y0 + 192], [x0 + 1515, y0 + 218]], { fill: '#3fbf5a', w: 5 });
