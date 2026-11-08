@@ -64,13 +64,18 @@ function banner() {
   s += `<rect x="${x0}" y="${y0}" width="1546" height="423" rx="40" fill="${K.strip}"/>`;
   s += xf(guide({ x: 0, y: 0, s: 0.95, expr: 'smile', arms: [12, 8, 125, 10] }), { x: x0 + 190, y: y0 + 405 });
   s += crayon(x0 + 350, y0 + 175, 0.6, -35, RED);
-  s += LOGO('らくがき経済', W / 2 + 40, y0 + 215, 165, K.logo, K.titleStroke);
-  s += line([[W / 2 - 400, y0 + 252], [W / 2 - 100, y0 + 262], [W / 2 + 200, y0 + 250], [W / 2 + 480, y0 + 258]], { w: 12, color: K.sub, passes: 2 });
-  s += TITLE('会社とお金の話を、らくがきで。', W / 2 + 40, y0 + 345, 58, K.title, K.titleStroke);
-  // 右はし：上がるグラフのらくがき（経済）
-  const g = [[x0 + 1370, y0 + 330], [x0 + 1410, y0 + 270], [x0 + 1440, y0 + 295], [x0 + 1490, y0 + 200]];
-  s += line(g, { w: 16, color: '#3fbf5a', passes: 2 }) + poly([[x0 + 1505, y0 + 160], [x0 + 1462, y0 + 192], [x0 + 1515, y0 + 218]], { fill: '#3fbf5a', w: 5 });
-  s += sneakyCat(x0 + 1700, y0 + 520, 0, '');
+  s += LOGO('らくがき経済', W / 2 - 20, y0 + 215, 150, K.logo, K.titleStroke);
+  s += line([[W / 2 - 420, y0 + 252], [W / 2 - 150, y0 + 262], [W / 2 + 150, y0 + 250], [W / 2 + 390, y0 + 258]], { w: 12, color: K.sub, passes: 2 });
+  s += TITLE('会社とお金の話を、らくがきで。', W / 2 - 20, y0 + 345, 54, K.title, K.titleStroke);
+  // 右はし：ネコがクレヨンで上がるグラフを描いている（会社とお金）。うしろにビル、横にコインの山
+  const R = x0 + 1240;
+  s += building(R + 60, y0 + 300, 80, 170, '#d8b080') + building(R + 145, y0 + 300, 60, 110, '#c49a6a');
+  s += line([[R + 10, y0 + 300], [R + 285, y0 + 300]], { w: 6, color: '#9aa0a8', passes: 1 });
+  const g = [[R + 20, y0 + 190], [R + 85, y0 + 140], [R + 135, y0 + 165], [R + 230, y0 + 60]];
+  s += line(g, { w: 14, color: '#3fbf5a', passes: 2 }) + poly([[R + 255, y0 + 28], [R + 205, y0 + 55], [R + 258, y0 + 86]], { fill: '#3fbf5a', w: 5 });
+  [0, 1, 2, 3, 4].forEach((i) => { s += ellipse(R + 255, y0 + 290 - i * 18, 34, 12, { fill: '#f2c230', w: 4 }); });
+  s += text('¥', R + 255, y0 + 190, { size: 48, color: '#f2c230', font: 'Zen Maru Gothic', weight: 900 });
+  s += sneakyCat(R + 175, y0 + 395, 0, crayon(0, 0, 0.32, -60, '#3fbf5a'));
   return { s, W, H };
 }
 
