@@ -152,6 +152,23 @@ def load_overrides(vd):
     return json.load(open(p)) if os.path.exists(p) else {}
 
 
+def _onset_before(mp3, t, floor):
+    """t より前で、声が始まる直前の無音の位置を返す（floor より前には戻らない）"""
+    import numpy as np
+    sr = 16000
+    raw = subprocess.check_output(['ffmpeg', '-v', 'error', '-ss', f'{max(0, t - 0.6):.3f}', '-to', f'{t + 0.05:.3f}', '-i', mp3, '-f', 's16le', '-ac', '1', '-ar', str(sr), '-'])
+    x = np.frombuffer(raw, dtype=np.int16).astype(np.float32) / 32768
+    base = max(0, t - 0.6); fr = sr // 100
+    env = [float(np.sqrt(np.mean(x[i:i + fr] ** 2))) for i in range(0, max(0, len(x) - fr), fr)]
+    i = len(env) - 1; quiet = 0
+    while i > 0:
+        quiet = quiet + 1 if env[i] < 0.03 else 0
+        if quiet >= 6: break
+        i -= 1
+    cut = base + (i + quiet // 2) / 100
+    return max(floor, min(t, cut))
+
+
 def patch_lines(ep, ids, scenes, vd, tmp):
     """指定した行（例 04-1）だけ声を作り直して、場面の音声に差し込む。ほかの行の音声はそのまま残す"""
     ov = load_overrides(vd)
@@ -168,6 +185,9 @@ def patch_lines(ep, ids, scenes, vd, tmp):
             build([line_text], one_mp3, one_js, tmp, {0: ov.get(f'{sn}-{k + 1}')})
             one = json.load(open(one_js))
             a = lines[k]['start']
+            # 古い行の本当の出だしは、記録された start より少し前にあることがある。
+            # start で切ると古い出だしが残って「ダブり」になるので、出だしの前の無音まで戻って切る
+            a = _onset_before(mp3, a, lines[k - 1]['end'] if k > 0 else 0.0)
             b = lines[k + 1]['start'] if k + 1 < len(lines) else d['duration']
             new_len = one['duration'] + (GAP_KEEP if k + 1 < len(lines) else 0)
             seg = os.path.join(tmp, 'spliced.mp3')
