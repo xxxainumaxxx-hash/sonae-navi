@@ -302,7 +302,7 @@ export const SHOTS = {
       (tl, d, t) => cam(fill('#2a2430') + lamp(800, 300) + floor('#3a2e28') + mid(boy, 760, { s: 1.6, y: 1060, blink: blinking(t, 1), arms: [40, -40, 70, -20] }) + `<rect x="-200" y="-200" width="2320" height="1480" fill="#8a6a40" opacity="0.25"/>` +
         xf(T('およそ40年', 1400, 460, 110, C.white), { s: popS(tl, 0.4), cx: 1400, cy: 420 }), tl, d, { z0: 1.0, z1: 1.05 }),
       (tl, d, t) => cam(fill('#cfe6f5') + poly([[200, 1080], [960, 320], [1720, 1080]], { fill: '#8fa0b0' }) + poly([[800, 480], [960, 320], [1120, 480], [1040, 440], [960, 480], [880, 440]], { fill: C.white, w: 5 }) +
-        sakichi({ x: 960, y: 330, s: 0.9, arms: P.cheer, expr: 'smile', blink: blinking(t, 2) }) + line([[1110, 330], [1110, 90]], { w: 6, passes: 1 }) + poly([[1110, 90], [1250, 125], [1110, 160]], { fill: RED, w: 5 }), tl, d, { z0: 1.05, z1: 1.0, y0: 500 }),
+        sakichi({ x: 960, y: 330, s: 0.9, arms: P.cheer, expr: 'smile', blink: blinking(t, 2) }) + line([[1110, 480], [1110, 190]], { w: 6, passes: 1 }) + poly([[1110, 190], [1250, 225], [1110, 260]], { fill: RED, w: 5 }), tl, d, { z0: 1.05, z1: 1.0, y0: 500 }),
     ],
     // 6 1926年、この織機を作るための会社が生まれる。その名も、「豊田自動織機製作所」。
     [
@@ -473,7 +473,7 @@ export const SHOTS = {
         mid(kiichiro, 1450, { blink: blinking(t, 3), expr: 'wow', look: [-1, 0], flip: true }), tl, d * 0.4, { z0: 1.0, z1: 1.04 });
       const k = tl - d * 0.4;
       return cam(fill('#cfd6de') + floor('#9a9086', 760) + oldTruck(1350, 880, 0.9, { smoke: 0.5 }) + kiichiro({ x: lerp(-100, 900, ease.out(clamp(k / 1.2))), y: 1150, s: 1.4, legs: Math.sin(k * 10), blink: blinking(t, 3), arms: P.hold, look: [1, 0] }) +
-        toolbox(lerp(-100, 900, ease.out(clamp(k / 1.2))) + 100, 880), k, d * 0.6, { z0: 1.0, z1: 1.04 });
+        toolbox(lerp(-100, 900, ease.out(clamp(k / 1.2))) + 230, 960), k, d * 0.6, { z0: 1.0, z1: 1.04 });
     },
     // 2 部品を持って夜行列車に飛び乗り、遠くの町まで修理に行ったこともあったという。
     (tl, d) => {
