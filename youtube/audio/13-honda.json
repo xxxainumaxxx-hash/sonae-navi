@@ -1,0 +1,20 @@
+{
+ "bgm_vol": 0.22,
+ "bgm": [
+  { "scene": 1, "file": "hd0.mp3", "note": "つかみ" },
+  { "scene": 2, "file": "hd1.mp3", "note": "第1章：戦後の浜松" },
+  { "scene": 6, "file": "hd2.mp3", "note": "第2章：二人の男" },
+  { "scene": 10, "file": "hd3.mp3", "note": "第3章：世界一のレース" },
+  { "scene": 14, "file": "hd4.mp3", "note": "第4章：世界の1億台" },
+  { "scene": 17, "file": "hd5.mp3", "note": "まとめ" },
+  { "scene": 18, "file": "hd6.mp3", "note": "終了画面" }
+ ],
+ "sfx": {
+  "whip": { "file": "sfx_whoosh.mp3", "vol": 0.35 },
+  "whipUp": { "file": "sfx_whoosh.mp3", "vol": 0.35 },
+  "dive": { "file": "sfx_pop.mp3", "vol": 0.3 },
+  "punch": { "file": "sfx_soft.mp3", "vol": 0.2 },
+  "chapter": { "file": "sfx_hyoshigi.mp3", "vol": 0.55 },
+  "end": { "file": "sfx_end.mp3", "vol": 0.4, "scene": 18 }
+ }
+}
