@@ -26,6 +26,10 @@ const lamp = (x, y, k = 1) => line([[x, 0], [x, y - 40]], { w: 5, passes: 1 }) +
 const village = () => fill('#cfe0e8') + poly([[-200, 700], [300, 420], [800, 700]], { fill: '#8fb07a' }) + poly([[600, 700], [1200, 380], [1900, 700]], { fill: '#7ea06a' }) + floor('#b9a070', 700) +
   [0, 1, 2].map((i) => houseFrame(300 + i * 650, 760, 0.55)).join('');
 const loomRoom = (night = false) => fill(night ? '#2a2430' : '#d8c3a0') + floor(night ? '#3a2e28' : '#a07a50') + (night ? '' : rect(1300, 180, 380, 300, { fill: '#cfe6f5', w: 8 }));
+// 工具箱（取っ手つき・スパナの印）。x,y は箱の下の中心
+const toolbox = (x, y) => line([[x - 40, y - 90], [x - 40, y - 120], [x + 40, y - 120], [x + 40, y - 90]], { w: 7, color: '#2b2b30', passes: 1 }) +
+  rect(x - 85, y - 90, 170, 90, { fill: RED }) + line([[x - 85, y - 62], [x + 85, y - 62]], { w: 4, passes: 1 }) +
+  line([[x - 30, y - 18], [x + 22, y - 44]], { w: 9, color: '#e9e2cf', passes: 1 }) + ellipse(x + 28, y - 47, 11, 11, { fill: '#e9e2cf', w: 3 });
 const yen = (v, x, y, size, color) => big(v, x, y, size, color, { stroke: INK });
 
 // ───── 章タイトル（藍色）
@@ -298,7 +302,7 @@ export const SHOTS = {
       (tl, d, t) => cam(fill('#2a2430') + lamp(800, 300) + floor('#3a2e28') + mid(boy, 760, { s: 1.6, y: 1060, blink: blinking(t, 1), arms: [40, -40, 70, -20] }) + `<rect x="-200" y="-200" width="2320" height="1480" fill="#8a6a40" opacity="0.25"/>` +
         xf(T('およそ40年', 1400, 460, 110, C.white), { s: popS(tl, 0.4), cx: 1400, cy: 420 }), tl, d, { z0: 1.0, z1: 1.05 }),
       (tl, d, t) => cam(fill('#cfe6f5') + poly([[200, 1080], [960, 320], [1720, 1080]], { fill: '#8fa0b0' }) + poly([[800, 480], [960, 320], [1120, 480], [1040, 440], [960, 480], [880, 440]], { fill: C.white, w: 5 }) +
-        sakichi({ x: 960, y: 330, s: 0.9, arms: P.cheer, expr: 'smile', blink: blinking(t, 2) }) + line([[960, 30], [960, 200]], { w: 6, passes: 1 }) + poly([[960, 30], [1080, 60], [960, 100]], { fill: RED, w: 5 }), tl, d, { z0: 1.05, z1: 1.0, y0: 500 }),
+        sakichi({ x: 960, y: 330, s: 0.9, arms: P.cheer, expr: 'smile', blink: blinking(t, 2) }) + line([[1110, 330], [1110, 90]], { w: 6, passes: 1 }) + poly([[1110, 90], [1250, 125], [1110, 160]], { fill: RED, w: 5 }), tl, d, { z0: 1.05, z1: 1.0, y0: 500 }),
     ],
     // 6 1926年、この織機を作るための会社が生まれる。その名も、「豊田自動織機製作所」。
     [
@@ -469,7 +473,7 @@ export const SHOTS = {
         mid(kiichiro, 1450, { blink: blinking(t, 3), expr: 'wow', look: [-1, 0], flip: true }), tl, d * 0.4, { z0: 1.0, z1: 1.04 });
       const k = tl - d * 0.4;
       return cam(fill('#cfd6de') + floor('#9a9086', 760) + oldTruck(1350, 880, 0.9, { smoke: 0.5 }) + kiichiro({ x: lerp(-100, 900, ease.out(clamp(k / 1.2))), y: 1150, s: 1.4, legs: Math.sin(k * 10), blink: blinking(t, 3), arms: P.hold, look: [1, 0] }) +
-        rect(lerp(-100, 900, ease.out(clamp(k / 1.2))) + 40, 840, 120, 70, { fill: RED }), k, d * 0.6, { z0: 1.0, z1: 1.04 });
+        toolbox(lerp(-100, 900, ease.out(clamp(k / 1.2))) + 100, 880), k, d * 0.6, { z0: 1.0, z1: 1.04 });
     },
     // 2 部品を持って夜行列車に飛び乗り、遠くの町まで修理に行ったこともあったという。
     (tl, d) => {
@@ -526,7 +530,7 @@ export const SHOTS = {
     [
       (tl, d) => cam(fill('#3a3a44') + head('1950年', tl, C.white) + `<rect x="460" y="380" width="1000" height="300" rx="40" fill="#1c1c22" opacity="0.9"/>` + yen('およそ' + countUp(1600, tl, 1.0) + '人', 960, 590, 130, C.yellow), tl, d, { z0: 1.0, z1: 1.05 }),
       (tl, d, t) => cam(fill('#cfd6de') + factory(1350, 860, 1.0, '#8a8070') + [300, 520, 740, 960].map((x, i) => worker({ x, y: 1120, s: 1.3, blink: blinking(t, i), expr: 'angry', arms: [160, 10, 12, 8] })).join('') +
-        [300, 740].map((x) => line([[x + 70, 760], [x + 70, 420]], { w: 6, passes: 1 }) + rect(x - 30, 330, 200, 100, { fill: C.white })).join('') + typeText('2か月近く', 1350, 200, tl, { size: 70, color: INK, delay: 0.4 }), tl, d, { z0: 1.0, z1: 1.04, x0: 960 + Math.sin(tl * 6) * 4 }),
+        [300, 740].map((x) => line([[x + 70, 760], [x + 70, 420]], { w: 6, passes: 1 }) + rect(x - 30, 330, 200, 100, { fill: C.white }) + text('反対！', x + 70, 400, { size: 58, color: RED, font: 'Zen Maru Gothic', weight: 900 })).join('') + typeText('2か月近く', 1350, 200, tl, { size: 70, color: INK, delay: 0.4 }), tl, d, { z0: 1.0, z1: 1.04, x0: 960 + Math.sin(tl * 6) * 4 }),
     ],
     // 6 喜一郎は、その責任を取って社長を辞めた。
     (tl, d, t) => {
@@ -632,7 +636,7 @@ export const SHOTS = {
     // 4 あの日、糸が切れて止まった機織り機の考え方は、今も世界中の工場で生きている。
     [
       (tl, d) => cam(fill(CREAM) + glow(960, 500, 600, '#fff', 0.3) + woodLoom(960, 760, 1.1, { cut: true }) + `<circle cx="960" cy="440" r="${80 + Math.sin(tl * 4) * 8}" fill="none" stroke="${RED}" stroke-width="10"/>`, tl, d, { z0: 1.0, z1: 1.1, y0: 540, y1: 480 }),
-      (tl, d) => cam(fill('#d6dce4') + andon(960, 640, 1.1, { pulled: 1, on: true }) + assemblyLine(960, 940, 0.8, tl) + typeText('今も生きている', 960, 160, tl, { size: 70, color: INK }), tl, d, { z0: 1.0, z1: 1.04 }),
+      (tl, d) => cam(fill('#d6dce4') + andon(960, 800, 1.0, { pulled: 1, on: true }) + assemblyLine(960, 940, 0.8, tl) + typeText('今も生きている', 960, 160, tl, { size: 70, color: INK }), tl, d, { z0: 1.0, z1: 1.04 }),
     ],
     // 5 佐吉は、こんな言葉を残したとされている。
     (tl, d, t) => cam(fill('#1c2030') + glow(560, 560, 500, '#fff6d8', 0.22) + mid(sakichi, 760, { blink: blinking(t, 2), arms: P.idle, look: [1, 0], expr: 'smile' }), tl, d, { z0: 1.0, z1: 1.06, x0: 900 }),
