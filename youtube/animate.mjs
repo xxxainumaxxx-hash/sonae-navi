@@ -130,7 +130,13 @@ function frameHtml(f) {
   const telop = ep.meta.telop ? `<div class="telop">${ep.meta.telop}</div>` : '';
   const sub = s.subs.find((u) => t >= (u === s.subs[0] ? 0 : u.from) && t < u.to + (u === s.subs[s.subs.length - 1] ? TAIL : 0));
   // 1行に入りきらない字幕は、かぎかっこ「の前で改行する（「のびる／手」のような変な折り返しを防ぐ）
-  const wrapSub = (str) => (str.length > MAXC_SHOW && str.indexOf('「') > 0 ? str.replace(/(.)「/, '$1<br>「') : str);
+  // ショートで「が／に／の」などのかな→漢字・カタカナの切れ目がまん中に近いところで改行する（「…始まっ／た。」のような泣き別れを防ぐ）
+  const midBreak = (str) => {
+    const kana = (ch) => /[ぁ-ゖ、]/.test(ch), mid = str.length / 2; let best = -1;
+    for (let i = 3; i < str.length - 3; i++) if (kana(str[i - 1]) && !kana(str[i]) && !/[。！？」ー]/.test(str[i]) && (best < 0 || Math.abs(i - mid) < Math.abs(best - mid))) best = i;
+    return best > 0 ? str.slice(0, best) + '<br>' + str.slice(best) : str;
+  };
+  const wrapSub = (str) => (str.length > MAXC_SHOW && str.indexOf('「') > 0 ? str.replace(/(.)「/, '$1<br>「') : SHORT && str.length > MAXC_SHOW ? midBreak(str) : str);
   return art + telop + (sub ? `<div class="sub"><span>${wrapSub(sub.line)}</span></div>` : '');
 }
 

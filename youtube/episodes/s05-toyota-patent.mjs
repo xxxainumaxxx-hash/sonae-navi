@@ -14,11 +14,11 @@ const paper = (x, y, s = 1) => xf(rect(-150, -190, 300, 380, { fill: '#fdfbf3' }
 
 const LIST = [
   // 0 トヨタの車は、イギリスに売った特許から始まった。
-  (tl, d) => cam(fill('#fff2c8') + glow(540, 860, 600, C.yellow, 0.35) + paper(540, 760, 1.4) + xf(T('→ 車', 540, 1200, 110, RED, C.white), { s: popS(tl, 0.6), cx: 540, cy: 1160 }), tl, d, { z0: 1.0, z1: 1.06 }),
+  (tl, d) => cam(fill('#fff2c8') + glow(540, 860, 600, C.yellow, 0.35) + paper(540, 680, 1.4) + xf(T('→ 車', 540, 1070, 110, RED, C.white), { s: popS(tl, 0.6), cx: 540, cy: 1030 }), tl, d, { z0: 1.0, z1: 1.06 }),
   // 1 豊田佐吉が作った、止まらない機織り機。
-  (tl, d, t) => cam(fill('#d6dce4') + powerLoom(560, 1020, 0.9, { run: tl * 2 }) + vmid(sakichi, 540, { y: 1720, s: 1.8, blink: blinking(t, 2), arms: P.point, expr: 'smile' }) + T('止まらない機織り機', 540, 520, 70, INK, C.white), tl, d, { z0: 1.0, z1: 1.05 }),
+  (tl, d, t) => cam(fill('#d6dce4') + powerLoom(560, 800, 0.9, { run: tl * 2 }) + vmid(sakichi, 540, { y: 1480, s: 1.8, blink: blinking(t, 2), arms: P.point, expr: 'smile' }) + T('止まらない機織り機', 540, 470, 70, INK, C.white), tl, d, { z0: 1.0, z1: 1.05 }),
   // 2 その特許を、本場イギリスの会社が欲しがった。
-  (tl, d) => cam(fill('#d8dfe6') + factory(540, 1100, 1.1, '#a89a8a') + text('イギリス', 540, 640, { size: 80, font: 'Zen Maru Gothic', weight: 900 }) + enter(bubble('特許をください！', 540, 520, { size: 60 }), tl, 0.3, { cx: 540, cy: 520 }), tl, d, { z0: 1.0, z1: 1.05 }),
+  (tl, d) => cam(fill('#d8dfe6') + factory(540, 1100, 1.1, '#a89a8a') + text('イギリス', 540, 780, { size: 80, font: 'Zen Maru Gothic', weight: 900 }) + enter(bubble('特許をください！', 540, 520, { size: 60 }), tl, 0.3, { cx: 540, cy: 520 }), tl, d, { z0: 1.0, z1: 1.05 }),
   // 3 1929年、売った値段は、およそ10万ポンド。
   [
     (tl) => blackType('1929年', tl),
@@ -27,7 +27,7 @@ const LIST = [
   // 4 今なら、数十億円とも言われる。
   (tl, d) => { let s = fill('#fff2c8'); for (let i = 0; i < 9; i++) { const k = clamp(tl * 1.4 - i * 0.08); s += moneyBag(200 + (i % 3) * 340, lerp(-200, 720 + Math.floor(i / 3) * 220, ease.out(k)), 0.5, '¥'); } return cam(s + T('数十億円？', 540, 520, 110, RED, C.white), tl, d, { z0: 1.0, z1: 1.05 }); },
   // 5 息子の喜一郎は、そのお金で、車づくりを始めた。
-  (tl, d, t) => cam(fill('#fff2c8') + glow(540, 900, 600, C.yellow, 0.3) + vmid(kiichiro, 380, { y: 1700, s: 1.9, blink: blinking(t, 3), arms: P.cheer, expr: 'smile' }) + xf(oldCar(0, 0, 0.7), { x: 760, y: 1000, s: popS(tl, 0.4), cx: 0, cy: -100 }) + moneyBag(780, 640, 0.6, '£'), tl, d, { z0: 1.0, z1: 1.05 }),
+  (tl, d, t) => cam(fill('#fff2c8') + glow(540, 900, 600, C.yellow, 0.3) + vmid(kiichiro, 380, { y: 1500, s: 1.9, blink: blinking(t, 3), arms: P.cheer, expr: 'smile' }) + xf(oldCar(0, 0, 0.7), { x: 760, y: 1000, s: popS(tl, 0.4), cx: 0, cy: -100 }) + moneyBag(780, 640, 0.6, '£'), tl, d, { z0: 1.0, z1: 1.05 }),
   // 6 機織り機の会社が、車の会社になる。あなたは知っていましたか？
   [
     (tl, d) => cam(fill(CREAM) + woodLoom(540, 760, 0.8) + xf(T('↓', 540, 1040, 130, RED, C.white), { s: popS(tl, 0.3), cx: 540, cy: 1000 }) + xf(oldCar(0, 0, 0.9), { x: 540, y: 1260, s: popS(tl, 0.6), cx: 0, cy: -100 }), tl, d, { z0: 1.0, z1: 1.05 }),

@@ -1,5 +1,5 @@
 // ショート06：トヨダなのに、なぜトヨタ？（縦・ループ）
-// 最後「だから、トヨダではなく…」→ 最初「創業家の名字は、トヨダ。」
+// 最後「こうして会社はトヨタになった。でも、」→ 最初「創業家の名字は、今も、とよだ。」
 import { tw, popS, xf, enter, bob, shake, blinking } from '../lib/anim.mjs';
 import { sign, bubble, cross, houseFrame } from '../lib/cprops.mjs';
 import { shots, big, countUp } from '../lib/shots.mjs';
@@ -10,7 +10,7 @@ export const meta = { id: 's06-toyota-name', format: 'short', title: 'トヨダ�
 const plate = (str, x, y, s = 1) => xf(rect(-220, -70, 440, 140, { fill: '#7a5230' }) + rect(-200, -55, 400, 110, { fill: '#9a6a40', w: 5 }) + text(str, 0, 28, { size: 80, color: '#fdfbf3', font: 'Zen Maru Gothic', weight: 900 }), { x, y, s });
 
 const LIST = [
-  // 0 創業家の名字は、トヨダ。
+  // 0 創業家の名字は、今も、とよだ。
   (tl, d) => cam(fill(CREAM) + houseFrame(540, 1200, 1.0) + plate('とよだ', 540, 820, 1.3), tl, d, { z0: 1.0, z1: 1.06 }),
   // 1 なのに会社の名前は、トヨタ。なぜ？
   (tl, d) => cam(fill(CREAM) + T('とよだ', 540, 700, 130, INK, C.white) + xf(T('↓', 540, 860, 110, RED, C.white), { s: popS(tl, 0.3), cx: 540, cy: 820 }) + xf(T('トヨタ', 540, 1060, 150, RED, C.white), { s: popS(tl, 0.6), cx: 540, cy: 1000 }) + xf(big('？', 880, 860, 160, RED), { s: popS(tl, 1.2), cx: 880, cy: 800 }), tl, d, { z0: 1.0, z1: 1.05 }),
@@ -28,20 +28,21 @@ const LIST = [
   // 6 あなたは、トヨダとトヨタ、どっち派？
   (tl, d, t) => cam(fill('#d6e6f5') + `<polygon points="540,-400 2400,-400 2400,2400 540,2400" fill="#fbe0dc"/>` + T('トヨダ', 280, 760, 90, INK, C.white) + T('トヨタ', 800, 760, 90, RED, C.white) + xf(T('VS', 540, 900, 110, RED, C.white), { s: popS(tl, 0.3), cx: 540, cy: 860 }) +
     kid({ x: 280, y: 1460, s: 1.4, hair: 'messy', shirt: C.blue, arms: P.point, blink: blinking(t, 1) }) + kid({ x: 800, y: 1460, s: 1.4, hair: 'side', shirt: C.pink, arms: P.point, blink: blinking(t, 2), flip: true }), tl, d, { z0: 1.0, z1: 1.04 }),
-  // 7 だから、トヨダではなく…（→ 1行目へ）
-  (tl, d) => cam(fill(CREAM) + plate('とよだ', 540, 820, 1.3) + xf(cross(540, 820, 1.6), { s: popS(tl, 0.4), cx: 540, cy: 820 }), tl, d, { z0: 1.06, z1: 1.0 }),
+  // 7 こうして会社はトヨタになった。でも、（→ 1行目「創業家の名字は、今も、とよだ。」へ）
+  (tl, d) => cam(fill('#fff2c8') + glow(540, 860, 600, C.yellow, 0.3) + xf(T('トヨタ', 540, 880, 190, RED, C.white), { s: popS(tl, 0.2), cx: 540, cy: 820 }) +
+    (tl > d * 0.6 ? xf(T('でも…', 540, 1120, 100, INK, C.white), { s: popS(tl, d * 0.6), cx: 540, cy: 1080 }) : ''), tl, d, { z0: 1.0, z1: 1.05 }),
 ];
 
 export const scenes = [{
   narration: [
-    '創業家の名字は、とよだ。',
+    '創業家の名字は、今も、とよだ。',
     'なのに会社の名前は、トヨタ。なぜ？',
     '1936年、新しいマークを全国から募集した。',
     '集まったのは、およそ2万7000。',
     '理由その1。にごらない方が、すっきり聞こえる。',
     '理由その2。カタカナのトヨタは8画。末広がりで縁起がいい。',
     'あなたは、トヨダとトヨタ、どっち派？',
-    'だから、とよだではなく…',
+    'こうして会社はトヨタになった。でも、',
   ],
   draw: (t, c) => shots(t, c, LIST) + catCorner(t, '', c, 6),
 }];

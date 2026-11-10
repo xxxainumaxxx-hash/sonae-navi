@@ -12,7 +12,7 @@ const LIST = [
   // 0 トヨタの工場では、誰でもラインを止められる。
   (tl, d) => { const p = clamp((tl - 0.6) / 0.3); return cam(fill('#d6dce4') + andon(540, 900, 1.0, { pulled: p, on: p >= 1 }) + assemblyLine(540, 1180, 0.55, tl, p >= 1), tl, d, { z0: 1.0, z1: 1.06 }); },
   // 1 おかしいと思ったら、ひもを引くだけ。
-  (tl, d, t) => cam(fill('#d6dce4') + andon(620, 1000, 1.0, { pulled: clamp((tl - 0.8) / 0.3) }) + vmid(worker, 380, { y: 1720, s: 2.0, blink: blinking(t, 5), arms: [12, 8, 150, -10], look: [1, -0.6] }), tl, d, { z0: 1.0, z1: 1.05 }),
+  (tl, d, t) => cam(fill('#d6dce4') + andon(620, 880, 1.0, { pulled: clamp((tl - 0.8) / 0.3) }) + vmid(worker, 380, { y: 1480, s: 2.0, blink: blinking(t, 5), arms: [12, 8, 150, -10], look: [1, -0.6] }), tl, d, { z0: 1.0, z1: 1.05 }),
   // 2 新人でも、止めていい。
   (tl, d, t) => cam(fill('#fff2c8') + glow(540, 900, 600, C.yellow, 0.3) + vmid(kid, 540, { hair: 'messy', shirt: C.sky, blink: blinking(t, 1), arms: P.cheer, expr: 'smile' }) + enter(sign('新人でもOK', 540, 560, { size: 80, fill: C.yellow }), tl, 0.3, { cx: 540, cy: 560 }), tl, d, { z0: 1.0, z1: 1.05 }),
   // 3 止めれば、すぐに直せる。不良品を作り続けない。
