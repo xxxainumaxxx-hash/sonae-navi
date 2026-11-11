@@ -254,3 +254,24 @@ def cut_scan(ep, fix=False, only=None):
             subprocess.check_call(['ffmpeg', '-y', '-v', 'error', '-i', mp3, '-af', f"volume=enable='{expr}':volume=0", '-b:a', '160k', tmp])
             os.replace(tmp, mp3)
     return out
+
+# ---- つなぎ目の傷を探す：完全な無音（差し込んだ無音）と大きな声が、10ms で切り替わるところ＝声の途中で切った跡
+# 声の頭が削れている（無音→いきなり大きい）、語尾が切れている（大きい→いきなり無音）、古い出だしが残っている（短い声→いきなり無音）
+def seam_scan(ep, only=None):
+    import voice
+    vd = os.path.join(ROOT, 'voice', ep); out = []
+    for f in sorted(os.listdir(vd)):
+        if not (f.endswith('.json') and f[:-5].isdigit()): continue
+        n = f[:-5]; d = json.load(open(os.path.join(vd, f))); L = d['lines']
+        env = voice._env(os.path.join(vd, n + '.mp3'))
+        for i in range(1, len(env)):
+            kind = None
+            if env[i - 1] < 0.0015 and env[i] > 0.03: kind = '頭が削れている'
+            elif env[i - 1] > 0.03 and env[i] < 0.0015: kind = '途中で切れている'
+            if not kind: continue
+            t = i / 100
+            k = min(range(len(L)), key=lambda j: min(abs(L[j]['start'] - t), abs(L[j]['end'] - t)))
+            rid = f'{n}-{k + 1}'
+            if only and rid not in only: continue
+            out.append((rid, round(t, 2), kind, L[k]['line'][:18]))
+    return out

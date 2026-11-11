@@ -35,6 +35,10 @@ const onStep = (x, y, s, o = {}, bo = {}, extra = []) => {
 const TOWN = { shirt: '#7a6a58', pants: '#4a4038' };
 // 小さな自転車屋（アイコン）
 const shopIcon = () => rect(-110, -90, 220, 150, { fill: '#e9d6b0' }) + poly([[-130, -90], [130, -90], [110, -150], [-110, -150]], { fill: RED }) + rect(-80, -60, 70, 120, { fill: C.sky, w: 4 }) + text('自転車', 50, -10, { size: 30, font: 'Zen Maru Gothic', weight: 900 }) + ellipse(50, 30, 22, 22, { fill: 'none', color: '#2b2b30', w: 5 });
+// おくるみの赤ちゃん（泣いている）
+const babyBundle = (x, y, s, tl) => xf(ellipse(0, 0, 120, 70, { fill: '#f6c8d0' }) + ellipse(-70, -10, 50, 48, { fill: '#f6d2b0' }) +
+  poly([[-110, -30], [-90, -62], [-60, -66], [-40, -52]], { fill: '#3a2d25', w: 4 }) + line([[-92, -16], [-80, -12]], { w: 4, passes: 1 }) + line([[-66, -16], [-54, -12]], { w: 4, passes: 1 }) +
+  ellipse(-72, 14, 10, 8 + Math.abs(Math.sin(tl * 8)) * 4, { fill: '#7a2a2a', w: 3 }) + line([[-20, -40], [60, 40]], { w: 5, color: '#e8a0b0', passes: 1 }), { x, y: y + Math.sin(tl * 10) * 4, s });
 // 「技術」「経営」の札
 const tag = (str, x, y, col) => sign(str, x, y, { size: 64, fill: col, color: C.white, rot: 0 });
 
@@ -114,8 +118,7 @@ export const SHOTS = {
       (tl, d, t) => cam(fill('#d8cdb8') + floor('#6a6058', 860) + oldCar(1250, 900, 1.2, { col: '#2b2b30' }) + gear(1600, 300, 80, tl * 60, '#9aa0a8') + mid(boy, 560, { blink: blinking(t, 2), arms: P.work, expr: 'smile', look: [1, 0.2] }), tl, d, { z0: 1.0, z1: 1.05 }),
     ],
     // 7 最初の仕事は、親方の子どもの子守りだったと言われている。
-    (tl, d, t) => cam(fill('#e9dcc6') + floor('#a07a50') + mid(boy, 960, { blink: blinking(t, 2), expr: 'worry', sweat: true, arms: P.hold }) +
-      kid({ x: 1150, y: 900, s: 0.7, hair: 'bald', shirt: C.pink, expr: 'smile', arms: P.cheer }) + sound('えーん', 1450, 360, tl, 0.6, C.blue, 80), tl, d, { z0: 1.0, z1: 1.05, x0: 960 + bob(tl, 6, 1.2) }),
+    (tl, d, t) => cam(fill('#e9dcc6') + floor('#a07a50') + mid(boy, 960, { blink: blinking(t, 2), expr: 'worry', sweat: true, arms: [40, -90, 40, -90] }) + babyBundle(960, 800, 1.3, tl) + sound('えーん', 1450, 360, tl, 0.6, C.blue, 80), tl, d, { z0: 1.0, z1: 1.05, x0: 960 + bob(tl, 6, 1.2) }),
     // 8 それでも宗一郎はあきらめず、やがて修理の腕で一目置かれるようになる。
     (tl, d, t) => cam(fill('#d8cdb8') + floor('#6a6058', 860) + engine(1300, 820, 1.0, clamp(1 - tl / (d * 0.6))) + mid(soichiro, 620, { blink: blinking(t, 3), arms: P.work, expr: 'smile', look: [1, 0.2], s: 1.7 }) +
       (tl > d * 0.6 ? xf(T('おおっ', 1450, 400, 100, RED, C.white), { s: popS(tl, d * 0.6), cx: 1450, cy: 360 }) : ''), tl, d, { z0: 1.0, z1: 1.05 }),
@@ -502,7 +505,7 @@ function rainCloudish(tl, x = 960, y = 180) {
 }
 
 // すみっこのネコ（小ネタ）：[声ファイル, 行, ネコが持っているもの]
-const CATS = [['03', 2, () => ''], ['05', 5, () => ''], ['09', 7, () => letter(0, 0, 0.35)], ['15', 2, () => sobaTrays(0, 0, 0.25, 3)], ['17', 8, () => '']];
+const CATS = [['05', 5, () => ''], ['09', 7, () => letter(0, 0, 0.35)], ['15', 2, () => sobaTrays(0, 0, 0.25, 3)], ['17', 8, () => '']];
 const withCat = (f, toy) => (tl, d, t) => f(tl, d, t) + cat(lerp(-160, 140, ease.out(clamp((tl - 0.4) / 0.7))), 1010, tl, toy());
 for (const [k, i, toy] of CATS) {
   const e = SHOTS[k][i];

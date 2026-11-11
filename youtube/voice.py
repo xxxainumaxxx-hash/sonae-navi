@@ -101,6 +101,23 @@ def speakable(line, table):
     return line
 
 
+def _env(mp3):
+    """10ms ごとの声の大きさ"""
+    import numpy as np
+    raw = subprocess.check_output(['ffmpeg', '-v', 'error', '-i', mp3, '-f', 's16le', '-ac', '1', '-ar', '16000', '-'])
+    x = np.frombuffer(raw, dtype=np.int16).astype(np.float32) / 32768
+    return np.array([float(np.sqrt(np.mean(x[i:i + 160] ** 2))) for i in range(0, max(0, len(x) - 160), 160)])
+
+
+QUIET = 0.012  # これより小さい音は「無音」とみなす
+
+
+def _speech_span(env):
+    """声が実際に鳴っている最初と最後の時刻"""
+    idx = [i for i, v in enumerate(env) if v > QUIET]
+    return (idx[0] / 100, (idx[-1] + 1) / 100) if idx else (0.0, len(env) / 100)
+
+
 def build(lines, dst_mp3, dst_json, tmp, overrides=None):
     table = readings()
     shown = lines                                   # 字幕に出す文（漢字のまま）
@@ -114,15 +131,30 @@ def build(lines, dst_mp3, dst_json, tmp, overrides=None):
     st, en = a['character_start_times_seconds'], a['character_end_times_seconds']
     n = len(st)
     # 残す区間（元の音声の時刻）を作る：長い間を GAP_KEEP に詰める
+    # 長い間を詰めるときは、文字の時刻（推定）ではなく、実際の無音の始まりと終わりで切る（出だしや語尾を削らないため）
+    env = _env(raw)
+    def quiet_run(t0, t1):
+        a, b = max(0, int(t0 * 100)), min(len(env), int(t1 * 100))
+        best = None; run = None
+        for i in range(a, b + 1):
+            q = i < b and env[i] < QUIET
+            if q and run is None: run = i
+            if not q and run is not None:
+                if best is None or i - run > best[1] - best[0]: best = (run, i)
+                run = None
+        return (best[0] / 100, best[1] / 100) if best else None
     segs = []
+    sp0, sp1 = _speech_span(env)
     # 1行だけ作り直すときは、出だしの子音が切れないように前を長めに残す
-    cur = max(0.0, st[0] - (0.3 if len(lines) == 1 else HEAD))
+    cur = max(0.0, min(st[0], sp0) - (0.3 if len(lines) == 1 else HEAD))
     for i in range(n - 1):
         gap = st[i + 1] - en[i]
         if gap > GAP_MAX:
-            segs.append((cur, en[i] + GAP_KEEP / 2))
-            cur = st[i + 1] - GAP_KEEP / 2
-    segs.append((cur, en[-1] + TAIL))
+            q = quiet_run(en[i] - 0.15, st[i + 1] + 0.15)
+            if not q or q[1] - q[0] < GAP_KEEP: continue
+            segs.append((cur, q[0] + GAP_KEEP / 2))
+            cur = q[1] - GAP_KEEP / 2
+    segs.append((cur, max(en[-1], sp1) + TAIL))
 
     def remap(t):  # 元の時刻 → 詰めて速くした後の時刻
         acc = 0.0
@@ -153,56 +185,72 @@ def load_overrides(vd):
     return json.load(open(p)) if os.path.exists(p) else {}
 
 
-def _onset_before(mp3, t, floor):
-    """t より前で、声が始まる直前の無音の位置を返す（floor より前には戻らない）"""
-    import numpy as np
-    sr = 16000
-    raw = subprocess.check_output(['ffmpeg', '-v', 'error', '-ss', f'{max(0, t - 0.6):.3f}', '-to', f'{t + 0.05:.3f}', '-i', mp3, '-f', 's16le', '-ac', '1', '-ar', str(sr), '-'])
-    x = np.frombuffer(raw, dtype=np.int16).astype(np.float32) / 32768
-    base = max(0, t - 0.6); fr = sr // 100
-    env = [float(np.sqrt(np.mean(x[i:i + fr] ** 2))) for i in range(0, max(0, len(x) - fr), fr)]
-    i = len(env) - 1; quiet = 0
-    while i > 0:
-        quiet = quiet + 1 if env[i] < 0.03 else 0
-        if quiet >= 6: break
-        i -= 1
-    cut = base + (i + quiet // 2) / 100
-    return max(floor, min(t, cut))
+def _pauses(env, t0, t1):
+    """t0〜t1 の中の無音の区間（始まり, 終わり）の一覧"""
+    a, b = max(0, int(t0 * 100)), min(len(env), int(t1 * 100))
+    out, run = [], None
+    for i in range(a, b + 1):
+        q = i < b and env[i] < QUIET
+        if q and run is None: run = i
+        if not q and run is not None: out.append((run / 100, i / 100)); run = None
+    return out
+
+
+def boundary(env, end_prev, start_next):
+    """前の行と次の行の境目の切り目。前の行が言い終わった「すぐあと」の間（0.12秒以上）のまん中。
+    次の行の頭の時刻は実際より遅れて記録されることがあるので、そちらからは探さない（次の行の中の読点の間を選ぶと頭が削れる）"""
+    t0 = min(end_prev, start_next) - 0.2
+    for min_len in (0.12, 0.06):
+        for a, b in _pauses(env, t0, start_next + 0.15):
+            if b - a >= min_len: return (a + b) / 2
+    seg_a, seg_b = max(0, int(t0 * 100)), max(int(t0 * 100) + 1, min(len(env), int((start_next + 0.05) * 100)))
+    return (seg_a + int(env[seg_a:seg_b].argmin())) / 100
+
+
+def line_bounds(env, lines, k, dur):
+    """k 行目の声を、前後の「行と行の間の無音」のまん中で囲む区間。差し替えもチェック用の切り出しも、必ずこの区間を使う"""
+    a = 0.0 if k == 0 else boundary(env, lines[k - 1]['end'], lines[k]['start'])
+    b = dur if k + 1 >= len(lines) else boundary(env, lines[k]['end'], lines[k + 1]['start'])
+    return a, b
 
 
 def patch_lines(ep, ids, scenes, vd, tmp):
-    """指定した行（例 04-1）だけ声を作り直して、場面の音声に差し込む。ほかの行の音声はそのまま残す"""
+    """指定した行（例 04-1）だけ声を作り直して、場面の音声に差し込む。ほかの行の音声はそのまま残す。
+    切り目は必ず「行と行の間の無音のまん中」にする（行の頭の時刻で切ると、古い出だしが残ったり、次の行の頭が削れたりするため）"""
     ov = load_overrides(vd)
     by_scene = {}
     for rid in ids:
         sn, ln = rid.split('-'); by_scene.setdefault(sn, []).append(int(ln) - 1)
     for sn, idxs in by_scene.items():
         mp3, js = os.path.join(vd, f'{sn}.mp3'), os.path.join(vd, f'{sn}.json')
-        d = json.load(open(js))
+        d = realign(vd, sn)  # 記録の時刻を、実際の声から取り直してから切る
         for k in sorted(idxs, reverse=True):          # 後ろの行から差し込む（前の行の時刻がずれないように）
             lines = d['lines']
             line_text = scenes[int(sn) - 1][k]
             one_mp3, one_js = os.path.join(tmp, 'one.mp3'), os.path.join(tmp, 'one.json')
             build([line_text], one_mp3, one_js, tmp, {0: ov.get(f'{sn}-{k + 1}')})
             one = json.load(open(one_js))
-            a = lines[k]['start']
-            # 古い行の本当の出だしは、記録された start より少し前にあることがある。
-            # start で切ると古い出だしが残って「ダブり」になるので、出だしの前の無音まで戻って切る
-            a = _onset_before(mp3, a, lines[k - 1]['end'] if k > 0 else 0.0)
-            b = lines[k + 1]['start'] if k + 1 < len(lines) else d['duration']
-            new_len = one['duration'] + (GAP_KEEP if k + 1 < len(lines) else 0)
+            env = _env(mp3)
+            a, b = line_bounds(env, lines, k, d['duration'])
+            # 新しい声は、実際に鳴っている部分の前 0.06 秒・後 0.1 秒だけ残し、前後に「間」の半分ずつの無音を足す
+            s0, s1 = _speech_span(_env(one_mp3)); s0 = max(0.0, s0 - 0.06); s1 = min(one['duration'], s1 + 0.1)
+            pre = GAP_KEEP / 2 if k > 0 else 0.1; post = GAP_KEEP / 2 if k + 1 < len(lines) else 0.3
             seg = os.path.join(tmp, 'spliced.mp3')
-            fc = (f"[0:a]atrim=0:{a:.3f},asetpts=PTS-STARTPTS[x];[1:a]apad=pad_dur={GAP_KEEP if k + 1 < len(lines) else 0},asetpts=PTS-STARTPTS[y];"
+            fc = (f"[0:a]atrim=0:{a:.3f},asetpts=PTS-STARTPTS[x];"
+                  f"[1:a]atrim={s0:.3f}:{s1:.3f},asetpts=PTS-STARTPTS,adelay={int(pre * 1000)},apad=pad_dur={post}[y];"
                   f"[0:a]atrim=start={b:.3f},asetpts=PTS-STARTPTS[z];[x][y][z]concat=n=3:v=0:a=1[a]")
-            subprocess.check_call(['ffmpeg', '-y', '-v', 'error', '-i', mp3, '-i', one_mp3, '-filter_complex', fc, '-map', '[a]', '-b:a', '160k', seg])
+            subprocess.check_call(['ffmpeg', '-y', '-v', 'error', '-i', mp3, '-i', one_mp3, '-filter_complex', fc, '-map', '[a]', '-ar', '44100', '-b:a', '160k', seg])
             subprocess.check_call(['cp', seg, mp3])
+            new_len = pre + (s1 - s0) + post
             shift = a + new_len - b
-            lines[k] = dict(one['lines'][0], line=line_text, start=round(a + one['lines'][0]['start'], 3), end=round(a + one['lines'][0]['end'], 3))
+            off = a + pre - s0
+            lines[k] = dict(one['lines'][0], line=line_text, start=round(off + one['lines'][0]['start'], 3), end=round(off + one['lines'][0]['end'], 3))
             for j in range(k + 1, len(lines)):
                 lines[j]['start'] = round(lines[j]['start'] + shift, 3); lines[j]['end'] = round(lines[j]['end'] + shift, 3)
+            if k > 0: lines[k - 1]['end'] = round(min(lines[k - 1]['end'], a), 3)  # 前の行の終わりは切り目より後ろにならない
             d['duration'] = float(subprocess.check_output(['ffprobe', '-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', mp3]))
             json.dump(d, open(js, 'w'), ensure_ascii=False, indent=1)
-            print(f'{sn}-{k + 1}: 作り直して差し込み（{one["lines"][0]["spoken"]}）')
+            print(f'{sn}-{k + 1}: 作り直して差し込み（{one["lines"][0]["spoken"]}）  切り目 {a:.2f}s / {b:.2f}s')
 
 
 def main():
@@ -232,3 +280,39 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
+def realign(vd, sn):
+    """場面の音声を文字起こしして、各行の始まりと終わりの時刻を実際の声から取り直す（差し替えで記録がずれたときの直し）"""
+    import difflib, re
+    mp3, js = os.path.join(vd, f'{sn}.mp3'), os.path.join(vd, f'{sn}.json')
+    d = json.load(open(js))
+    r = json.loads(subprocess.check_output(['curl', '-sS', '-X', 'POST', 'https://api.elevenlabs.io/v1/speech-to-text', '-F', 'model_id=scribe_v1', '-F', 'language_code=jpn',
+                                            '-F', 'timestamps_granularity=character', '-F', f'file=@{mp3}']))
+    keep = lambda ch: not re.match(r'[、。！？「」『』（）・…\s,.!?　]', ch)
+    heard, times = [], []
+    for w in r['words']:
+        if w['type'] == 'spacing': continue
+        for ch in (w.get('characters') or [{'text': c, 'start': w['start'], 'end': w['end']} for c in w['text']]):
+            if keep(ch['text']): heard.append(ch['text']); times.append((ch['start'], ch['end']))
+    script, owner = [], []
+    for k, l in enumerate(d['lines']):
+        for ch in l['line']:
+            if keep(ch): script.append(ch); owner.append(k)
+    sm = difflib.SequenceMatcher(None, script, heard, autojunk=False)
+    first, last = {}, {}
+    for a, b, size in sm.get_matching_blocks():
+        for i in range(size):
+            k = owner[a + i]; t = times[b + i]
+            first.setdefault(k, t[0]); last[k] = t[1]
+    env = _env(mp3)
+    for k, l in enumerate(d['lines']):
+        if k in first:
+            # 文字起こしの時刻は少し遅れるので、実際の声の立ち上がりまで戻す
+            s0 = first[k]; i = int(s0 * 100)
+            while i > 0 and env[i - 1] > QUIET and s0 - i / 100 < 0.4: i -= 1
+            l['start'], l['end'] = round(min(s0, i / 100), 3), round(last[k], 3)
+    for k in range(len(d['lines']) - 1):
+        if d['lines'][k]['end'] > d['lines'][k + 1]['start']: d['lines'][k]['end'] = d['lines'][k + 1]['start']
+    json.dump(d, open(js, 'w'), ensure_ascii=False, indent=1)
+    return d

@@ -6,6 +6,8 @@
 3. 1行ずつ再生できるチェック用ページ（out/<話ID>/voicecheck.html）を作る
 """
 import base64, difflib, html, json, os, re, subprocess, sys, tempfile
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import voice
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 FLAG_BELOW = 0.85  # 台本との一致率がこれより低い行に印
@@ -63,13 +65,13 @@ def main():
     scenes = sorted(f[:-5] for f in os.listdir(vd) if re.fullmatch(r'\d\d\.json', f))
     with tempfile.TemporaryDirectory() as tmp:
         for n in scenes:
-            d = json.load(open(os.path.join(vd, f'{n}.json')))
+            d = voice.realign(vd, n)  # 行の時刻を実際の声から取り直す（本編と同じ区間で切るため）
             mp3 = os.path.join(vd, f'{n}.mp3')
             lines = d['lines']
+            env = voice._env(mp3)
             for i, l in enumerate(lines):
-                # 読み終わった直後で切る（行と行の間の無音を残さない）
-                a = max(0.0, l['start'] - 0.03)
-                b = min(l['end'] + 0.08, lines[i + 1]['start'] if i + 1 < len(lines) else d['duration'])
+                # 本編と同じ音を聞けるように、前後の「行と行の間の無音のまん中」で切る（差し替えのつなぎ目も含めて聞こえる）
+                a, b = voice.line_bounds(env, lines, i, d['duration'])
                 clip = os.path.join(tmp, f'{n}-{i + 1}.mp3')
                 subprocess.check_call(['ffmpeg', '-y', '-v', 'error', '-ss', f'{a:.3f}', '-to', f'{b:.3f}', '-i', mp3,
                                        '-ac', '1', '-b:a', '48k', clip])
