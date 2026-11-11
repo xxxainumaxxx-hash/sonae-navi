@@ -307,14 +307,22 @@ def realign(vd, sn):
             k = owner[a + i]; t = times[b + i]
             first.setdefault(k, t[0]); last[k] = t[1]
     env = _env(mp3)
+    orig = [(l['start'], l['end']) for l in d['lines']]
     for k, l in enumerate(d['lines']):
+        # 文字起こしの対応づけが大きく外れた行（元の時刻から1.5秒以上ずれる）は、元の時刻のままにする
+        if k in first and abs(first[k] - orig[k][0]) > 1.5: first.pop(k); last.pop(k, None)
         if k in first:
             # 文字起こしの時刻は少し遅れるので、実際の声の立ち上がりまで戻す
             s0 = first[k]; i = int(s0 * 100)
             while i > 0 and env[i - 1] > QUIET and s0 - i / 100 < 0.4: i -= 1
             l['start'], l['end'] = round(min(s0, i / 100), 3), round(last[k], 3)
+    # 順番が入れ替わった行は、元の時刻に戻す
+    for k in range(1, len(d['lines'])):
+        if d['lines'][k]['start'] <= d['lines'][k - 1]['start']:
+            d['lines'][k]['start'], d['lines'][k]['end'] = orig[k]
     for k in range(len(d['lines']) - 1):
         if d['lines'][k]['end'] > d['lines'][k + 1]['start']: d['lines'][k]['end'] = d['lines'][k + 1]['start']
+        if d['lines'][k]['end'] < d['lines'][k]['start']: d['lines'][k]['end'] = d['lines'][k + 1]['start']
     json.dump(d, open(js, 'w'), ensure_ascii=False, indent=1)
     return d
 
