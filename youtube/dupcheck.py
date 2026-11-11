@@ -224,3 +224,33 @@ def fix_patched2(ep, fix=False, lines=None):
             subprocess.check_call(['ffmpeg', '-y', '-v', 'error', '-i', mp3, '-af', f"volume=enable='{expr}':volume=0", '-b:a', '160k', tmp])
             os.replace(tmp, mp3)
     return pl, out
+
+# ---- 差し替えのつなぎ目に残った「古い出だしの切れ端」を探して消す
+# 切れ端の形：前の行が終わったあと、短い声のかたまりがあり、それが1コマ（10ms）でいきなり無音に落ちる（＝ハサミで切った跡）。
+# その後ろに本当の出だしが来る。かたまりの始まりから、切った跡までを無音にする。
+def cut_scan(ep, fix=False, only=None):
+    vd = os.path.join(ROOT, 'voice', ep); out = []
+    for f in sorted(os.listdir(vd)):
+        if not (f.endswith('.json') and f[:-5].isdigit()): continue
+        n = f[:-5]; d = json.load(open(os.path.join(vd, f))); L = d['lines']
+        mp3 = os.path.join(vd, n + '.mp3'); x = pcm(mp3); fr = 160
+        env = np.array([np.sqrt(np.mean(x[i:i + fr] ** 2)) for i in range(0, len(x) - fr, fr)])
+        cuts = []
+        for k in range(1, len(L)):
+            rid = f'{n}-{k + 1}'
+            if only and rid not in only: continue
+            s0 = L[k]['start']; lo = max(1, int((s0 - 0.35) * 100)); hi = min(len(env) - 30, int((s0 + 0.12) * 100))
+            for c in range(lo, hi):
+                # ハサミの跡：1コマで急に（1割以下に）静かになり、0.25秒以内にまた声が始まる
+                if env[c - 1] > 0.012 and env[c] < 0.008 and env[c] < env[c - 1] * 0.15 and env[c + 1:c + 25].max() > 0.02:
+                    b = c - 1
+                    while b > lo - 30 and env[max(0, b - 4):b].max() > 0.004: b -= 1
+                    if (c - b) <= 30:
+                        cuts.append((b / 100, c / 100)); out.append((ep, rid, round(b / 100, 2), round(c / 100, 2), L[k]['line'][:20]))
+                    break
+        if fix and cuts:
+            expr = '+'.join(f'between(t,{a:.3f},{b + 0.005:.3f})' for a, b in cuts)
+            tmp = mp3 + '.tmp.mp3'
+            subprocess.check_call(['ffmpeg', '-y', '-v', 'error', '-i', mp3, '-af', f"volume=enable='{expr}':volume=0", '-b:a', '160k', tmp])
+            os.replace(tmp, mp3)
+    return out

@@ -115,7 +115,8 @@ def build(lines, dst_mp3, dst_json, tmp, overrides=None):
     n = len(st)
     # 残す区間（元の音声の時刻）を作る：長い間を GAP_KEEP に詰める
     segs = []
-    cur = max(0.0, st[0] - HEAD)
+    # 1行だけ作り直すときは、出だしの子音が切れないように前を長めに残す
+    cur = max(0.0, st[0] - (0.3 if len(lines) == 1 else HEAD))
     for i in range(n - 1):
         gap = st[i + 1] - en[i]
         if gap > GAP_MAX:

@@ -25,6 +25,11 @@ const hill = (col = '#9cb98a') => poly([[-200, 900], [700, 520], [1500, 900]], {
 const burntTown = () => fill(ASH) + `<rect x="-200" y="-200" width="2400" height="700" fill="#e7c9a8" opacity="0.5"/>` + ruins(500, 880, 1.2) + ruins(1500, 880, 0.9) + floor('#8a7a6a');
 const sound = (str, x, y, tl, t0 = 0, col = RED, size = 90) => (tl > t0 ? xf(text(str, 0, 0, { size, color: col, font: 'Zen Maru Gothic', weight: 900, rot: -8 }), { x: x + Math.sin(tl * 30) * 3, y, s: popS(tl, t0) }) : '');
 const yen = (v, x, y, size, color) => big(v, x, y, size, color, { stroke: INK });
+// 乗っている人：人を先に描いてから乗り物を重ね、腰をサドルの高さに合わせる（足はフレームのうしろに隠れる）
+const BIKE_SEAT = [-95, -250], STEP_SEAT = [-100, -150];
+const ride = (bike, bx, by, bs, who, o = {}, k = 1.1, seat = BIKE_SEAT) => who({ x: bx + seat[0] * bs + 20 * bs, y: by + seat[1] * bs + 70 * k, s: k, arms: [80, -30, 80, -30], ...o }) + bike;
+// 小さな自転車屋（アイコン）
+const shopIcon = () => rect(-110, -90, 220, 150, { fill: '#e9d6b0' }) + poly([[-130, -90], [130, -90], [110, -150], [-110, -150]], { fill: RED }) + rect(-80, -60, 70, 120, { fill: C.sky, w: 4 }) + text('自転車', 50, -10, { size: 30, font: 'Zen Maru Gothic', weight: 900 }) + ellipse(50, 30, 22, 22, { fill: 'none', color: '#2b2b30', w: 5 });
 // 「技術」「経営」の札
 const tag = (str, x, y, col) => sign(str, x, y, { size: 64, fill: col, color: C.white, rot: 0 });
 
@@ -40,7 +45,7 @@ export const SHOTS = {
     // 0 戦争が終わった町で、自転車に小さなエンジンを付けた男がいた。
     [
       (tl, d) => cam(burntTown(), tl, d, { z0: 1.15, z1: 1.0 }),
-      (tl, d) => cam(fill(SEPIA) + glow(960, 560, 600, '#fff3d6', 0.4) + floor('#a07a50') + bicycle(960, 880, 1.5, { motor: tl > 0.4 }) + (tl > 0.4 ? sparkles(940, 640, 70, C.yellow) : ''), tl, d, { z0: 1.0, z1: 1.08 }),
+      (tl, d) => cam(fill(SEPIA) + glow(960, 560, 600, '#fff3d6', 0.4) + floor('#a07a50') + bicycle(960, 880, 1.5, { motor: tl > 0.4 }) + (tl > 0.4 ? sparkles(1100, 640, 70, C.yellow) : ''), tl, d, { z0: 1.0, z1: 1.08 }),
     ],
     // 1 その男が作ったバイクは、やがて世界で1億台以上も作られることになる。
     [
@@ -93,7 +98,7 @@ export const SHOTS = {
       (tl, d, t) => cam(fill('#cfe0e8') + road(800) + `<ellipse cx="1250" cy="880" rx="200" ry="46" fill="#3a3530"/>` + boy({ x: 600, y: 1560, s: 2.8, blink: true, expr: 'smile', tilt: 12 }) + [0, 1, 2].map((i) => `<path d="M ${1150 + i * 70} 850 q -60 -60 -160 -80 q -100 -20 -200 -60" fill="none" stroke="#8a7a6a" stroke-width="7" opacity="${0.55 - i * 0.12}"/>`).join('') + sound('くんくん', 1450, 380, tl, 0.3, INK, 80), tl, d, { z0: 1.05, z1: 1.12, y0: 600 }),
     ],
     // 4 「いつか、自分で車を作りたい」。
-    (tl, d, t) => cam(fill('#2a3050') + sparkles(400, 200, 60, C.yellow) + sparkles(1500, 260, 70, C.yellow) + mid(boy, 700, { blink: blinking(t, 2), expr: 'smile', arms: P.cheer, look: [1, -0.6] }) +
+    (tl, d, t) => cam(fill('#2a3050') + sparkles(880, 430, 60, C.yellow) + mid(boy, 700, { blink: blinking(t, 2), expr: 'smile', arms: P.cheer, look: [1, -0.6] }) +
       enter(bubble('いつか、自分で車を作りたい', 1250, 360, { size: 56 }), tl, 0.2, { cx: 1250, cy: 360 }) + xf(oldCar(0, 0, 0.6, { col: RED }), { x: 1300, y: 620, o: 0.9, s: popS(tl, 0.8) }), tl, d, { z0: 1.0, z1: 1.05 }),
     // 5 その夢が、宗一郎の一生を決めることになる。
     (tl, d, t) => cam(fill(CREAM) + glow(960, 500, 700, C.yellow, 0.2) + boy({ x: 560, y: 1080, s: 1.4, blink: blinking(t, 2), expr: 'smile' }) + xf(arrow(760, 600, 1160, 600, { w: 16 }), { s: popS(tl, 0.3), cx: 960, cy: 600 }) +
@@ -126,7 +131,7 @@ export const SHOTS = {
     // 2 物は少なく、町の人たちは、生きていくだけで精一杯だった。
     (tl, d, t) => cam(fill(ASH) + ruins(960, 880, 1.0) + floor('#8a7a6a') + [520, 960, 1400].map((x, i) => townsman({ x, y: 1120, s: 1.5, blink: blinking(t, i), expr: 'worry', arms: P.shrug })).join(''), tl, d, { z0: 1.0, z1: 1.04 }),
     // 3 人々は、重い荷物を積んだ自転車をこいで、遠くまで買い出しに出かけていた。
-    (tl, d, t) => cam(fill('#e7d8c0') + road() + [0, 1].map((i) => bicycle(tw(tl, 0, d, 300, 1500) - i * 700, 880, 1.1, { wheel: tl * 200, load: true }) + townsman({ x: tw(tl, 0, d, 300, 1500) - i * 700 - 40, y: 820, s: 1.1, blink: blinking(t, i), expr: 'worry', arms: P.ride, legs: Math.sin(tl * 6) })).join(''), tl, d, { z0: 1.0, z1: 1.04 }),
+    (tl, d, t) => cam(fill('#e7d8c0') + road() + [0, 1].map((i) => ride(bicycle(tw(tl, 0, d, 300, 1500) - i * 700, 880, 1.1, { wheel: tl * 200, load: true }), tw(tl, 0, d, 300, 1500) - i * 700, 880, 1.1, townsman, { blink: blinking(t, i), expr: 'worry' })).join(''), tl, d, { z0: 1.0, z1: 1.04 }),
     // 4 坂道では、汗だくになって自転車を押していた。
     (tl, d, t) => cam(fill('#e7d8c0') + `<g transform="rotate(-12 960 800)">${road(820) + bicycle(1000, 820, 1.2, { load: true }) + townsman({ x: 740, y: 1080, s: 1.6, blink: blinking(t, 1), expr: 'worry', sweat: true, arms: [60, -40, 60, -40], tilt: 15 })}</g>` +
       sound('はぁ…はぁ…', 1450, 260, tl, 0.3, INK, 70), tl, d, { z0: 1.0, z1: 1.05 }),
@@ -160,20 +165,20 @@ export const SHOTS = {
     // 4 宗一郎はこれを買い集め、自転車に取り付けた。
     [
       (tl, d, t) => cam(fill('#d8cdb8') + floor('#6a6058', 860) + [0, 1, 2].map((i) => engine(1100 + i * 230, 860 - i * 140, 0.45)).join('') + mid(soichiro, 560, { blink: blinking(t, 3), arms: P.hold, expr: 'smile' }) + engine(560, 780, 0.35), tl, d, { z0: 1.0, z1: 1.04 }),
-      (tl, d, t) => cam(fill('#d8cdb8') + floor('#6a6058', 860) + bicycle(1150, 880, 1.4, { motor: tl > 0.6 }) + mid(soichiro, 520, { blink: blinking(t, 3), arms: P.work, expr: 'smile', look: [1, 0.3] }) + (tl > 0.6 ? sparkles(1150, 600, 70, C.yellow) : ''), tl, d, { z0: 1.0, z1: 1.05 }),
+      (tl, d, t) => cam(fill('#d8cdb8') + floor('#6a6058', 860) + bicycle(1150, 880, 1.4, { motor: tl > 0.6 }) + mid(soichiro, 520, { blink: blinking(t, 3), arms: P.work, expr: 'smile', look: [1, 0.3] }) + (tl > 0.6 ? sparkles(1270, 650, 70, C.yellow) : ''), tl, d, { z0: 1.0, z1: 1.05 }),
     ],
     // 5 走ると、バタバタと大きな音がする。人々は親しみを込めて、「バタバタ」と呼んだ。
     [
-      (tl, d, t) => cam(fill('#cfe0e8') + road() + bicycle(tw(tl, 0, d, 300, 1400), 880, 1.2, { wheel: tl * 500, motor: true, smoke: 1 }) + townsman({ x: tw(tl, 0, d, 300, 1400) - 30, y: 820, s: 1.2, blink: blinking(t, 1), expr: 'smile', arms: P.ride }) +
+      (tl, d, t) => cam(fill('#cfe0e8') + road() + ride(bicycle(tw(tl, 0, d, 300, 1400), 880, 1.2, { wheel: tl * 500, motor: true, smoke: 1 }), tw(tl, 0, d, 300, 1400), 880, 1.2, townsman, { blink: blinking(t, 1), expr: 'smile' }) +
         sound('バタバタ', 1300, 300, tl, 0.2, RED, 120), tl, d, { z0: 1.0, z1: 1.04, y0: 540 + shake(tl, 0, 9, 3) }),
       (tl, d, t) => cam(fill('#fbe9d0') + floor('#b9a070') + bicycle(960, 880, 1.0, { motor: true }) + [400, 1520].map((x, i) => townsman({ x, y: 1110, s: 1.5, blink: blinking(t, i), expr: 'smile', arms: P.point, flip: x > 960 })).join('') +
         enter(bubble('「バタバタ」', 960, 280, { size: 80 }), tl, 0.2, { cx: 960, cy: 280 }), tl, d, { z0: 1.0, z1: 1.05 }),
     ],
     // 6 坂道を、こがずに登れる。それだけで、人々の暮らしは大きく変わった。
     [
-      (tl, d, t) => cam(fill('#cfe0e8') + `<g transform="rotate(-12 960 800)">${road(820) + bicycle(tw(tl, 0, d, 500, 1300), 820, 1.1, { wheel: tl * 400, motor: true, smoke: 1, load: true }) + townsman({ x: tw(tl, 0, d, 500, 1300) - 30, y: 760, s: 1.1, blink: blinking(t, 1), expr: 'smile', arms: P.ride })}</g>` +
+      (tl, d, t) => cam(fill('#cfe0e8') + `<g transform="rotate(-12 960 800)">${road(820) + ride(bicycle(tw(tl, 0, d, 500, 1300), 820, 1.1, { wheel: tl * 400, motor: true, smoke: 1, load: true }), tw(tl, 0, d, 500, 1300), 820, 1.1, townsman, { blink: blinking(t, 1), expr: 'smile' })}</g>` +
         xf(T('こがずに登れる！', 1350, 250, 80, RED, C.white), { s: popS(tl, 0.4), cx: 1350, cy: 220 }), tl, d, { z0: 1.0, z1: 1.04 }),
-      (tl, d, t) => cam(fill('#fbe9d0') + glow(960, 500, 700, '#fff', 0.3) + [520, 960, 1400].map((x, i) => townsman({ x, y: 1110, s: 1.5, blink: blinking(t, i), expr: 'smile', arms: P.cheer })).join('') + sparkles(960, 260, 80, C.yellow), tl, d, { z0: 1.0, z1: 1.05 }),
+      (tl, d, t) => cam(fill('#fbe9d0') + glow(960, 500, 700, '#fff', 0.3) + [520, 960, 1400].map((x, i) => townsman({ x, y: 1110, s: 1.5, blink: blinking(t, i), expr: 'smile', arms: P.cheer })).join('') + sparkles(1090, 560, 70, C.yellow), tl, d, { z0: 1.0, z1: 1.05 }),
     ],
     // 7 これが飛ぶように売れた。だが、余り物のエンジンは、すぐに底をつく。
     [
@@ -205,9 +210,9 @@ export const SHOTS = {
       (tl, d) => cam(fill('#cfe0e8') + floor('#b9a070') + factory(960, 880, 1.3, '#d9c9a8', false) + xf(sign('本田技研工業', 960, 400, { size: 80, fill: C.white, rot: 0 }), { s: popS(tl, 0.2), cx: 960, cy: 400 }), tl, d, { z0: 1.0, z1: 1.05 }),
     ],
     // 4 翌年には、初めての本格的なオートバイを完成させた。
-    (tl, d) => cam(fill('#fff2c8') + glow(960, 600, 600, C.yellow, 0.4) + floor('#b9a070') + xf(motorBike(0, 0, 1.6, { col: RED }), { x: 960, y: 880, s: popS(tl, 0.2), cy: -200 }) + sparkles(1400, 400, 80, C.yellow) + head('初めてのオートバイ', tl), tl, d, { z0: 1.0, z1: 1.05 }),
+    (tl, d) => cam(fill('#fff2c8') + glow(960, 600, 600, C.yellow, 0.4) + floor('#b9a070') + xf(motorBike(0, 0, 1.6, { col: RED }), { x: 960, y: 880, s: popS(tl, 0.2), cy: -200 }) + sparkles(1260, 520, 80, C.yellow) + head('初めてのオートバイ', tl), tl, d, { z0: 1.0, z1: 1.05 }),
     // 5 名前は「ドリーム」。夢という意味だ。
-    (tl, d) => cam(fill('#2a3050') + glow(960, 720, 500, '#ffffff', 0.25) + sparkles(300, 200, 60, C.yellow) + sparkles(1600, 300, 70, C.yellow) + motorBike(960, 900, 1.3, { col: RED }) + xf(T('ドリーム＝夢', 960, 300, 130, C.yellow), { s: popS(tl, 0.2), cx: 960, cy: 260 }), tl, d, { z0: 1.0, z1: 1.06 }),
+    (tl, d) => cam(fill('#2a3050') + glow(960, 720, 500, '#ffffff', 0.25) + sparkles(1220, 600, 70, C.yellow) + motorBike(960, 900, 1.3, { col: RED }) + xf(T('ドリーム＝夢', 960, 300, 130, C.yellow), { s: popS(tl, 0.2), cx: 960, cy: 260 }), tl, d, { z0: 1.0, z1: 1.06 }),
     // 6 だが、宗一郎には、ひとつ大きな弱点があった。
     (tl, d, t) => cam(fill('#3a3a44') + glow(960, 500, 500, '#fff', 0.15) + mid(soichiro, 960, { blink: blinking(t, 3), arms: P.idle, expr: 'smile' }) + xf(T('弱点', 1450, 400, 140, RED, C.white), { s: popS(tl, 0.6), cx: 1450, cy: 360 }), tl, d, { z0: 1.0, z1: 1.1 }),
     // 7 それは、会社にとって命取りにもなりかねない弱点だった。
@@ -218,7 +223,7 @@ export const SHOTS = {
   '08': [
     // 0 宗一郎は、技術のことになると夢中になる。だが、お金の計算や商売は苦手だった。
     [
-      (tl, d, t) => cam(fill('#e9dcc6') + desk(960, 920, 1.3) + blueprint(1250, 700, 0.9, 2) + mid(soichiro, 640, { blink: blinking(t, 3), arms: P.work, expr: 'smile', y: 1180, s: 1.6, look: [1, 0.3] }) + sparkles(1400, 300, 70, C.yellow), tl, d, { z0: 1.0, z1: 1.05 }),
+      (tl, d, t) => cam(fill('#e9dcc6') + desk(960, 920, 1.3) + blueprint(1250, 700, 0.9, 2) + mid(soichiro, 640, { blink: blinking(t, 3), arms: P.work, expr: 'smile', y: 1180, s: 1.6, look: [1, 0.3] }) + sparkles(820, 590, 60, C.yellow), tl, d, { z0: 1.0, z1: 1.05 }),
       (tl, d, t) => cam(fill('#e2e6ee') + mid(soichiro, 760, { blink: blinking(t, 3), arms: P.shrug, expr: 'worry', sweat: true }) + xf(text('1+1=?', 1350, 420, { size: 110, font: 'Zen Maru Gothic', weight: 900 }), { s: popS(tl, 0.3), cx: 1350, cy: 380 }) + moneyBag(1350, 700, 0.9, '¥'), tl, d, { z0: 1.0, z1: 1.05 }),
     ],
     // 1 一度考え始めると、食事も忘れて、何日も工場にこもるほどだった。
@@ -247,7 +252,7 @@ export const SHOTS = {
     // 1 藤沢は、技術のことはわからない。だが、お金と商売のことなら、誰よりもわかる男だった。
     [
       (tl, d, t) => cam(fill('#e2e6ee') + engine(1300, 760, 0.9) + mid(fujisawa, 640, { blink: blinking(t, 2), arms: P.shrug, expr: 'worry' }) + T('？？？', 1300, 380, 100, INK, C.white), tl, d, { z0: 1.0, z1: 1.05 }),
-      (tl, d, t) => cam(fill('#fff2c8') + glow(1300, 600, 500, C.yellow, 0.4) + moneyBag(1250, 700, 1.0, '¥') + mid(fujisawa, 640, { blink: blinking(t, 2), arms: P.point, expr: 'smile' }) + sparkles(1400, 360, 70, C.yellow), tl, d, { z0: 1.0, z1: 1.05 }),
+      (tl, d, t) => cam(fill('#fff2c8') + glow(1300, 600, 500, C.yellow, 0.4) + moneyBag(1250, 700, 1.0, '¥') + mid(fujisawa, 640, { blink: blinking(t, 2), arms: P.point, expr: 'smile' }) + sparkles(1400, 560, 70, C.yellow), tl, d, { z0: 1.0, z1: 1.05 }),
     ],
     // 2 だが、人の心を読み、どうすれば物が売れるかを考えるのが得意だった。
     (tl, d, t) => cam(fill('#e9dcc6') + mid(fujisawa, 600, { blink: blinking(t, 2), arms: P.think, expr: 'smile' }) + [0, 1, 2].map((i) => townsman({ x: 1150 + i * 250, y: 1100, s: 1.2, blink: blinking(t, i), expr: 'smile', flip: true })).join('') +
@@ -269,15 +274,16 @@ export const SHOTS = {
     // 6 藤沢は、全国の自転車屋に手紙を出して、ホンダのエンジンを売ってくれる店を一気に増やした。
     [
       (tl, d, t) => cam(fill('#e9dcc6') + desk(960, 920, 1.2) + mid(fujisawa, 960, { blink: blinking(t, 2), arms: P.work, expr: 'smile', y: 1180, s: 1.6 }) + [0, 1, 2, 3, 4, 5].map((i) => xf(letter(0, 0, 0.8, (i * 13) % 20 - 10), { x: lerp(960, 300 + i * 260, ease.out(clamp((tl - i * 0.2) / 0.6))), y: lerp(700, 260, ease.out(clamp((tl - i * 0.2) / 0.6))) })).join(''), tl, d, { z0: 1.0, z1: 1.04 }),
-      (tl, d) => cam(fill('#cfe6f5') + `<path d="M 1300 160 C 1450 300 1500 520 1350 680 C 1200 820 900 900 600 980 L 500 900 C 800 820 1100 700 1200 520 C 1280 380 1250 260 1200 180 Z" fill="#9cc08a" stroke="${INK}" stroke-width="7"/>` +
-        [...Array(Math.floor(clamp(tl / (d * 0.8)) * 14))].map((_, i) => ellipse(620 + ((i * 97) % 700), 880 - ((i * 53) % 640) * 0.9 + ((i * 97) % 700) * -0.25, 14, 14, { fill: RED, w: 3 })).join('') + head('自転車屋さん', tl), tl, d, { z0: 1.0, z1: 1.04 }),
+      (tl, d) => { const n = Math.floor(clamp(tl / (d * 0.8)) * 18) + 1; let s = fill('#fbe9d0');
+        for (let j = 0; j < n; j++) { const x = 220 + (j % 6) * 296, y = 420 + Math.floor(j / 6) * 220; s += xf(shopIcon(), { x, y, s: popS(tl, j * (d * 0.8) / 18, 0.25) }); }
+        return cam(s + head('自転車屋さんが、どんどん仲間に', tl), tl, d, { z0: 1.0, z1: 1.04 }); },
     ],
     // 7 その数は、あっという間に何千という店に広がった。
     (tl, d) => cam(fill('#fbe9d0') + `<rect x="360" y="380" width="1200" height="300" rx="40" fill="${INK}" opacity="0.85"/>` + yen('何千', 960, 600, 180, C.yellow) + typeText('という店に', 960, 800, tl, { size: 70, color: INK, delay: 0.6 }), tl, d, { z0: 1.0, z1: 1.05 }),
     // 8 宗一郎がいいものを作り、藤沢がそれを売る。ホンダは、ぐんぐん大きくなっていった。
     [
       (tl, d, t) => cam(fill('#fbe9d0') + mid(soichiro, 480, { blink: blinking(t, 1), arms: P.work, expr: 'smile' }) + xf(motorBike(0, 0, 0.7, { col: '#3a4a6b' }), { x: lerp(700, 1200, ease.inOut(clamp(tl / 1.2))), y: 900 }) + mid(fujisawa, 1480, { blink: blinking(t, 2), arms: P.wave, expr: 'smile', flip: true }), tl, d, { z0: 1.0, z1: 1.04 }),
-      (tl, d) => cam(fill('#cfe0e8') + floor('#b9a070') + xf(factory(0, 0, 1, '#d9c9a8', false), { x: 960, y: 880, s: lerp(0.6, 1.3, ease.out(clamp(tl / (d * 0.8)))), cx: 0, cy: 0 }) + sparkles(1500, 300, 80, C.yellow) + T('ぐんぐん', 960, 200, 100, RED, C.white), tl, d, { z0: 1.0, z1: 1.04 }),
+      (tl, d) => cam(fill('#cfe0e8') + floor('#b9a070') + xf(factory(0, 0, 1, '#d9c9a8', false), { x: 960, y: 880, s: lerp(0.6, 1.3, ease.out(clamp(tl / (d * 0.8)))), cx: 0, cy: 0 }) + sparkles(1300, 560, 80, C.yellow) + T('ぐんぐん', 960, 200, 100, RED, C.white), tl, d, { z0: 1.0, z1: 1.04 }),
     ],
   ],
 
@@ -352,15 +358,15 @@ export const SHOTS = {
     // 3 ホンダは、二つのクラスで、1位から5位までを独り占めした。
     (tl, d) => cam(fill('#cfe0e8') + road(820) + checkerFlag(1650, 820, 1.0, tl) + [0, 1, 2, 3, 4].map((i) => motorBike(tw(tl, 0, d, -300, 1500) - i * 280, 900, 0.6, { wheel: tl * 700, race: true, col: RED, num: String(i + 1) })).join('') + T('1位〜5位', 700, 260, 120, RED, C.white), tl, d, { z0: 1.0, z1: 1.04 }),
     // 4 上位に並んだのは、すべて日本のバイクだった。
-    (tl, d) => cam(fill('#fff2c8') + glow(960, 500, 700, C.yellow, 0.35) + podium(960, 900, 1.6) + [[-352, -256], [0, -384], [352, -192]].map(([dx, dy], i) => xf(motorBike(0, 0, 0.45, { race: true, col: RED, num: String([2, 1, 3][i]) }), { x: 960 + dx, y: 900 + dy, s: popS(tl, 0.2 + i * 0.2) })).join('') + sparkles(400, 300, 80, C.yellow) + sparkles(1520, 300, 80, C.yellow), tl, d, { z0: 1.0, z1: 1.05 }),
+    (tl, d) => cam(fill('#fff2c8') + glow(960, 500, 700, C.yellow, 0.35) + podium(960, 900, 1.6) + [[-352, -256], [0, -384], [352, -192]].map(([dx, dy], i) => xf(motorBike(0, 0, 0.45, { race: true, col: RED, num: String([2, 1, 3][i]) }), { x: 960 + dx, y: 900 + dy, s: popS(tl, 0.2 + i * 0.2) })).join('') + sparkles(1110, 420, 80, C.yellow), tl, d, { z0: 1.0, z1: 1.05 }),
     // 5 「無謀だ」と言われた宣言から、わずか7年。町工場のバイクが、世界の頂点に立った。
     [
       (tl, d) => cam(fill(CREAM) + T('1954', 560, 600, 130, INK, C.white) + xf(arrow(780, 560, 1140, 560, { w: 16 }), { s: popS(tl, 0.3), cx: 960, cy: 560 }) + T('1961', 1360, 600, 130, RED, C.white) + typeText('わずか7年', 960, 820, tl, { size: 90, color: RED, delay: 0.6 }), tl, d, { z0: 1.0, z1: 1.05 }),
       (tl, d, t) => cam(fill('#cfe6f5') + poly([[200, 1080], [960, 360], [1720, 1080]], { fill: '#8fa0b0' }) + poly([[800, 510], [960, 360], [1120, 510], [1040, 470], [960, 510], [880, 470]], { fill: C.white, w: 5 }) +
-        xf(motorBike(0, 0, 0.5, { col: RED, race: true }), { x: 960, y: 370 }) + line([[1150, 520], [1150, 230]], { w: 6, passes: 1 }) + poly([[1150, 230], [1290, 265], [1150, 300]], { fill: RED, w: 5 }) + sparkles(1400, 200, 70, C.yellow), tl, d, { z0: 1.05, z1: 1.0, y0: 500 }),
+        xf(motorBike(0, 0, 0.5, { col: RED, race: true }), { x: 960, y: 370 }) + line([[1150, 520], [1150, 230]], { w: 6, passes: 1 }) + poly([[1150, 230], [1290, 265], [1150, 300]], { fill: RED, w: 5 }) + sparkles(1110, 300, 70, C.yellow), tl, d, { z0: 1.05, z1: 1.0, y0: 500 }),
     ],
     // 6 日本の町工場が、世界の老舗メーカーを打ち負かしたのだ。
-    (tl, d, t) => cam(fill('#fbe9d0') + building(1400, 900, 360, 520, '#8a8f96') + factory(560, 900, 0.8, '#d9c9a8', false) + xf(T('勝った！', 560, 300, 120, RED, C.white), { s: popS(tl, 0.4), cx: 560, cy: 260 }) + sparkles(560, 420, 80, C.yellow), tl, d, { z0: 1.0, z1: 1.05 }),
+    (tl, d, t) => cam(fill('#fbe9d0') + building(1400, 900, 360, 520, '#8a8f96') + factory(560, 900, 0.8, '#d9c9a8', false) + xf(T('勝った！', 560, 300, 120, RED, C.white), { s: popS(tl, 0.4), cx: 560, cy: 260 }) + sparkles(740, 600, 80, C.yellow), tl, d, { z0: 1.0, z1: 1.05 }),
   ],
 
   // ───── そば屋の出前でも
@@ -375,13 +381,13 @@ export const SHOTS = {
     // 2 「そば屋の出前でも、片手で運転できるバイクを作ってほしい」。
     [
       (tl, d, t) => cam(fill('#fbe9d0') + mid(fujisawa, 1300, { blink: blinking(t, 2), arms: P.point, expr: 'smile', flip: true }) + mid(soichiro, 560, { blink: blinking(t, 1), expr: 'wow' }) + enter(bubble('片手で運転できるバイクを', 1100, 300, { size: 56 }), tl, 0.2, { cx: 1100, cy: 300 }), tl, d, { z0: 1.0, z1: 1.05 }),
-      (tl, d, t) => cam(fill('#cfe0e8') + road() + stepBike(tw(tl, 0, d, 400, 1300), 880, 1.2, { wheel: tl * 400, col: '#3f7a5a' }) + townsman({ x: tw(tl, 0, d, 400, 1300) - 40, y: 820, s: 1.3, shirt: C.white, blink: blinking(t, 1), expr: 'smile', arms: [12, 8, 170, 10] }) +
-        sobaTrays(tw(tl, 0, d, 400, 1300) + 30, 410 + bob(tl, 6, 2), 0.8, 6), tl, d, { z0: 1.0, z1: 1.04 }),
+      (tl, d, t) => cam(fill('#cfe0e8') + road() + ride(stepBike(tw(tl, 0, d, 400, 1300), 880, 1.2, { wheel: tl * 400, col: '#3f7a5a' }), tw(tl, 0, d, 400, 1300), 880, 1.2, townsman, { shirt: C.white, blink: blinking(t, 1), expr: 'smile', arms: [80, -30, 175, 8] }, 1.3, STEP_SEAT) +
+        sobaTrays(tw(tl, 0, d, 400, 1300) - 30, 440 + bob(tl, 6, 2), 0.8, 6), tl, d, { z0: 1.0, z1: 1.04 }),
     ],
     // 3 藤沢の注文から生まれたと言われるのが、1958年の「スーパーカブ」だ。
     [
       (tl) => blackType('1958年', tl),
-      (tl, d) => cam(fill('#fff2c8') + glow(960, 600, 600, C.yellow, 0.4) + floor('#b9a070') + xf(stepBike(0, 0, 1.8, { col: '#3f7a5a' }), { x: 960, y: 900, s: popS(tl, 0.2), cy: -150 }) + sparkles(1450, 380, 80, C.yellow) +
+      (tl, d) => cam(fill('#fff2c8') + glow(960, 600, 600, C.yellow, 0.4) + floor('#b9a070') + xf(stepBike(0, 0, 1.8, { col: '#3f7a5a' }), { x: 960, y: 900, s: popS(tl, 0.2), cy: -150 }) + sparkles(1260, 560, 80, C.yellow) +
         xf(T('スーパーカブ', 960, 230, 120, RED, C.white), { s: popS(tl, 0.4), cx: 960, cy: 190 }), tl, d, { z0: 1.0, z1: 1.05 }),
     ],
     // 4 宗一郎は、何度も設計を描き直し、乗りやすさを追い求めた。
@@ -412,9 +418,8 @@ export const SHOTS = {
     (tl, d) => cam(fill('#cfe6f5') + worldMap(960, 560, 1.4, [0, 1, 2, 3, 4, 5].slice(0, Math.floor(clamp(tl / (d * 0.8)) * 6) + 1)), tl, d, { z0: 1.0, z1: 1.06 }),
     // 1 アジアの町では、家族を乗せて走る姿や、荷物を山のように積んだ姿が見られる。
     [
-      (tl, d, t) => cam(fill('#f5e2c0') + road() + stepBike(tw(tl, 0, d, 400, 1300), 880, 1.2, { wheel: tl * 400, col: RED }) + [0, 1, 2].map((i) => kid({ x: tw(tl, 0, d, 400, 1300) - 60 - i * 70, y: 820 - i * 0, s: 1.1 - i * 0.2, hair: i === 1 ? 'bob' : 'messy', shirt: [C.blue, C.pink, C.yellow][i], blink: blinking(t, i), expr: 'smile', arms: P.ride })).join(''), tl, d, { z0: 1.0, z1: 1.04 }),
-      (tl, d, t) => cam(fill('#f5e2c0') + road() + stepBike(tw(tl, 0, d, 400, 1300), 880, 1.2, { wheel: tl * 400, col: '#3a4a6b' }) + [0, 1, 2, 3].map((i) => rect(tw(tl, 0, d, 400, 1300) - 230, 520 - i * 90, 200, 90, { fill: ['#c9a46a', '#a0c08a', '#d9c08a', '#c98a6a'][i] })).join('') +
-        townsman({ x: tw(tl, 0, d, 400, 1300) - 20, y: 820, s: 1.3, blink: blinking(t, 1), expr: 'smile', arms: P.ride }), tl, d, { z0: 1.0, z1: 1.04 }),
+      (tl, d, t) => { const bx = tw(tl, 0, d, 400, 1300); return cam(fill('#f5e2c0') + road() + [[-60, 0.8, 'bob', C.pink], [60, 0.75, 'messy', C.yellow]].map(([dx, k, h, sh], i) => kid({ x: bx - 100 * 1.2 + 20 + dx, y: 880 - 150 * 1.2 + 70 * k, s: k, hair: h, shirt: sh, blink: blinking(t, i + 2), expr: 'smile', arms: [80, -30, 80, -30] })).join('') + ride(stepBike(bx, 880, 1.2, { wheel: tl * 400, col: RED }), bx, 880, 1.2, kid, { hair: 'messy', shirt: C.blue, blink: blinking(t, 1), expr: 'smile' }, 1.0, STEP_SEAT), tl, d, { z0: 1.0, z1: 1.04 }); },
+      (tl, d, t) => cam(fill('#f5e2c0') + road() + ride(stepBike(tw(tl, 0, d, 400, 1300), 880, 1.2, { wheel: tl * 400, col: '#3a4a6b' }), tw(tl, 0, d, 400, 1300), 880, 1.2, townsman, { blink: blinking(t, 1), expr: 'smile' }, 1.2, STEP_SEAT) + [0, 1, 2, 3].map((i) => rect(tw(tl, 0, d, 400, 1300) - 330, 640 - i * 90, 200, 90, { fill: ['#c9a46a', '#a0c08a', '#d9c08a', '#c98a6a'][i] })).join(''), tl, d, { z0: 1.0, z1: 1.04 }),
     ],
     // 2 「壊れない」「どこでも直せる」。その信頼が、世界に広がった。
     [
@@ -424,7 +429,7 @@ export const SHOTS = {
     // 3 そして2017年、スーパーカブシリーズの生産は、累計で1億台を超えた。
     [
       (tl) => blackType('2017年', tl),
-      (tl, d) => cam(fill(DRED) + glow(960, 540, 700, '#fff', 0.15) + `<rect x="260" y="380" width="1400" height="320" rx="40" fill="${INK}" opacity="0.85"/>` + yen(countUp(100000000, tl, 1.4), 960, 600, 160, C.yellow) + typeText('台を突破', 960, 690, tl, { size: 60, color: C.white, delay: 1.2 }) + (tl > 1.4 ? sparkles(1600, 300, 90, C.yellow) + sparkles(320, 300, 90, C.yellow) : ''), tl, d, { z0: 1.0, z1: 1.05 }),
+      (tl, d) => cam(fill(DRED) + glow(960, 540, 700, '#fff', 0.15) + `<rect x="260" y="380" width="1400" height="320" rx="40" fill="${INK}" opacity="0.85"/>` + yen(countUp(100000000, tl, 1.4), 960, 600, 160, C.yellow) + typeText('台を突破', 960, 690, tl, { size: 60, color: C.white, delay: 1.2 }) + (tl > 1.4 ? sparkles(1680, 400, 90, C.yellow) : ''), tl, d, { z0: 1.0, z1: 1.05 }),
     ],
     // 4 乗り物として、世界で最も多く作られたものの一つと言われている。
     (tl, d) => cam(fill('#fff2c8') + glow(960, 560, 600, C.yellow, 0.35) + trophy(960, 640, 1.4) + xf(T('世界でいちばん多い乗り物の一つ', 960, 220, 80, RED, C.white), { s: popS(tl, 0.3), cx: 960, cy: 180 }), tl, d, { z0: 1.0, z1: 1.05 }),
@@ -458,7 +463,7 @@ export const SHOTS = {
     // 2 苦手なことは、信頼できる相棒に任せた。
     (tl, d, t) => cam(fill('#fff2c8') + glow(960, 560, 600, C.yellow, 0.35) + soichiro({ x: 680, y: 1180, s: 2.0, blink: blinking(t, 1), arms: [12, 8, 70, -30], expr: 'smile' }) + fujisawa({ x: 1240, y: 1180, s: 2.0, blink: blinking(t, 2), arms: [12, 8, 70, -30], expr: 'smile', flip: true }) + tag('相棒', 960, 220, RED), tl, d, { z0: 1.0, z1: 1.06 }),
     // 3 「無謀だ」と言われた夢を、本当にかなえてしまった。
-    (tl, d) => cam(fill('#fff2c8') + glow(960, 500, 700, C.yellow, 0.35) + podium(960, 900, 1.6) + [[-352, -256], [0, -384], [352, -192]].map(([dx, dy], i) => motorBike(960 + dx, 900 + dy, 0.45, { race: true, col: RED, num: String([2, 1, 3][i]) })).join('') + sparkles(400, 300, 80, C.yellow), tl, d, { z0: 1.06, z1: 1.0 }),
+    (tl, d) => cam(fill('#fff2c8') + glow(960, 500, 700, C.yellow, 0.35) + podium(960, 900, 1.6) + [[-352, -256], [0, -384], [352, -192]].map(([dx, dy], i) => motorBike(960 + dx, 900 + dy, 0.45, { race: true, col: RED, num: String([2, 1, 3][i]) })).join('') + sparkles(1110, 420, 80, C.yellow), tl, d, { z0: 1.06, z1: 1.0 }),
     // 4 ホンダの始まりは、余り物の小さなエンジンと、二人の男の約束だった。
     [
       (tl, d) => cam(fill(SEPIA) + glow(960, 560, 500, '#fff3d6', 0.4) + engine(960, 700, 1.1), tl, d, { z0: 1.1, z1: 1.0 }),
