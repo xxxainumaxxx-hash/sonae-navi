@@ -32,8 +32,8 @@ const LIST = [
   ],
   // 5 坂道も、こがずに登れる。これが飛ぶように売れた。
   [
-    (tl, d, t) => cam(fill('#cfe0e8') + `<g transform="rotate(-14 540 1100)">${road(1120) + onBike(tw(tl, 0, d, 200, 900), 1120, 1.05, { ...TOWN, theta: 0.6, blink: blinking(t, 1) }, { wheel: tl * 400, motor: true, smoke: 1, load: true })}</g>` +
-      xf(T('こがずに登れる！', 540, 440, 80, RED, C.white), { s: popS(tl, 0.4), cx: 540, cy: 400 }), tl, d, { z0: 1.0, z1: 1.04 }),
+    (tl, d, t) => cam(fill('#cfe0e8') + `<g transform="rotate(-14 540 1250)">${road(1280) + onBike(tw(tl, 0, d, 200, 860), 1280, 1.0, { ...TOWN, theta: 0.6, blink: blinking(t, 1) }, { wheel: tl * 400, motor: true, smoke: 1, load: true })}</g>` +
+      xf(T('こがずに登れる！', 540, 560, 76, RED, C.white), { s: popS(tl, 0.4), cx: 540, cy: 530 }), tl, d, { z0: 1.0, z1: 1.04 }),
     (tl, d) => cam(fill('#fff2c8') + road(1150) + [0, 1, 2].map((i) => xf(bicycle(0, 0, 0.55, { motor: true }), { x: 200 + i * 340, y: 1150 - (i % 2) * 40, s: popS(tl, i * 0.15) })).join('') + xf(T('売れた！', 540, 560, 140, RED, C.white), { s: popS(tl, 0.3), cx: 540, cy: 520 }), tl, d, { z0: 1.0, z1: 1.05 }),
   ],
   // 6 あなたなら、自転車に何を付けたい？
