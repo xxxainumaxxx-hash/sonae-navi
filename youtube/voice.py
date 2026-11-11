@@ -317,3 +317,34 @@ def realign(vd, sn):
         if d['lines'][k]['end'] > d['lines'][k + 1]['start']: d['lines'][k]['end'] = d['lines'][k + 1]['start']
     json.dump(d, open(js, 'w'), ensure_ascii=False, indent=1)
     return d
+
+
+def assemble(ep, parts):
+    """ショートの声を、行ごとに「借りてくる」：本編でOKになった行はその声をそのまま切り出し、
+    ショートだけの行はショート用に作った声から切り出して、順番につなぐ。
+    parts: [{'line': 字幕の文, 'src': 声のフォルダ（例 voice/13-honda）, 'sn': '05', 'k': 0始まりの行番号}]"""
+    vd = os.path.join(ROOT, 'voice', ep)
+    with tempfile.TemporaryDirectory() as tmp:
+        clips, out, t = [], [], 0.0
+        cache = {}
+        for i, p in enumerate(parts):
+            key = (p['src'], p['sn'])
+            if key not in cache:
+                src_mp3 = os.path.join(p['src'], f"{p['sn']}.mp3")
+                d = json.load(open(os.path.join(p['src'], f"{p['sn']}.json")))
+                cache[key] = (src_mp3, d, _env(src_mp3))
+            src_mp3, d, env = cache[key]
+            a, b = line_bounds(env, d['lines'], p['k'], d['duration'])
+            if i == 0: a = max(a, d['lines'][p['k']]['start'] - 0.1)  # 最初の行は頭の無音を短く
+            c = os.path.join(tmp, f'c{i}.wav')
+            subprocess.check_call(['ffmpeg', '-y', '-v', 'error', '-i', src_mp3, '-ss', f'{a:.3f}', '-to', f'{b:.3f}', '-ac', '1', '-ar', '44100', c])
+            clips.append(c)
+            src_line = d['lines'][p['k']]
+            out.append({'line': p['line'], 'spoken': src_line.get('spoken', src_line['line']), 'start': round(t + src_line['start'] - a, 3), 'end': round(t + src_line['end'] - a, 3), 'from': f"{os.path.basename(p['src'])}:{p['sn']}-{p['k'] + 1}"})
+            t += b - a
+        lst = os.path.join(tmp, 'l.txt'); open(lst, 'w').write(''.join(f"file '{c}'\n" for c in clips))
+        dst = os.path.join(vd, '01.mp3')
+        subprocess.check_call(['ffmpeg', '-y', '-v', 'error', '-f', 'concat', '-safe', '0', '-i', lst, '-b:a', '160k', dst])
+    dur = float(subprocess.check_output(['ffprobe', '-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', dst]))
+    json.dump({'duration': dur, 'lines': out}, open(os.path.join(vd, '01.json'), 'w'), ensure_ascii=False, indent=1)
+    return out
