@@ -5,7 +5,7 @@ import { tw, popS, xf, enter, bob, shake, blinking, ease, lerp, clamp } from '..
 import { kid, guide, worker } from '../lib/cfolk.mjs';
 import { sign, bubble, cross, gear, building, townRow, chartDown, trophy, houseFrame, bulb, desk, sneakyCat as cat } from '../lib/cprops.mjs';
 import { engine, factory, moneyBag, oldCar } from '../lib/cprops2.mjs';
-import { bicycle, motorBike, stepBike, sobaTrays, ruins, oldTrain, island, checkerFlag, podium, worldMap, billPile, phone, letter, blueprint, anvil, jet, oilJar } from '../lib/cprops3.mjs';
+import { sideRider, bicycle, motorBike, stepBike, sobaTrays, ruins, oldTrain, island, checkerFlag, podium, worldMap, billPile, phone, letter, blueprint, anvil, jet, oilJar } from '../lib/cprops3.mjs';
 import { cam, typeText, countUp, big, fill, glow } from '../lib/shots.mjs';
 
 const RED = '#c8423a', DRED = '#9a2e28', CREAM = '#fbf3e6', INK = '#2b2622', SEPIA = '#ead2a6', DUSK = '#e8d6c0', ASH = '#cfc6bc';
@@ -25,9 +25,14 @@ const hill = (col = '#9cb98a') => poly([[-200, 900], [700, 520], [1500, 900]], {
 const burntTown = () => fill(ASH) + `<rect x="-200" y="-200" width="2400" height="700" fill="#e7c9a8" opacity="0.5"/>` + ruins(500, 880, 1.2) + ruins(1500, 880, 0.9) + floor('#8a7a6a');
 const sound = (str, x, y, tl, t0 = 0, col = RED, size = 90) => (tl > t0 ? xf(text(str, 0, 0, { size, color: col, font: 'Zen Maru Gothic', weight: 900, rot: -8 }), { x: x + Math.sin(tl * 30) * 3, y, s: popS(tl, t0) }) : '');
 const yen = (v, x, y, size, color) => big(v, x, y, size, color, { stroke: INK });
-// 乗っている人：人を先に描いてから乗り物を重ね、腰をサドルの高さに合わせる（足はフレームのうしろに隠れる）
-const BIKE_SEAT = [-95, -250], STEP_SEAT = [-100, -150];
-const ride = (bike, bx, by, bs, who, o = {}, k = 1.1, seat = BIKE_SEAT) => who({ x: bx + seat[0] * bs + 20 * bs, y: by + seat[1] * bs + 70 * k, s: k, arms: [80, -30, 80, -30], ...o }) + bike;
+// 乗っている人（横向き・座ってこぐ）：うしろの足 → 乗り物 → 体と手前の足 の順に重ねる
+const onBike = (x, y, s, o = {}, bo = {}) => { const r = sideRider(x, y, s, o); return r.back + bicycle(x, y, s, bo) + r.front; };
+const STEP = { hip: [-100, -168], grip: [165, -252], foot: [-10, -78] };
+const onStep = (x, y, s, o = {}, bo = {}, extra = []) => {
+  const rs = [sideRider(x, y, s, { ...STEP, ...o }), ...extra.map((e) => sideRider(x, y, s, { ...STEP, ...e }))];
+  return rs.map((r) => r.back).join('') + stepBike(x, y, s, bo) + rs.map((r) => r.front).join('');
+};
+const TOWN = { shirt: '#7a6a58', pants: '#4a4038' };
 // 小さな自転車屋（アイコン）
 const shopIcon = () => rect(-110, -90, 220, 150, { fill: '#e9d6b0' }) + poly([[-130, -90], [130, -90], [110, -150], [-110, -150]], { fill: RED }) + rect(-80, -60, 70, 120, { fill: C.sky, w: 4 }) + text('自転車', 50, -10, { size: 30, font: 'Zen Maru Gothic', weight: 900 }) + ellipse(50, 30, 22, 22, { fill: 'none', color: '#2b2b30', w: 5 });
 // 「技術」「経営」の札
@@ -131,7 +136,7 @@ export const SHOTS = {
     // 2 物は少なく、町の人たちは、生きていくだけで精一杯だった。
     (tl, d, t) => cam(fill(ASH) + ruins(960, 880, 1.0) + floor('#8a7a6a') + [520, 960, 1400].map((x, i) => townsman({ x, y: 1120, s: 1.5, blink: blinking(t, i), expr: 'worry', arms: P.shrug })).join(''), tl, d, { z0: 1.0, z1: 1.04 }),
     // 3 人々は、重い荷物を積んだ自転車をこいで、遠くまで買い出しに出かけていた。
-    (tl, d, t) => cam(fill('#e7d8c0') + road() + [0, 1].map((i) => ride(bicycle(tw(tl, 0, d, 300, 1500) - i * 700, 880, 1.1, { wheel: tl * 200, load: true }), tw(tl, 0, d, 300, 1500) - i * 700, 880, 1.1, townsman, { blink: blinking(t, i), expr: 'worry' })).join(''), tl, d, { z0: 1.0, z1: 1.04 }),
+    (tl, d, t) => cam(fill('#e7d8c0') + road() + [0, 1].map((i) => onBike(tw(tl, 0, d, 300, 1500) - i * 700, 880, 1.1, { ...TOWN, theta: tl * 5 + i, smile: false, blink: blinking(t, i) }, { wheel: tl * 200, load: true })).join(''), tl, d, { z0: 1.0, z1: 1.04 }),
     // 4 坂道では、汗だくになって自転車を押していた。
     (tl, d, t) => cam(fill('#e7d8c0') + `<g transform="rotate(-12 960 800)">${road(820) + bicycle(1000, 820, 1.2, { load: true }) + townsman({ x: 740, y: 1080, s: 1.6, blink: blinking(t, 1), expr: 'worry', sweat: true, arms: [60, -40, 60, -40], tilt: 15 })}</g>` +
       sound('はぁ…はぁ…', 1450, 260, tl, 0.3, INK, 70), tl, d, { z0: 1.0, z1: 1.05 }),
@@ -169,15 +174,15 @@ export const SHOTS = {
     ],
     // 5 走ると、バタバタと大きな音がする。人々は親しみを込めて、「バタバタ」と呼んだ。
     [
-      (tl, d, t) => cam(fill('#cfe0e8') + road() + ride(bicycle(tw(tl, 0, d, 300, 1400), 880, 1.2, { wheel: tl * 500, motor: true, smoke: 1 }), tw(tl, 0, d, 300, 1400), 880, 1.2, townsman, { blink: blinking(t, 1), expr: 'smile' }) +
-        sound('バタバタ', 1300, 300, tl, 0.2, RED, 120), tl, d, { z0: 1.0, z1: 1.04, y0: 540 + shake(tl, 0, 9, 3) }),
+      (tl, d, t) => cam(fill('#cfe0e8') + road() + onBike(tw(tl, 0, d, 300, 1400), 880, 1.2, { ...TOWN, theta: tl * 3, blink: blinking(t, 1) }, { wheel: tl * 500, motor: true, smoke: 1 }) +
+        sound('バタバタ', tw(tl, 0, d, 300, 1400) - 420, 560, tl, 0.2, RED, 110), tl, d, { z0: 1.0, z1: 1.04, y0: 540 + shake(tl, 0, 9, 3) }),
       (tl, d, t) => cam(fill('#fbe9d0') + floor('#b9a070') + bicycle(960, 880, 1.0, { motor: true }) + [400, 1520].map((x, i) => townsman({ x, y: 1110, s: 1.5, blink: blinking(t, i), expr: 'smile', arms: P.point, flip: x > 960 })).join('') +
         enter(bubble('「バタバタ」', 960, 280, { size: 80 }), tl, 0.2, { cx: 960, cy: 280 }), tl, d, { z0: 1.0, z1: 1.05 }),
     ],
     // 6 坂道を、こがずに登れる。それだけで、人々の暮らしは大きく変わった。
     [
-      (tl, d, t) => cam(fill('#cfe0e8') + `<g transform="rotate(-12 960 800)">${road(820) + ride(bicycle(tw(tl, 0, d, 500, 1300), 820, 1.1, { wheel: tl * 400, motor: true, smoke: 1, load: true }), tw(tl, 0, d, 500, 1300), 820, 1.1, townsman, { blink: blinking(t, 1), expr: 'smile' })}</g>` +
-        xf(T('こがずに登れる！', 1350, 250, 80, RED, C.white), { s: popS(tl, 0.4), cx: 1350, cy: 220 }), tl, d, { z0: 1.0, z1: 1.04 }),
+      (tl, d, t) => cam(fill('#cfe0e8') + `<g transform="rotate(-12 960 800)">${road(820) + onBike(tw(tl, 0, d, 500, 1300), 820, 1.1, { ...TOWN, theta: 0.6, blink: blinking(t, 1) }, { wheel: tl * 400, motor: true, smoke: 1, load: true })}</g>` +
+        xf(T('こがずに登れる！', 560, 200, 80, RED, C.white), { s: popS(tl, 0.4), cx: 560, cy: 170 }), tl, d, { z0: 1.0, z1: 1.04 }),
       (tl, d, t) => cam(fill('#fbe9d0') + glow(960, 500, 700, '#fff', 0.3) + [520, 960, 1400].map((x, i) => townsman({ x, y: 1110, s: 1.5, blink: blinking(t, i), expr: 'smile', arms: P.cheer })).join('') + sparkles(1090, 560, 70, C.yellow), tl, d, { z0: 1.0, z1: 1.05 }),
     ],
     // 7 これが飛ぶように売れた。だが、余り物のエンジンは、すぐに底をつく。
@@ -381,8 +386,8 @@ export const SHOTS = {
     // 2 「そば屋の出前でも、片手で運転できるバイクを作ってほしい」。
     [
       (tl, d, t) => cam(fill('#fbe9d0') + mid(fujisawa, 1300, { blink: blinking(t, 2), arms: P.point, expr: 'smile', flip: true }) + mid(soichiro, 560, { blink: blinking(t, 1), expr: 'wow' }) + enter(bubble('片手で運転できるバイクを', 1100, 300, { size: 56 }), tl, 0.2, { cx: 1100, cy: 300 }), tl, d, { z0: 1.0, z1: 1.05 }),
-      (tl, d, t) => cam(fill('#cfe0e8') + road() + ride(stepBike(tw(tl, 0, d, 400, 1300), 880, 1.2, { wheel: tl * 400, col: '#3f7a5a' }), tw(tl, 0, d, 400, 1300), 880, 1.2, townsman, { shirt: C.white, blink: blinking(t, 1), expr: 'smile', arms: [80, -30, 175, 8] }, 1.3, STEP_SEAT) +
-        sobaTrays(tw(tl, 0, d, 400, 1300) - 30, 440 + bob(tl, 6, 2), 0.8, 6), tl, d, { z0: 1.0, z1: 1.04 }),
+      (tl, d, t) => cam(fill('#cfe0e8') + road() + onStep(tw(tl, 0, d, 400, 1300), 880, 1.2, { shirt: C.white, pants: '#4a4038', armUp: true, blink: blinking(t, 1) }, { wheel: tl * 400, col: '#3f7a5a' }) +
+        sobaTrays(tw(tl, 0, d, 400, 1300) - 102, 880 - 478 * 1.2 - 4 + bob(tl, 4, 2), 0.8, 6), tl, d, { z0: 1.0, z1: 1.04 }),
     ],
     // 3 藤沢の注文から生まれたと言われるのが、1958年の「スーパーカブ」だ。
     [
@@ -418,8 +423,8 @@ export const SHOTS = {
     (tl, d) => cam(fill('#cfe6f5') + worldMap(960, 560, 1.4, [0, 1, 2, 3, 4, 5].slice(0, Math.floor(clamp(tl / (d * 0.8)) * 6) + 1)), tl, d, { z0: 1.0, z1: 1.06 }),
     // 1 アジアの町では、家族を乗せて走る姿や、荷物を山のように積んだ姿が見られる。
     [
-      (tl, d, t) => { const bx = tw(tl, 0, d, 400, 1300); return cam(fill('#f5e2c0') + road() + [[-60, 0.8, 'bob', C.pink], [60, 0.75, 'messy', C.yellow]].map(([dx, k, h, sh], i) => kid({ x: bx - 100 * 1.2 + 20 + dx, y: 880 - 150 * 1.2 + 70 * k, s: k, hair: h, shirt: sh, blink: blinking(t, i + 2), expr: 'smile', arms: [80, -30, 80, -30] })).join('') + ride(stepBike(bx, 880, 1.2, { wheel: tl * 400, col: RED }), bx, 880, 1.2, kid, { hair: 'messy', shirt: C.blue, blink: blinking(t, 1), expr: 'smile' }, 1.0, STEP_SEAT), tl, d, { z0: 1.0, z1: 1.04 }); },
-      (tl, d, t) => cam(fill('#f5e2c0') + road() + ride(stepBike(tw(tl, 0, d, 400, 1300), 880, 1.2, { wheel: tl * 400, col: '#3a4a6b' }), tw(tl, 0, d, 400, 1300), 880, 1.2, townsman, { blink: blinking(t, 1), expr: 'smile' }, 1.2, STEP_SEAT) + [0, 1, 2, 3].map((i) => rect(tw(tl, 0, d, 400, 1300) - 330, 640 - i * 90, 200, 90, { fill: ['#c9a46a', '#a0c08a', '#d9c08a', '#c98a6a'][i] })).join(''), tl, d, { z0: 1.0, z1: 1.04 }),
+      (tl, d, t) => { const bx = tw(tl, 0, d, 400, 1300); return cam(fill('#f5e2c0') + road() + onStep(bx, 880, 1.2, { shirt: C.blue, pants: '#3b4a6b', blink: blinking(t, 1) }, { wheel: tl * 400, col: RED }, [{ hip: [-175, -165], grip: [-70, -330], k: 0.85, shirt: C.pink, pants: '#5a4a6a', hair: '#3a2420', blink: blinking(t, 2) }, { hip: [-5, -170], grip: [150, -250], foot: [50, -80], k: 0.6, shirt: C.yellow, blink: blinking(t, 3) }]), tl, d, { z0: 1.0, z1: 1.04 }); },
+      (tl, d, t) => cam(fill('#f5e2c0') + road() + [0, 1, 2, 3].map((i) => rect(tw(tl, 0, d, 400, 1300) - 400, 700 - i * 90, 200, 90, { fill: ['#c9a46a', '#a0c08a', '#d9c08a', '#c98a6a'][i] })).join('') + onStep(tw(tl, 0, d, 400, 1300), 880, 1.2, { ...TOWN, blink: blinking(t, 1) }, { wheel: tl * 400, col: '#3a4a6b' }), tl, d, { z0: 1.0, z1: 1.04 }),
     ],
     // 2 「壊れない」「どこでも直せる」。その信頼が、世界に広がった。
     [

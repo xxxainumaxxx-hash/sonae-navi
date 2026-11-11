@@ -164,3 +164,44 @@ export function jet(x, y, s = 1) {
 export function oilJar(x, y, s = 1) {
   return g(rect(-50, -120, 100, 120, { fill: '#c99a4a' }) + rect(-30, -150, 60, 32, { fill: '#7a5a34', w: 4 }) + text('油', 0, -40, { size: 50, font: 'Zen Maru Gothic', weight: 900 }), x, y, s);
 }
+
+// ───── 横向きで乗っている人（右向き）。自転車・小さなバイクと一緒に使う
+// x, y, s：乗り物と同じ位置と大きさ。hip：腰（サドルの上）、grip：ハンドルを握る手の位置、
+// crank：ペダルの軸（自転車）、theta：ペダルの角度（こいでいるとき回す）、foot：足を置く場所（バイク。crank の代わり）
+// back / front を分けて返す：うしろ側の足は乗り物の奥、手前の足と体は乗り物の手前に描く
+const SKIN = '#f6d2b0';
+function legIK(hx, hy, fx, fy, L1, L2) {
+  const dx = fx - hx, dy = fy - hy, dist = Math.min(L1 + L2 - 1, Math.hypot(dx, dy));
+  const a = Math.atan2(dy, dx), c = Math.acos((L1 * L1 + dist * dist - L2 * L2) / (2 * L1 * dist));
+  const ka = a - c; // ひざは前（右）に出す
+  return [hx + Math.cos(ka) * L1, hy + Math.sin(ka) * L1];
+}
+export function sideRider(x, y, s = 1, { hip = [-95, -275], grip = [118, -268], crank = [-40, -80], theta = 0, foot = null, hair = '#2a2420', shirt = '#7a6a58', pants = '#4a4038', k = 1, armUp = false, blink = false, smile = true } = {}) {
+  const L1 = 92 * k, L2 = 96 * k;
+  const pedal = (ang) => foot ? foot : [crank[0] + Math.cos(ang) * 38, crank[1] + Math.sin(ang) * 38];
+  const leg = (ang, col, shoe) => {
+    const [fx, fy] = pedal(ang), [kx, ky] = legIK(hip[0], hip[1], fx, fy, L1, L2);
+    return line([[hip[0], hip[1]], [kx, ky], [fx, fy]], { w: 26 * k, color: col, passes: 1 }) + ellipse(fx + 10, fy + 4, 24 * k, 12 * k, { fill: shoe, w: 4 });
+  };
+  const back = leg(theta + Math.PI, '#3a3330', '#1e1a18');
+  // 体（前かがみ）
+  const sh = [hip[0] + 55 * k, hip[1] - 140 * k];
+  let f = leg(theta, pants, C.dark);
+  f += poly([[hip[0] - 30 * k, hip[1] + 10], [hip[0] + 28 * k, hip[1] + 12], [sh[0] + 34 * k, sh[1] + 8], [sh[0] - 30 * k, sh[1] - 6]], { fill: shirt });
+  // 腕（ひじを少し曲げてハンドルへ。armUp なら上に上げる）
+  // armUp：もう片方の手を頭の上に上げる（出前のせいろを持つ）。頭のうしろ側なので、頭より先に描く
+  if (armUp) f += line([[sh[0] - 10 * k, sh[1]], [sh[0] - 55 * k, sh[1] - 85 * k], [sh[0] - 40 * k, sh[1] - 170 * k]], { w: 20 * k, color: shirt, passes: 1 }) + ellipse(sh[0] - 40 * k, sh[1] - 170 * k, 14 * k, 14 * k, { fill: SKIN, w: 4 });
+  const hand = grip;
+  const el = [(sh[0] + hand[0]) / 2 + 6, (sh[1] + hand[1]) / 2 + 26 * k];
+  f += line([[sh[0], sh[1]], el, hand], { w: 20 * k, color: shirt, passes: 1 }) + ellipse(hand[0], hand[1], 14 * k, 14 * k, { fill: SKIN, w: 4 });
+  // 頭（横顔・右向き）
+  const hx = sh[0] + 24 * k, hy = sh[1] - 78 * k, r = 66 * k;
+  f += ellipse(hx, hy, r, r * 0.95, { fill: SKIN });
+  f += ellipse(hx + r * 0.95, hy + r * 0.12, 10 * k, 12 * k, { fill: SKIN, w: 4 }); // 鼻
+  f += poly([[hx - r * 1.02, hy + r * 0.3], [hx - r * 1.05, hy - r * 0.4], [hx - r * 0.6, hy - r * 0.95], [hx + r * 0.2, hy - r * 1.05], [hx + r * 0.85, hy - r * 0.6], [hx + r * 0.55, hy - r * 0.45], [hx - r * 0.05, hy - r * 0.55], [hx - r * 0.35, hy - r * 0.1], [hx - r * 0.5, hy + r * 0.45]], { fill: hair });
+  f += ellipse(hx - r * 0.25, hy + r * 0.05, 12 * k, 14 * k, { fill: SKIN, w: 4 }); // 耳
+  f += blink ? line([[hx + r * 0.42, hy - r * 0.05], [hx + r * 0.62, hy - r * 0.05]], { w: 5, passes: 1 }) : ellipse(hx + r * 0.52, hy - r * 0.08, 6 * k, 8 * k, { fill: C.ink, w: 3 });
+  f += ellipse(hx + r * 0.45, hy + r * 0.35, 13 * k, 8 * k, { fill: C.pink, color: null });
+  f += smile ? `<path d="M ${hx + r * 0.55} ${hy + r * 0.5} q ${12 * k} ${10 * k} ${24 * k} ${-2 * k}" fill="none" stroke="${C.ink}" stroke-width="5" stroke-linecap="round"/>` : line([[hx + r * 0.55, hy + r * 0.55], [hx + r * 0.78, hy + r * 0.55]], { w: 5, passes: 1 });
+  return { back: g(back, x, y, s), front: g(f, x, y, s) };
+}
