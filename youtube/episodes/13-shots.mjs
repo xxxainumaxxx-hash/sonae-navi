@@ -244,7 +244,7 @@ export const SHOTS = {
     ],
     // 3 気に入らないと、作りかけの部品を放り投げてしまうこともあったと言われている。
     (tl, d, t) => { const k = clamp((tl - 0.6) / 0.8); return cam(fill('#d8cdb8') + floor('#6a6058', 860) + mid(soichiro, 600, { blink: blinking(t, 3), arms: tl < 0.6 ? P.hold : P.cheer, expr: 'angry' }) +
-      xf(gear(0, 0, 50, tl * 400, '#9aa0a8'), { x: lerp(600, 1600, k), y: lerp(600, 760, k) - Math.sin(k * Math.PI) * 300 }) + sound('ポイッ', 1350, 320, tl, 0.6), tl, d, { z0: 1.0, z1: 1.05 }); },
+      xf(gear(0, 0, 50, tl * 400, '#9aa0a8'), { x: lerp(780, 1600, k), y: lerp(780, 760, k) - Math.sin(k * Math.PI) * 300 }) + sound('ポイッ', 1350, 320, tl, 0.6), tl, d, { z0: 1.0, z1: 1.05 }); },
     // 4 そこに現れたのが、一人の男だった。
     (tl, d, t) => cam(fill('#1d2030') + `<polygon points="860,-40 1060,-40 1260,1100 660,1100" fill="#fff6d0" opacity="0.2"/>` + xf(fujisawa({ x: 0, y: 0, s: 1.85, blink: blinking(t, 2), expr: 'smile' }), { x: 960, y: 1100, o: clamp(tl / 0.6) }) + T('？', 1300, 400, 140, C.yellow), tl, d, { z0: 1.12, z1: 1.0 }),
   ],
