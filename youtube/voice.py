@@ -197,13 +197,14 @@ def _pauses(env, t0, t1):
 
 
 def boundary(env, end_prev, start_next):
-    """前の行と次の行の境目の切り目。前の行が言い終わった「すぐあと」の間（0.12秒以上）のまん中。
-    次の行の頭の時刻は実際より遅れて記録されることがあるので、そちらからは探さない（次の行の中の読点の間を選ぶと頭が削れる）"""
-    t0 = min(end_prev, start_next) - 0.2
-    for min_len in (0.12, 0.06):
-        for a, b in _pauses(env, t0, start_next + 0.15):
-            if b - a >= min_len: return (a + b) / 2
-    seg_a, seg_b = max(0, int(t0 * 100)), max(int(t0 * 100) + 1, min(len(env), int((start_next + 0.05) * 100)))
+    """前の行と次の行の境目の切り目：次の行の声が立ち上がる「直前」の間（0.1秒以上）のまん中。
+    行の頭の時刻は realign で実際の声の立ち上がりに合わせてあるので、そこから手前に探す。
+    （行の終わりの時刻は、文字起こしの聞き間違いで早くずれることがあるので頼らない。読点の間を選んで語尾を削るため）"""
+    lo = min(end_prev, start_next) - 0.8
+    for min_len in (0.1, 0.05):
+        cands = [(a, b) for a, b in _pauses(env, lo, start_next + 0.05) if b - a >= min_len and b <= start_next + 0.05]
+        if cands: a, b = cands[-1]; return (a + b) / 2
+    seg_a, seg_b = max(0, int(lo * 100)), max(int(lo * 100) + 1, min(len(env), int((start_next + 0.05) * 100)))
     return (seg_a + int(env[seg_a:seg_b].argmin())) / 100
 
 
