@@ -1,4 +1,8 @@
 {
  "round": 4,
- "statuses": {}
+ "statuses": {
+  "01-1": "fix",
+  "03-6": "fix",
+  "04-5": "fix"
+ }
 }
