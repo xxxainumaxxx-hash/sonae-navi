@@ -238,15 +238,15 @@ def patch_lines(ep, ids, scenes, vd, tmp):
             s0, s1 = _speech_span(oe)
             # 頭の息も残さない：はっきりした声（0.04以上）が始まる 0.08 秒前から使う
             first_loud = next((i for i, v in enumerate(oe) if v > 0.04), None)
-            s0 = max(0.0, (first_loud / 100 - 0.08) if first_loud is not None else s0 - 0.06)
+            s0 = max(0.0, s0 - 0.06, (first_loud / 100 - 0.15) if first_loud is not None else 0.0)
             # 語尾のあとの息（小さな音）は残さない：はっきりした声（0.04以上）の最後から 0.12 秒で切り、最後を 0.06 秒で小さくする
             loud = [i for i, v in enumerate(oe) if v > 0.04]
-            if loud: s1 = min(s1, (loud[-1] + 1) / 100 + 0.12)
+            if loud: s1 = min(s1, (loud[-1] + 1) / 100 + 0.25)
             s1 = min(one['duration'], s1)
-            pre = GAP_KEEP / 2 if k > 0 else 0.1; post = GAP_KEEP / 2 if k + 1 < len(lines) else 0.3
+            pre = 0.2 if k > 0 else 0.1; post = GAP_KEEP / 2 if k + 1 < len(lines) else 0.3  # 前の行との間は少し広めに（詰まって聞こえないように）
             seg = os.path.join(tmp, 'spliced.mp3')
             fc = (f"[0:a]atrim=0:{a:.3f},asetpts=PTS-STARTPTS[x];"
-                  f"[1:a]atrim={s0:.3f}:{s1:.3f},asetpts=PTS-STARTPTS,afade=t=out:st={max(0.0, s1 - s0 - 0.06):.3f}:d=0.06,adelay={int(pre * 1000)},apad=pad_dur={post}[y];"
+                  f"[1:a]atrim={s0:.3f}:{s1:.3f},asetpts=PTS-STARTPTS,afade=t=out:st={max(0.0, s1 - s0 - 0.08):.3f}:d=0.08,adelay={int(pre * 1000)},apad=pad_dur={post}[y];"
                   f"[0:a]atrim=start={b:.3f},asetpts=PTS-STARTPTS[z];[x][y][z]concat=n=3:v=0:a=1[a]")
             subprocess.check_call(['ffmpeg', '-y', '-v', 'error', '-i', mp3, '-i', one_mp3, '-filter_complex', fc, '-map', '[a]', '-ar', '44100', '-b:a', '160k', seg])
             subprocess.check_call(['cp', seg, mp3])
