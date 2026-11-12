@@ -235,7 +235,10 @@ def patch_lines(ep, ids, scenes, vd, tmp):
             a, b = line_bounds(env, lines, k, d['duration'])
             # 新しい声は、実際に鳴っている部分の前 0.06 秒・後 0.1 秒だけ残し、前後に「間」の半分ずつの無音を足す
             oe = _env(one_mp3)
-            s0, s1 = _speech_span(oe); s0 = max(0.0, s0 - 0.06)
+            s0, s1 = _speech_span(oe)
+            # 頭の息も残さない：はっきりした声（0.04以上）が始まる 0.08 秒前から使う
+            first_loud = next((i for i, v in enumerate(oe) if v > 0.04), None)
+            s0 = max(0.0, (first_loud / 100 - 0.08) if first_loud is not None else s0 - 0.06)
             # 語尾のあとの息（小さな音）は残さない：はっきりした声（0.04以上）の最後から 0.12 秒で切り、最後を 0.06 秒で小さくする
             loud = [i for i, v in enumerate(oe) if v > 0.04]
             if loud: s1 = min(s1, (loud[-1] + 1) / 100 + 0.12)
