@@ -1,0 +1,68 @@
+{
+ "bgm_vol": 0.22,
+ "bgm": [
+  {
+   "scene": 1,
+   "file": "sr0.mp3",
+   "note": "つかみ"
+  },
+  {
+   "scene": 2,
+   "file": "ty1.mp3",
+   "note": "第1章"
+  },
+  {
+   "scene": 6,
+   "file": "hd2.mp3",
+   "note": "第2章"
+  },
+  {
+   "scene": 10,
+   "file": "hd4.mp3",
+   "note": "第3章"
+  },
+  {
+   "scene": 14,
+   "file": "as4.mp3",
+   "note": "第4章"
+  },
+  {
+   "scene": 17,
+   "file": "ty6.mp3",
+   "note": "まとめ"
+  },
+  {
+   "scene": 18,
+   "file": "hd6.mp3",
+   "note": "終了画面"
+  }
+ ],
+ "sfx": {
+  "whip": {
+   "file": "sfx_whoosh.mp3",
+   "vol": 0.35
+  },
+  "whipUp": {
+   "file": "sfx_whoosh.mp3",
+   "vol": 0.35
+  },
+  "dive": {
+   "file": "sfx_pop.mp3",
+   "vol": 0.3
+  },
+  "punch": {
+   "file": "sfx_soft.mp3",
+   "vol": 0.2
+  },
+  "chapter": {
+   "file": "sfx_hyoshigi.mp3",
+   "vol": 0.55
+  },
+  "end": {
+   "file": "sfx_end.mp3",
+   "vol": 0.4,
+   "scene": 18
+  }
+ },
+ "_note": "ElevenLabs の音楽のクレジットが切れたため、sr0 以外は過去の回の曲を流用"
+}
