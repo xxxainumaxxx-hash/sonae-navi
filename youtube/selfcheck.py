@@ -16,7 +16,7 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, ROOT)
 import voice, voicecheck
 
-NAMES = {'09-asics': ['鬼塚', '喜八郎'], '12-sanrio': ['辻'], '13-honda': ['藤沢']}
+NAMES = {'09-asics': ['喜八郎'], '12-sanrio': ['辻'], '13-honda': ['藤沢']}
 TH = 0.85
 
 
