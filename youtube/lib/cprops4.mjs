@@ -24,13 +24,20 @@ export function sole(x, y, s = 1, cups = 0) {
   return g(b, x, y, s);
 }
 
-// タコの足（吸盤つき）。curl：0〜1で丸まる
+// タコの足（吸盤つき）。curl：0〜1で丸まる。根元が太く、先が細い、なめらかな形
 export function tentacle(x, y, s = 1, curl = 0.3) {
-  const pts = [];
-  for (let i = 0; i <= 10; i++) { const t = i / 10; pts.push([t * 360 - 180, -Math.sin(t * Math.PI * (1 + curl)) * 70 * (1 - t * 0.4)]); }
-  let b = '';
-  for (let i = 0; i < pts.length - 1; i++) b += line([pts[i], pts[i + 1]], { w: 70 - i * 5, color: '#c8605a', passes: 1 });
-  for (let i = 1; i < pts.length - 1; i++) b += ellipse(pts[i][0], pts[i][1] + (34 - i * 2.5), 12 - i * 0.6, 12 - i * 0.6, { fill: '#f2c4b8', w: 3 });
+  const N = 28, pts = [];
+  for (let i = 0; i <= N; i++) { const t = i / N; pts.push([t * 380 - 190, -Math.sin(t * Math.PI * (0.9 + curl)) * 80 * (1 - t * 0.3) + t * t * curl * 60]); }
+  const L = [], R = [], cups = [];
+  for (let i = 0; i <= N; i++) {
+    const a = pts[Math.max(0, i - 1)], b = pts[Math.min(N, i + 1)];
+    const dx = b[0] - a[0], dy = b[1] - a[1], len = Math.hypot(dx, dy) || 1, nx = -dy / len, ny = dx / len;
+    const w = 38 * (1 - (i / N) * 0.85);
+    L.push([pts[i][0] + nx * w, pts[i][1] + ny * w]); R.push([pts[i][0] - nx * w, pts[i][1] - ny * w]);
+    if (i % 3 === 1 && i < N - 1) cups.push([pts[i][0] - nx * w * 0.55, pts[i][1] - ny * w * 0.55, w * 0.45]);
+  }
+  let b = poly([...L, ...R.reverse()], { fill: '#c8605a' });
+  for (const [cx, cy, r] of cups) b += ellipse(cx, cy, r, r, { fill: '#f2c4b8', w: 3 }) + ellipse(cx, cy, r * 0.4, r * 0.4, { fill: '#d88a80', w: 2 });
   return g(b, x, y, s);
 }
 
