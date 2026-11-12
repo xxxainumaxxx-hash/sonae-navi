@@ -238,7 +238,7 @@ def patch_lines(ep, ids, scenes, vd, tmp):
             s0, s1 = _speech_span(oe)
             # 頭の息も残さない：はっきりした声（0.04以上）が始まる 0.08 秒前から使う
             first_loud = next((i for i, v in enumerate(oe) if v > 0.04), None)
-            s0 = max(0.0, s0 - 0.06, (first_loud / 100 - 0.15) if first_loud is not None else 0.0)
+            s0 = max(0.0, s0 - 0.06, (first_loud / 100 - 0.25) if first_loud is not None else 0.0)
             # 語尾のあとの息（小さな音）は残さない：はっきりした声（0.04以上）の最後から 0.12 秒で切り、最後を 0.06 秒で小さくする
             loud = [i for i, v in enumerate(oe) if v > 0.04]
             if loud: s1 = min(s1, (loud[-1] + 1) / 100 + 0.25)
