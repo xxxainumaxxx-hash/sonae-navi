@@ -234,11 +234,16 @@ def patch_lines(ep, ids, scenes, vd, tmp):
             env = _env(mp3)
             a, b = line_bounds(env, lines, k, d['duration'])
             # 新しい声は、実際に鳴っている部分の前 0.06 秒・後 0.1 秒だけ残し、前後に「間」の半分ずつの無音を足す
-            s0, s1 = _speech_span(_env(one_mp3)); s0 = max(0.0, s0 - 0.06); s1 = min(one['duration'], s1 + 0.1)
+            oe = _env(one_mp3)
+            s0, s1 = _speech_span(oe); s0 = max(0.0, s0 - 0.06)
+            # 語尾のあとの息（小さな音）は残さない：はっきりした声（0.04以上）の最後から 0.12 秒で切り、最後を 0.06 秒で小さくする
+            loud = [i for i, v in enumerate(oe) if v > 0.04]
+            if loud: s1 = min(s1, (loud[-1] + 1) / 100 + 0.12)
+            s1 = min(one['duration'], s1)
             pre = GAP_KEEP / 2 if k > 0 else 0.1; post = GAP_KEEP / 2 if k + 1 < len(lines) else 0.3
             seg = os.path.join(tmp, 'spliced.mp3')
             fc = (f"[0:a]atrim=0:{a:.3f},asetpts=PTS-STARTPTS[x];"
-                  f"[1:a]atrim={s0:.3f}:{s1:.3f},asetpts=PTS-STARTPTS,adelay={int(pre * 1000)},apad=pad_dur={post}[y];"
+                  f"[1:a]atrim={s0:.3f}:{s1:.3f},asetpts=PTS-STARTPTS,afade=t=out:st={max(0.0, s1 - s0 - 0.06):.3f}:d=0.06,adelay={int(pre * 1000)},apad=pad_dur={post}[y];"
                   f"[0:a]atrim=start={b:.3f},asetpts=PTS-STARTPTS[z];[x][y][z]concat=n=3:v=0:a=1[a]")
             subprocess.check_call(['ffmpeg', '-y', '-v', 'error', '-i', mp3, '-i', one_mp3, '-filter_complex', fc, '-map', '[a]', '-ar', '44100', '-b:a', '160k', seg])
             subprocess.check_call(['cp', seg, mp3])
@@ -356,3 +361,72 @@ def assemble(ep, parts):
     dur = float(subprocess.check_output(['ffprobe', '-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', dst]))
     json.dump({'duration': dur, 'lines': out}, open(os.path.join(vd, '01.json'), 'w'), ensure_ascii=False, indent=1)
     return out
+
+
+STRONG = 0.08  # これより大きい音を「はっきりした声」とみなす
+
+
+def _frames(mp3):
+    """10ms ごとに（大きさ, 声のふるえの強さ 0〜1, 音の高さの重心 Hz）"""
+    import numpy as np
+    raw = subprocess.check_output(['ffmpeg', '-v', 'error', '-i', mp3, '-f', 's16le', '-ac', '1', '-ar', '16000', '-'])
+    x = np.frombuffer(raw, dtype=np.int16).astype(np.float32) / 32768
+    out = []
+    win = np.hanning(320); freqs = np.fft.rfftfreq(320, 1 / 16000)
+    for i in range(0, len(x) - 320, 160):
+        w = x[i:i + 320]; e = float(np.sqrt(np.mean(w ** 2)))
+        if e < 0.005: out.append((e, 0.0, 0.0)); continue
+        w0 = w - w.mean(); ac = np.correlate(w0, w0, 'full')[319:]
+        v = float(ac[40:200].max() / (ac[0] + 1e-9))      # 80〜400Hz の声のふるえ
+        sp = np.abs(np.fft.rfft(w0 * win)); c = float((sp * freqs).sum() / (sp.sum() + 1e-9))
+        out.append((e, v, c))
+    return out
+
+
+def debreath(vd, sn, dry=False):
+    """行と行の間の息（吐く・吸う音）を消す。先に realign で行の時刻を取り直しておくこと。
+    前の行を言い終わって 0.25 秒あとから、次の行が始まる 0.15 秒前までに息があれば取り除き、間は最大 0.3 秒にする"""
+    mp3, js = os.path.join(vd, f'{sn}.mp3'), os.path.join(vd, f'{sn}.json')
+    d = json.load(open(js)); L = d['lines']; env = _env(mp3)
+    fr = _frames(mp3)  # 10ms ごとの (大きさ, 声のふるえ, 音の高さの重心)
+    voiced = lambda f: f[0] > 0.02 and f[1] > 0.5
+    breath = lambda f: f[0] > 0.01 and f[1] < 0.4 and f[2] < 3000
+    cuts = []
+    for k in range(len(L) - 1):
+        # 前の行の最後の「声（ふるえのある音）」と、次の行の最初の声の間にある、ふるえのない低い音＝息を取り除く
+        lo, hi = int((L[k]['end'] - 0.6) * 100), int((L[k + 1]['start'] + 0.3) * 100)
+        lo, hi = max(0, lo), min(len(fr), hi)
+        vs = [i for i in range(lo, hi) if voiced(fr[i])]
+        if not vs: continue
+        # 次の行の最初の声：L[k+1]['start'] 以降で最初の声
+        s1 = next((i for i in range(int(L[k + 1]['start'] * 100) - 15, hi) if voiced(fr[i])), None)
+        e0 = max((i for i in vs if i < (s1 if s1 else hi) - 10), default=None)
+        if s1 is None or e0 is None: continue
+        t0, t1 = (e0 + 1) / 100 + 0.06, s1 / 100 - 0.1
+        if t1 - t0 < 0.1: continue
+        nb = sum(1 for i in range(int(t0 * 100), int(t1 * 100)) if breath(fr[i]))
+        if nb >= 4: cuts.append((round(t0, 3), round(t1, 3)))
+    if dry or not cuts: return cuts
+    # 息のある区間を取り除き、代わりに最大 0.3 秒の無音を入れる（長すぎる間も詰める）。行の時刻もずらす
+    KEEP = 0.3
+    parts, t, fc, n = [], 0.0, '', 0
+    for x, y in cuts:
+        fc += f"[0:a]atrim={t:.3f}:{x:.3f},asetpts=PTS-STARTPTS,afade=t=out:st={max(0.0, x - t - 0.04):.3f}:d=0.04[p{n}];"; parts.append(f'[p{n}]'); n += 1
+        fc += f"anullsrc=r=44100:cl=mono,atrim=0:{min(KEEP, y - x):.3f}[p{n}];"; parts.append(f'[p{n}]'); n += 1
+        t = y
+    fc += f"[0:a]atrim=start={t:.3f},asetpts=PTS-STARTPTS,afade=t=in:d=0.04[p{n}];"; parts.append(f'[p{n}]'); n += 1
+    fc += ''.join(parts) + f'concat=n={n}:v=0:a=1[o]'
+    tmp = mp3 + '.tmp.mp3'
+    subprocess.check_call(['ffmpeg', '-y', '-v', 'error', '-i', mp3, '-filter_complex', fc, '-map', '[o]', '-ac', '1', '-ar', '44100', '-b:a', '160k', tmp])
+    os.replace(tmp, mp3)
+    def shift(tt):
+        sh = 0.0
+        for x, y in cuts:
+            if tt >= y: sh += (y - x) - min(KEEP, y - x)
+            elif tt > x: sh += tt - x
+        return tt - sh
+    for l in L:
+        l['start'], l['end'] = round(shift(l['start']), 3), round(shift(l['end']), 3)
+    d['duration'] = float(subprocess.check_output(['ffprobe', '-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', mp3]))
+    json.dump(d, open(js, 'w'), ensure_ascii=False, indent=1)
+    return cuts

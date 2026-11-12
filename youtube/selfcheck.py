@@ -65,12 +65,17 @@ def scan(ep, only=None):
                 a, b = voice.line_bounds(env, L, k, d['duration'])
                 c = os.path.join(tmp, rid + '.mp3')
                 subprocess.check_call(['ffmpeg', '-y', '-v', 'error', '-i', os.path.join(vd, sn + '.mp3'), '-ss', f'{a:.3f}', '-to', f'{b:.3f}', c])
-                jobs.append((rid, l['line'], c))
+                # 語尾のあとの息・雑音：最後のはっきりした声のあと、小さな音が 0.15 秒以上続いていれば印
+                seg = env[int(a * 100):int(b * 100)]
+                loud = [i for i, v in enumerate(seg) if v > 0.04]
+                tail = sum(1 for v in seg[loud[-1] + 13:] if v > voice.QUIET) if loud else 0
+                jobs.append((rid, l['line'], c, tail))
         with ThreadPoolExecutor(2) as ex:
             heard = list(ex.map(lambda j: stt(j[2]), jobs))
     out = []
-    for (rid, line, _), h in zip(jobs, heard):
+    for (rid, line, _, tail), h in zip(jobs, heard):
         sim, why = judge(ep, line, h)
+        if tail >= 15: why.append('語尾に息・雑音？')
         out.append({'id': rid, 'line': line, 'heard': h, 'sim': round(sim, 2), 'why': why})
     return out
 
