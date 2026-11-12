@@ -6,6 +6,7 @@ import { kid, guide, worker } from '../lib/cfolk.mjs';
 import { sign, bubble, cross, building, townRow, chartDown, trophy, plane, desk, sneakyCat as cat } from '../lib/cprops.mjs';
 import { factory, moneyBag } from '../lib/cprops2.mjs';
 import { ruins, worldMap, letter } from '../lib/cprops3.mjs';
+import { tentacleCup, tiger, court } from '../lib/cprops4.mjs';
 import { shoe, sole, tentacle, sunomono, chopsticks, basketball, gym, blackboard, footBlister, runner, cobble, medal, oldTV, shoeBox, carTrunk, contract } from '../lib/cprops4.mjs';
 import { cam, typeText, countUp, big, fill, glow } from '../lib/shots.mjs';
 
@@ -90,7 +91,7 @@ export const SHOTS = {
     // 2 鳥取県の生まれで、戦争中は軍隊にいた。神戸には、親しい知り合いの家族を頼ってやってきたと言われている。
     [
       (tl, d) => cam(fill('#cfe0e8') + poly([[-200, 700], [400, 380], [1000, 700]], { fill: '#8fb07a' }) + poly([[700, 700], [1300, 400], [2000, 700]], { fill: '#7ea06a' }) + floor('#b9a070', 700) + head('鳥取県', tl), tl, d, { z0: 1.06, z1: 1.0 }),
-      (tl, d, t) => cam(fill('#e7d8c0') + floor('#a07a50') + xf(arrow(500, 300, 1300, 300, { w: 16 }), { s: popS(tl, 0.3), cx: 900, cy: 300 }) + T('神戸へ', 1450, 330, 110, RED, C.white) + onitsuka({ x: tw(tl, 0, d, 300, 700), y: 1120, s: 1.5, legs: Math.sin(tl * 8), blink: blinking(t, 1), expr: 'smile' }), tl, d, { z0: 1.0, z1: 1.04 }),
+      (tl, d, t) => cam(fill('#e7d8c0') + floor('#a07a50') + xf(arrow(500, 300, 1170, 300, { w: 16 }), { s: popS(tl, 0.3), cx: 840, cy: 300 }) + T('神戸へ', 1450, 330, 110, RED, C.white) + onitsuka({ x: tw(tl, 0, d, 300, 700), y: 1120, s: 1.5, legs: Math.sin(tl * 8), blink: blinking(t, 1), expr: 'smile' }), tl, d, { z0: 1.0, z1: 1.04 }),
     ],
     // 3 町では、行き場を失った若者たちが、うつむいて過ごしていた。
     (tl, d, t) => cam(fill(ASH) + ruins(960, 880, 1.0) + floor('#8a7a6a') + [500, 960, 1420].map((x, i) => youth({ x, y: 1120, s: 1.5, blink: blinking(t, i), expr: 'worry', arms: P.shrug, tilt: 6 })).join(''), tl, d, { z0: 1.0, z1: 1.04 }),
@@ -118,7 +119,7 @@ export const SHOTS = {
     // 1 そこで、知り合いの高校の先生に相談した。どんな靴から作ればいいか。
     (tl, d, t) => cam(fill('#e9dcc6') + blackboard(960, 340, 700, 300) + mid(onitsuka2, 520, { blink: blinking(t, 1), arms: P.point, expr: 'smile' }) + mid(teacher, 1400, { blink: blinking(t, 2), arms: P.think, expr: 'smile', flip: true }) + enter(bubble('どんな靴から？', 960, 760, { size: 56 }), tl, 0.3, { cx: 960, cy: 760 }), tl, d, { z0: 1.0, z1: 1.04 }),
     // 2 先生がすすめたのは、バスケットボールの靴だった。
-    (tl, d, t) => cam(fill('#e9dcc6') + blackboard(1100, 380, 760, 380) + rect(820, 250, 560, 260, { fill: 'none', color: '#f4efe2', w: 5 }) + line([[1100, 250], [1100, 510]], { w: 4, color: '#f4efe2', passes: 1 }) + ellipse(1100, 380, 50, 50, { fill: 'none', color: '#f4efe2', w: 4 }) +
+    (tl, d, t) => cam(fill('#e9dcc6') + court(1150, 400, 900, 480) + basketball(1500, 720, 60) +
       mid(teacher, 420, { blink: blinking(t, 2), arms: P.point, expr: 'smile' }) + xf(shoe(0, 0, 1.1, { high: true, accent: RED }), { x: 1100, y: 820, s: popS(tl, 0.4) }), tl, d, { z0: 1.0, z1: 1.04 }),
     // 3 急に走り、急に止まる。いちばん難しい靴だ。
     [
@@ -164,7 +165,7 @@ export const SHOTS = {
     // 2 鬼塚は、タコの足の吸盤に目を止めた。
     [
       (tl, d) => cam(table() + sunomono(960, 760, 1.6) + chopsticks(1150, 560, 1.4, -30), tl, d, { z0: 1.0, z1: 1.08 }),
-      (tl, d) => cam(fill('#f6e6dc') + tentacle(960, 560, 2.6, 0.3) + `<circle cx="${960 + 2.6 * 36}" cy="${560 + 2.6 * 6}" r="${110 + Math.sin(tl * 5) * 8}" fill="none" stroke="${RED}" stroke-width="12"/>`, tl, d, { z0: 1.1, z1: 1.0 }),
+      (tl, d) => cam(fill('#f6e6dc') + tentacle(960, 560, 2.6, 0.3) + (([cx, cy, r]) => `<circle cx="${cx}" cy="${cy}" r="${r * 1.9 + Math.sin(tl * 5) * 6}" fill="none" stroke="${RED}" stroke-width="12"/>`)(tentacleCup(960, 560, 2.6, 0.3, 3)), tl, d, { z0: 1.1, z1: 1.0 }),
     ],
     // 3 吸盤は、ピタッと吸い付いて、すべらない。
     (tl, d) => cam(fill('#e6eef2') + rect(-200, 700, 2400, 600, { fill: '#fdfbf3', color: null }) + tentacle(960, lerp(520, 640, ease.out(clamp(tl / 0.6))), 2.2, 0.1) + (tl > 0.6 ? sound('ピタッ', 1450, 360, tl, 0.6, RED, 120) : ''), tl, d, { z0: 1.0, z1: 1.05 }),
@@ -182,8 +183,7 @@ export const SHOTS = {
     // 8 ブランドの名前は「タイガー」。のちの「オニツカタイガー」の始まりだ。
     (tl, d) => cam(fill('#f2c230') + glow(960, 540, 700, '#fff', 0.2) + xf(T('タイガー', 960, 600, 220, INK, C.white), { s: popS(tl, 0.2), cx: 960, cy: 520 }) + typeText('のちの オニツカタイガー', 960, 800, tl, { size: 70, color: INK, delay: 0.8 }), tl, d, { z0: 1.0, z1: 1.05 }),
     // 9 強くて、しなやかに走る虎のように、という思いが込められていたと言われている。
-    (tl, d) => cam(fill('#f6e2b4') + floor('#c9a46a') + xf(`<g>${ellipse(0, -120, 200, 90, { fill: '#e8a040' }) + [-120, -40, 40, 120].map((x) => line([[x, -200], [x + 20, -40]], { w: 14, color: INK, passes: 1 })).join('') + ellipse(220, -170, 70, 64, { fill: '#e8a040' }) + ellipse(250, -180, 8, 8, { fill: INK, w: 2 }) +
-      [-150, -60, 60, 150].map((x, i) => line([[x, -60], [x + Math.sin(tl * 10 + i) * 40, 0]], { w: 22, color: '#e8a040', passes: 1 })).join('') + line([[-200, -140], [-300, -220]], { w: 16, color: '#e8a040', passes: 1 })}</g>`, { x: tw(tl, 0, d, 300, 1400), y: 880, s: 1.6 }) + T('しなやかに走る虎', 960, 240, 100, INK, C.white), tl, d, { z0: 1.0, z1: 1.04 }),
+    (tl, d) => cam(fill('#f6e2b4') + floor('#c9a46a') + tiger(tw(tl, 0, d, 500, 1300), 900, 1.5, tl) + T('しなやかに走る虎', 960, 240, 100, INK, C.white), tl, d, { z0: 1.0, z1: 1.04 }),
   ],
 
   // ───── マラソンの靴
