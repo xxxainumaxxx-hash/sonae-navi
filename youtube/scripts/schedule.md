@@ -15,13 +15,13 @@
 | 11/17（火） | 19:00 | 本編 | トヨタ | out/08-toyota/08-toyota-final.mp4 | out/08-thumb／descriptions-toyota.md |
 | 11/18（水） | 18:00 | ショート | s04 アメリカ | out/s04-america/s04-america-final.mp4 | 〃 |
 | 11/19（木） | 18:00 | ショート | s05 特許 | out/s05-toyota-patent/s05-toyota-patent-final.mp4 | descriptions-toyota.md |
-| 11/20（金） | 19:00 | 本編 | サンリオ | out/12-sanrio/12-sanrio-final.mp4 | （これから作る） |
+| 11/20（金） | 19:00 | 本編 | サンリオ | out/12-sanrio/12-sanrio-final.mp4 | out/12-thumb／descriptions-sanrio.md |
 | 11/21（土） | 18:00 | ショート | s06 トヨダ | out/s06-toyota-name/s06-toyota-name-final.mp4 | 〃 |
-| 11/22（日） | 18:00 | ショート | s14 絹 | out/s14-sanrio-silk/s14-sanrio-silk-final.mp4 | （これから作る） |
+| 11/22（日） | 18:00 | ショート | s14 絹 | out/s14-sanrio-silk/s14-sanrio-silk-final.mp4 | descriptions-sanrio.md |
 | 11/23（月） | 18:00 | ショート | s07 ラインを止める | out/s07-toyota-stop/s07-toyota-stop-final.mp4 | 〃 |
-| 11/24（火） | 19:00 | 本編 | ホンダ | out/13-honda/13-honda-final.mp4 | out/13-thumb／（概要欄これから） |
+| 11/24（火） | 19:00 | 本編 | ホンダ | out/13-honda/13-honda-final.mp4 | out/13-thumb／descriptions-honda.md |
 | 11/25（水） | 18:00 | ショート | s15 口のない猫 | out/s15-sanrio-mouth/s15-sanrio-mouth-final.mp4 | 〃 |
-| 11/26（木） | 18:00 | ショート | s08 自転車 | out/s08-honda-bicycle/s08-honda-bicycle-final.mp4 | （これから作る） |
+| 11/26（木） | 18:00 | ショート | s08 自転車 | out/s08-honda-bicycle/s08-honda-bicycle-final.mp4 | descriptions-honda.md |
 | 11/27（金） | 19:00 | 本編 | アシックス | out/09-asics/09-asics-final.mp4 | out/09-thumb／descriptions-asics.md |
 | 11/28（土） | 18:00 | ショート | s16 使用料 | out/s16-sanrio-license/s16-sanrio-license-final.mp4 | 〃 |
 | 11/29（日） | 18:00 | ショート | s09 そば屋 | out/s09-honda-soba/s09-honda-soba-final.mp4 | 〃 |
