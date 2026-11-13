@@ -62,10 +62,13 @@ const tl = ep.scenes.map((sc, i) => {
   const MAXC = SHORT ? 15 : 30;
   const split = (line) => {
     if (line.length <= MAXC) return [line];
-    const parts = line.match(/[^、。！？」]+[、。！？」]*/g) || [line];
+    // 句読点で区切る（かぎかっこ」の直後では区切らない：「…気持ち」／なのだ。のような泣き別れを防ぐ）
+    const parts = line.match(/[^、。！？]+[、。！？」]*/g) || [line];
     const out = []; let cur = '';
     for (const p of parts) { if (cur && (cur + p).length > MAXC) { out.push(cur); cur = p; } else cur += p; }
     if (cur) out.push(cur);
+    // 最後の切れはしが短すぎる（5文字以下）ときは、前のページにくっつける
+    if (out.length > 1 && out[out.length - 1].length <= 5) out[out.length - 2] += out.pop();
     return out;
   };
   const subs = [], lineStart = []; let t = LEAD;

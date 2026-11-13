@@ -39,6 +39,12 @@ const chartUp = (pts, col, k = 1) => {
   return `<polyline points="${p}" fill="none" stroke="${INK}" stroke-width="40" stroke-linejoin="round" stroke-linecap="round"/><polyline points="${p}" fill="none" stroke="${col}" stroke-width="24" stroke-linejoin="round" stroke-linecap="round"/>` +
     `<polygon points="${b[0] + Math.cos(ang) * h},${b[1] + Math.sin(ang) * h} ${b[0] + Math.cos(ang + 2.2) * h * 0.7},${b[1] + Math.sin(ang + 2.2) * h * 0.7} ${b[0] + Math.cos(ang - 2.2) * h * 0.7},${b[1] + Math.sin(ang - 2.2) * h * 0.7}" fill="${col}" stroke="${INK}" stroke-width="8"/>`;
 };
+// 世界地図の陸（worldMap と同じ形）のまん中あたり。ハートなどを陸の上に置くとき用
+const LAND = [[330, -110], [60, -180], [60, 20], [-430, -150], [-320, 120], [455, 160]];
+const onLand = (x, y, s, i) => [x + LAND[i][0] * s, y + LAND[i][1] * s];
+const mapHearts = (x, y, s, tl, hs = 0.6, ids = [0, 1, 2, 3, 4, 5]) => ids.map((i, k) => { const [px, py] = onLand(x, y, s, i); return xf(heart(0, 0, hs), { x: px, y: py + bob(tl + k, 6, 1), s: popS(tl, 0.2 + k * 0.2) }); }).join('');
+// 店の棚の上に乗せる（棚板の上の面 y=520）
+const shelfGifts = (tl) => [(x) => heartCard(x, 424, 0.8, -4), (x) => pencil(x, 505, 1.0, -8), (x) => smallCase(x, 520, 0.9), (x) => giftBox(x, 520, 0.8)].map((f, i) => xf(f(0), { x: 360 + i * 400, y: 0, s: popS(tl, 0.2 + i * 0.25) })).join('');
 const catHero = (tl, d, t, bg = '#fde8ee') => cam(fill(bg) + glow(960, 560, 600, '#fff', 0.4) + whiteCat(960, 900, 1.6, t), tl, d, { z0: 1.0, z1: 1.06 });
 
 // ───── 章タイトル（ピンク）
@@ -53,7 +59,7 @@ export const SHOTS = {
     // 0 山梨県庁で働いていた、一人の職員。
     (tl, d, t) => cam(yamanashi() + kencho(1300, 900, 1.0, '山梨県庁') + tsuji({ x: tw(tl, 0, d, 300, 600), y: 1100, s: 1.6, blink: blinking(t, 1), expr: 'smile', legs: Math.sin(tl * 8) }), tl, d, { z0: 1.0, z1: 1.05 }),
     // 1 彼が作った会社のキャラクターは、今では世界中で愛されている。
-    (tl, d, t) => cam(fill(SKY) + worldMap(960, 520, 1.2, [0, 1, 2, 3, 4, 5]) + [0, 1, 2, 3, 4].map((i) => xf(heart(0, 0, 0.7), { x: 300 + i * 340, y: 260 + (i % 2) * 220 + bob(tl + i, 10, 1), s: popS(tl, 0.2 + i * 0.2) })).join(''), tl, d, { z0: 1.0, z1: 1.06 }),
+    (tl, d, t) => cam(fill(SKY) + worldMap(960, 520, 1.2, [0, 1, 2, 3, 4, 5]) + mapHearts(960, 520, 1.2, tl, 0.7), tl, d, { z0: 1.0, z1: 1.06 }),
     // 2 サンリオだ。
     (tl, d) => cam(fill(CREAM) + glow(960, 520, 800, PINK, 0.12) + xf(T('サンリオ', 960, 600, 220, PINK, C.white), { s: popS(tl, 0.1), cx: 960, cy: 520 }), tl, d, { z0: 1.0, z1: 1.06 }),
     // 3 だがその始まりは、かわいいキャラクターではなかった。絹、シルクを売る会社だった。
@@ -146,11 +152,11 @@ export const SHOTS = {
   // ───── 絹が売れない
   '07': [
     // 0 絹は、思うように売れなかった。
-    (tl, d, t) => cam(store() + [0, 1, 2, 3].map((i) => silkBolt(400 + i * 360, 500, 0.9)).join('') + mid(tsuji2, 960, { blink: blinking(t, 1), expr: 'worry', y: 1180 }), tl, d, { z0: 1.0, z1: 1.04 }),
+    (tl, d, t) => cam(store() + [0, 1, 2, 3].map((i) => silkBolt(400 + i * 360, 484, 0.9)).join('') + mid(tsuji2, 960, { blink: blinking(t, 1), expr: 'worry', y: 1180 }), tl, d, { z0: 1.0, z1: 1.04 }),
     // 1 高い。手入れが大変。時代は、安くて手軽な化学繊維に移っていた。
     [
       (tl, d) => cam(fill('#efe6d6') + silkBolt(960, 520, 1.6) + xf(sign('高い', 560, 260, { size: 90, fill: CREAM }), { s: popS(tl, 0.2), cx: 560, cy: 260 }) + xf(sign('手入れが大変', 1360, 260, { size: 70, fill: CREAM }), { s: popS(tl, 0.8), cx: 1360, cy: 260 }), tl, d, { z0: 1.0, z1: 1.04 }),
-      (tl, d, t) => cam(store() + [0, 1, 2].map((i) => silkBolt(500 + i * 460, 500, 1.0, ['#bfe0f0', '#f0d0e8', '#fbe8a8'][i])).join('') + girl({ x: tw(tl, 0, d, 300, 800), y: 1150, s: 1.5, blink: blinking(t, 1), expr: 'smile', legs: Math.sin(tl * 8) }), tl, d, { z0: 1.0, z1: 1.04 }),
+      (tl, d, t) => cam(store() + [0, 1, 2].map((i) => silkBolt(500 + i * 460, 480, 1.0, ['#bfe0f0', '#f0d0e8', '#fbe8a8'][i])).join('') + girl({ x: tw(tl, 0, d, 300, 800), y: 1150, s: 1.5, blink: blinking(t, 1), expr: 'smile', legs: Math.sin(tl * 8) }), tl, d, { z0: 1.0, z1: 1.04 }),
     ],
     // 2 倉庫には、売れ残った絹が積み上がっていく。
     (tl, d) => cam(fill('#8a7a6a') + rect(-200, 880, 2400, 400, { fill: '#5a4a3a', color: null }) + silkPile(960, 880, 1.3, clamp(tl / (d * 0.8))), tl, d, { z0: 1.0, z1: 1.06 }),
@@ -172,13 +178,13 @@ export const SHOTS = {
     // 0 辻が売り出したのは、ゴムのサンダルだった。
     (tl, d) => cam(fill('#fbeee0') + glow(960, 540, 500, '#fff', 0.4) + xf(sandal(0, 0, 1.6, { rot: -10 }), { x: 800, y: 560, s: popS(tl, 0.1) }) + xf(sandal(0, 0, 1.6, { rot: 10 }), { x: 1120, y: 560, s: popS(tl, 0.3) }), tl, d, { z0: 1.0, z1: 1.05 }),
     // 1 安くて、どこにでもある、ありふれた商品だ。
-    (tl, d) => cam(store() + [0, 1, 2, 3, 4, 5].map((i) => sandal(360 + i * 240, 620, 0.9, { col: '#c8c0b0' })).join('') + T('ありふれた', 960, 220, 90, INK, C.white), tl, d, { z0: 1.0, z1: 1.04 }),
+    (tl, d) => cam(store() + [0, 1, 2, 3, 4, 5].map((i) => sandal(360 + i * 240, 375, 0.9, { col: '#c8c0b0' })).join('') + T('ありふれた', 960, 220, 90, INK, C.white), tl, d, { z0: 1.0, z1: 1.04 }),
     // 2 ただのサンダルではない。小さな花の絵を付けたのだ。
     (tl, d) => cam(fill('#fbeee0') + glow(960, 540, 500, YEL, 0.3) + sandal(960, 560, 2.2, { flower: tl > 0.8 }) + (tl > 0.8 ? sparkles(1200, 300, 70, YEL) : ''), tl, d, { z0: 1.0, z1: 1.08 }),
     // 3 すると、これが売れた。
     (tl, d) => cam(fill('#fff2c8') + glow(960, 540, 600, YEL, 0.35) + chartUp([[400, 800], [800, 700], [1100, 520], [1500, 260]], '#4fd65a', clamp(tl / 1.0)) + T('売れた！', 600, 300, 130, RED, C.white), tl, d, { z0: 1.0, z1: 1.05 }),
     // 4 店に並べると、若い女の子たちが次々と手に取っていった。
-    (tl, d, t) => cam(store() + [0, 1, 2, 3].map((i) => sandal(500 + i * 300, 640, 0.8, { flower: true })).join('') + [[400, girl], [960, girl2], [1500, girl]].map(([x, f], i) => f({ x, y: 1150, s: 1.5, blink: blinking(t, i), expr: 'smile', arms: P.hold })).join(''), tl, d, { z0: 1.0, z1: 1.04 }),
+    (tl, d, t) => cam(store() + [0, 1, 2, 3].map((i) => sandal(500 + i * 300, 390, 0.8, { flower: true })).join('') + [[400, girl], [960, girl2], [1500, girl]].map(([x, f], i) => f({ x, y: 1180, s: 1.3, blink: blinking(t, i), expr: 'smile', arms: P.hold })).join(''), tl, d, { z0: 1.0, z1: 1.04 }),
     // 5 同じサンダルでも、かわいい絵が付いているだけで、人は手に取ってくれる。
     (tl, d) => cam(fill('#fbeee0') + sandal(600, 560, 1.6) + text('ふつう', 600, 880, { size: 64, font: 'Zen Maru Gothic', weight: 900 }) + sandal(1320, 560, 1.6, { flower: true }) + text('花の絵', 1320, 880, { size: 64, color: PINK, font: 'Zen Maru Gothic', weight: 900 }) + xf(heart(0, 0, 0.9), { x: 1500, y: 260, s: popS(tl, 0.6) }), tl, d, { z0: 1.0, z1: 1.04 }),
     // 6 辻は、気づいた。「人は、かわいいものに、心が動く」。
@@ -201,7 +207,7 @@ export const SHOTS = {
       (tl, d, t) => cam(fill('#fff2c8') + mid(girl, 500, { blink: blinking(t, 1), expr: 'smile', arms: P.point }) + mid(girl2, 1420, { blink: blinking(t, 2), expr: 'smile', flip: true }) + giftBox(tw(tl, 0, d, 700, 1150), 720 - Math.sin(clamp(tl / d) * Math.PI) * 160, 0.8), tl, d, { z0: 1.0, z1: 1.04 }),
     ],
     // 4 辻は1962年、贈り物の商品を売り始めた。
-    (tl, d) => cam(store() + giftsRow(tl, 560, 0.9) + T('贈り物の商品', 960, 200, 90, PINK, C.white), tl, d, { z0: 1.0, z1: 1.04 }),
+    (tl, d) => cam(store() + shelfGifts(tl) + T('贈り物の商品', 960, 200, 90, PINK, C.white), tl, d, { z0: 1.0, z1: 1.04 }),
     // 5 カードや文房具、小物入れ。手のひらサイズの、小さなものばかりだった。
     (tl, d) => cam(fill('#fbeee0') + giftsRow(tl, 560) + T('手のひらサイズ', 960, 200, 90, INK, C.white), tl, d, { z0: 1.0, z1: 1.04 }),
     // 6 かわいい絵の付いた、小さな贈り物。サンリオの形が、ここで見えてきた。
@@ -245,8 +251,8 @@ export const SHOTS = {
     (tl, d, t) => cam(fill('#fbf3e6') + whiteCat(960, 900, 1.6, t) + T('シンプル', 960, 200, 100, PINK, C.white), tl, d, { z0: 1.0, z1: 1.04 }),
     // 4 翌年、この猫を付けた小さなお財布が発売されると、子どもたちに大人気になった。
     [
-      (tl, d) => cam(store() + xf(clearPurse(0, 0, 1.4), { x: 960, y: 520, s: popS(tl, 0.2) }), tl, d, { z0: 1.0, z1: 1.05 }),
-      (tl, d, t) => cam(store() + clearPurse(960, 450, 0.9) + [[420, girl], [800, girl2], [1150, girl], [1520, girl2]].map(([x, f], i) => f({ x, y: 1150, s: 1.4, blink: blinking(t, i), expr: 'smile', arms: P.cheer })).join('') + T('大人気！', 960, 200, 100, RED, C.white), tl, d, { z0: 1.0, z1: 1.04 }),
+      (tl, d) => cam(store() + xf(clearPurse(0, 0, 1.4), { x: 960, y: 408, s: popS(tl, 0.2) }), tl, d, { z0: 1.0, z1: 1.05 }),
+      (tl, d, t) => cam(store() + clearPurse(960, 448, 0.9) + [[420, girl], [800, girl2], [1150, girl], [1520, girl2]].map(([x, f], i) => f({ x, y: 1150, s: 1.4, blink: blinking(t, i), expr: 'smile', arms: P.cheer })).join('') + T('大人気！', 960, 200, 100, RED, C.white), tl, d, { z0: 1.0, z1: 1.04 }),
     ],
     // 5 手のひらに収まる、透明な小さなお財布だった。
     (tl, d) => cam(fill('#fde8ee') + glow(960, 540, 500, '#fff', 0.4) + ellipse(960, 760, 360, 140, { fill: '#f6d2b0' }) + clearPurse(960, 640, 1.3), tl, d, { z0: 1.0, z1: 1.06 }),
@@ -276,7 +282,7 @@ export const SHOTS = {
     // 3 笑った顔に固定しないからこそ、どんな気持ちのときにも寄りそえる。
     (tl, d, t) => cam(fill('#fde8ee') + whiteCat(960, 900, 1.3, t) + [[480, 'smile', girl], [1440, 'worry', girl2]].map(([x, e, f], i) => f({ x, y: 1100, s: 1.5, blink: blinking(t, i), expr: e })).join(''), tl, d, { z0: 1.0, z1: 1.04 }),
     // 4 この小さな工夫が、世界中の人の心をつかむことになる。
-    (tl, d, t) => cam(fill(SKY) + worldMap(960, 520, 1.1, [0, 1, 2, 3, 4, 5]) + [0, 1, 2, 3].map((i) => xf(heart(0, 0, 0.6), { x: 420 + i * 360, y: 300 + (i % 2) * 200, s: popS(tl, 0.3 + i * 0.25) })).join(''), tl, d, { z0: 1.0, z1: 1.06 }),
+    (tl, d, t) => cam(fill(SKY) + worldMap(960, 520, 1.1, [0, 1, 2, 3, 4, 5]) + mapHearts(960, 520, 1.1, tl, 0.6), tl, d, { z0: 1.0, z1: 1.06 }),
     // 5 言葉がいらない顔だからこそ、どの国の人にも届いたのだ。
     (tl, d, t) => cam(fill('#fbf3e6') + whiteCat(960, 900, 1.2, t) + ['Hello', 'Bonjour', 'Hola', '你好'].map((w, i) => enter(bubble(w, [400, 1520, 420, 1500][i], [300, 300, 640, 640][i], { size: 54 }), tl, 0.2 + i * 0.3, { cx: [400, 1520, 420, 1500][i], cy: [300, 300, 640, 640][i] })).join(''), tl, d, { z0: 1.0, z1: 1.04 }),
   ],
@@ -314,7 +320,7 @@ export const SHOTS = {
     // 1 雨の日でも遊べる、キャラクターたちの世界だ。
     (tl, d, t) => cam(fill('#8a9ab0') + rainCloud(500, 200, t, 1.0) + rainCloud(1500, 220, t + 1, 0.9) + floor('#7a7a7a') + parkHall(960, 880, 1.1) + T('雨でもOK', 960, 960 - 60, 80, C.white, INK), tl, d, { z0: 1.0, z1: 1.04 }),
     // 2 今では、サンリオのキャラクターは、世界中の国と地域で愛されている。
-    (tl, d) => cam(fill(SKY) + worldMap(960, 520, 1.2, [0, 1, 2, 3, 4, 5]) + [[500, 300], [1000, 280], [1400, 320], [700, 600], [1500, 620]].map(([x, y], i) => xf(heart(0, 0, 0.5), { x, y, s: popS(tl, 0.2 + i * 0.2) })).join(''), tl, d, { z0: 1.0, z1: 1.05 }),
+    (tl, d) => cam(fill(SKY) + worldMap(960, 520, 1.2, [0, 1, 2, 3, 4, 5]) + mapHearts(960, 520, 1.2, tl, 0.5), tl, d, { z0: 1.0, z1: 1.05 }),
     // 3 あの白い猫だけでなく、たくさんのキャラクターたちが生まれ、それぞれにファンがいる。
     (tl, d, t) => cam(fill('#fde8ee') + whiteCat(960, 900, 1.0, t) + [[420, '#fbe36a'], [700, '#a8d8f0'], [1220, MINT], [1500, '#f2b6c8']].map(([x, col], i) => xf(`<g>${ellipse(0, -100, 90, 90, { fill: col })}${ellipse(-30, -110, 8, 10, { fill: INK, w: 2 })}${ellipse(30, -110, 8, 10, { fill: INK, w: 2 })}</g>`, { x, y: 900, s: popS(tl, 0.2 + i * 0.2) })).join(''), tl, d, { z0: 1.0, z1: 1.04 }),
     // 4 世界の有名人が、あの猫のグッズを身に着けて話題になることもある。
@@ -348,16 +354,10 @@ export const SHOTS = {
     (tl, d, t) => cam(fill('#e9dcc6') + mid(tsuji2, 960, { blink: blinking(t, 1), expr: 'smile' }), tl, d, { z0: 1.0, z1: 1.06 }),
     // 6 「みんななかよく」
     (tl) => fill('#111') + typeText('みんな なかよく', 960, 560, tl, { size: 130, color: '#f6c8d4', cps: 6, font: 'Yomogi', weight: 400 }),
-    // 7 あなたの好きなキャラクターは誰ですか？ ぜひコメントで教えてください。
-    (tl, d, t) => {
-      let s = fill('#fdf1dc');
-      [['県庁', (x, y) => kencho(x, y + 120, 0.4, '県庁')], ['花のサンダル', (x, y) => sandal(x, y, 0.9, { flower: true })], ['白い猫', (x, y) => whiteCat(x, y + 160, 0.6, t)]].forEach(([lb, f], i) => {
-        const x = 330 + i * 630;
-        s += rect(x - 290, 160, 580, 560, { fill: [SEPIA, '#fff2c8', '#fde8ee'][i] }) + f(x, 460) + text(lb, x, 680, { size: 56, font: 'Zen Maru Gothic', weight: 900 });
-        s += xf(text('✓', x + 200, 260, { size: 130, color: C.green, font: 'Zen Maru Gothic', weight: 900 }), { s: popS(tl, 0.4 + i * 0.5), cx: x + 200, cy: 220 });
-      });
-      return s + enter(bubble('好きなキャラクターは？', 960, 820, { size: 48 }), tl, d * 0.5, { cx: 960, cy: 820 });
-    },
+    // 7 あなたの好きなキャラクターは誰ですか？ ぜひコメントで教えてください。（実在のキャラクターは描かず、白い猫の後ろ姿と、丸い顔の仲間たち）
+    (tl, d, t) => cam(fill('#fde8ee') + glow(960, 500, 700, '#fff', 0.4) + whiteCat(960, 760, 1.0, t) +
+      [[360, '#fbe36a'], [640, '#a8d8f0'], [1280, MINT], [1560, '#f2b6c8']].map(([x, col], i) => xf(`<g>${ellipse(0, -100, 90, 90, { fill: col })}${ellipse(-30, -110, 8, 10, { fill: INK, w: 2 })}${ellipse(30, -110, 8, 10, { fill: INK, w: 2 })}${ellipse(-50, -80, 14, 9, { fill: C.pink, color: null })}${ellipse(50, -80, 14, 9, { fill: C.pink, color: null })}</g>`, { x, y: 760 + bob(tl + i, 8, 1), s: popS(tl, 0.2 + i * 0.2) })).join('') +
+      enter(bubble('好きなキャラクターは？', 960, 230, { size: 64 }), tl, 0.3, { cx: 960, cy: 230 }), tl, d, { z0: 1.0, z1: 1.04 }),
     // 8 この動画が面白かったら、チャンネル登録もお願いします。
     (tl, d, t) => cam(fill('#c25a72') + glow(800, 500, 700, '#fff', 0.2) + mid(guide, 700, { blink: blinking(t, 9), arms: P.wave }) + xf(sign('チャンネル登録', 1400, 520, { size: 90, fill: C.white, color: '#c25a72', rot: -4 }), { s: popS(tl, 0.3), cx: 1400, cy: 520 }), tl, d, { z0: 1.0, z1: 1.06, x0: 960 }),
   ],
