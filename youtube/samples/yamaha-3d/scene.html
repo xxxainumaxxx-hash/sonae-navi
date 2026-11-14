@@ -1,0 +1,266 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+html,body{margin:0;background:#000;overflow:hidden}
+svg{display:block}
+</style></head>
+<body>
+<svg id="v" width="1920" height="1080" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg"></svg>
+<script>
+const W=1920,H=1080, LINE='#ff00ff';
+const ease=x=>x<0?0:x>1?1:x*x*(3-2*x);
+const lerp=(a,b,k)=>a+(b-a)*k;
+
+// 手描きの線のゆれ（数コマごとに形が変わる）
+function defs(seed){return `
+<defs>
+ <filter id="wob" x="-5%" y="-5%" width="110%" height="110%">
+  <feTurbulence type="fractalNoise" baseFrequency="0.018" numOctaves="2" seed="${seed}" result="n"/>
+  <feDisplacementMap in="SourceGraphic" in2="n" scale="5" xChannelSelector="R" yChannelSelector="G"/>
+ </filter>
+ <filter id="soft"><feGaussianBlur stdDeviation="14"/></filter>
+ <filter id="soft2"><feGaussianBlur stdDeviation="40"/></filter>
+ <filter id="grain" x="0" y="0" width="100%" height="100%">
+  <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="${seed}"/>
+  <feColorMatrix values="0 0 0 0 0.5  0 0 0 0 0.45  0 0 0 0 0.4  0 0 0 0.10 0"/>
+ </filter>
+ <radialGradient id="vig" cx="50%" cy="50%" r="75%">
+  <stop offset="55%" stop-color="#000" stop-opacity="0"/>
+  <stop offset="100%" stop-color="#2a1d14" stop-opacity="0.35"/>
+ </radialGradient>
+ <linearGradient id="shaft" x1="0" y1="0" x2="1" y2="1">
+  <stop offset="0" stop-color="#fff3c8" stop-opacity="0.55"/>
+  <stop offset="1" stop-color="#fff3c8" stop-opacity="0"/>
+ </linearGradient>
+ <radialGradient id="lamp" cx="50%" cy="50%" r="50%">
+  <stop offset="0" stop-color="#ffd27a" stop-opacity="0.9"/>
+  <stop offset="1" stop-color="#ffd27a" stop-opacity="0"/>
+ </radialGradient>
+ <linearGradient id="spot" x1="0" y1="0" x2="0" y2="1">
+  <stop offset="0" stop-color="#fff1c2" stop-opacity="0.75"/>
+  <stop offset="1" stop-color="#fff1c2" stop-opacity="0.05"/>
+ </linearGradient>
+ <linearGradient id="wood" x1="0" y1="0" x2="0" y2="1">
+  <stop offset="0" stop-color="#7a4f2e"/><stop offset="1" stop-color="#5a3820"/>
+ </linearGradient>
+
+ <filter id="ink" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+  <feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  3 -6 3 0 -0.9" result="key"/>
+  <feComposite in="SourceGraphic" in2="key" operator="out" result="body"/>
+  <feGaussianBlur in="body" stdDeviation="6" result="bb"/>
+  <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="${seed}" result="fine"/>
+  <feDisplacementMap in="key" in2="fine" scale="9" xChannelSelector="R" yChannelSelector="G" result="fuzzy"/>
+  <feColorMatrix in="fine" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  6 0 0 0 -2.3" result="speck"/>
+  <feComposite in="fuzzy" in2="speck" operator="in" result="lineA"/>
+  <feFlood flood-color="#2b211c" result="inkc"/>
+  <feComposite in="inkc" in2="lineA" operator="in" result="lines"/>
+  <feMerge><feMergeNode in="bb"/><feMergeNode in="bb"/><feMergeNode in="body"/><feMergeNode in="lines"/></feMerge>
+ </filter>
+ <pattern id="scrib" width="16" height="60" patternUnits="userSpaceOnUse">
+  <path d="M3 0 Q7 30 3 60 M11 0 Q7 30 11 60" stroke="#000" stroke-opacity="0.2" stroke-width="3.5" fill="none"/>
+ </pattern>
+ <pattern id="scribL" width="14" height="50" patternUnits="userSpaceOnUse">
+  <path d="M3 0 Q6 25 3 50 M10 0 Q7 25 10 50" stroke="#fff" stroke-opacity="0.22" stroke-width="3" fill="none"/>
+ </pattern>
+ <filter id="crayon" x="0" y="0" width="100%" height="100%">
+  <feTurbulence type="fractalNoise" baseFrequency="0.07 0.9" numOctaves="2" seed="${seed}" result="streak"/>
+  <feTurbulence type="fractalNoise" baseFrequency="0.6" numOctaves="3" seed="${seed+3}" result="dots"/>
+  <feBlend in="streak" in2="dots" mode="multiply" result="n"/>
+  <feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  4.2 0 0 0 -0.55" result="m"/>
+  <feComposite in="SourceGraphic" in2="m" operator="in"/>
+ </filter>
+ <filter id="paper" x="0" y="0" width="100%" height="100%">
+  <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="4" seed="7"/>
+  <feColorMatrix values="0 0 0 0 0.93  0 0 0 0 0.89  0 0 0 0 0.80  0 0 0 0 1"/>
+ </filter>
+ <pattern id="hatch" width="14" height="14" patternUnits="userSpaceOnUse" patternTransform="rotate(35)">
+  <path d="M0 3 L14 3" stroke="#3a2c24" stroke-width="5" stroke-linecap="round"/>
+ </pattern>
+ <pattern id="hatchL" width="22" height="22" patternUnits="userSpaceOnUse" patternTransform="rotate(-25)">
+  <path d="M0 6 L22 6" stroke="#fff5cf" stroke-width="7" stroke-linecap="round"/>
+ </pattern>
+</defs>`}
+
+const sh=(x,y,rx,ry,o=0.28)=>`<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${ry}" fill="url(#hatch)" opacity="${Math.min(0.9,o*2.2)}"/>`;
+const st=`stroke="${LINE}" stroke-width="9" stroke-linejoin="round" stroke-linecap="round"`;
+
+// 正面を向いた人
+function person(o){
+ const {x,y,s=1,skin='#f2c9a0',hair='#2b211c',coat='#3d4a5c',bottom=null,expr='worry',mus=false,bun=false,lean=0,bob=0}=o;
+ const yy=y+bob;
+ let g=`<g transform="translate(${x},${yy}) scale(${s}) rotate(${lean})">`;
+ // 脚
+ g+=`<path d="M-28 150 L-30 250 M28 150 L30 250" ${st} fill="none"/>`;
+ if(bottom) g+=`<path d="M-70 120 Q-80 230 -88 250 L88 250 Q80 230 70 120 Z" fill="${bottom}" ${st}/>`;
+ // 胴
+ g+=`<path d="M-72 160 Q-82 40 -40 10 L40 10 Q82 40 72 160 Z" fill="${coat}" ${st}/><path d="M-72 160 Q-82 40 -40 10 L40 10 Q82 40 72 160 Z" fill="url(#scrib)"/>`;
+ g+=`<path d="M-14 12 L0 60 L14 12" fill="#e9e2d4" ${st}/>`;
+ // 腕
+ g+=`<path d="M-70 40 Q-100 100 -80 150" ${st} fill="none"/><path d="M70 40 Q100 100 80 150" ${st} fill="none"/>`;
+ // 頭
+ g+=`<ellipse cx="0" cy="-60" rx="64" ry="70" fill="${skin}" ${st}/>`;
+ if(bun) g+=`<circle cx="0" cy="-140" r="28" fill="${hair}" ${st}/>`;
+ g+=`<path d="M-66 -66 Q-70 -136 0 -134 Q70 -136 66 -66 Q40 -104 -10 -100 Q-46 -98 -66 -66 Z" fill="${hair}" ${st}/><path d="M-66 -66 Q-70 -136 0 -134 Q70 -136 66 -66 Q40 -104 -10 -100 Q-46 -98 -66 -66 Z" fill="url(#scrib)" opacity="0.9" style="mix-blend-mode:screen"/>`;
+ // 顔
+ if(expr==='worry'){
+  g+=`<path d="M-36 -78 L-14 -70 M36 -78 L14 -70" ${st} fill="none"/>`;
+  g+=`<circle cx="-24" cy="-52" r="6" fill="${LINE}"/><circle cx="24" cy="-52" r="6" fill="${LINE}"/>`;
+  g+=`<path d="M-16 -14 Q0 -26 16 -14" ${st} fill="none"/>`;
+ } else {
+  g+=`<circle cx="-24" cy="-52" r="6" fill="${LINE}"/><circle cx="24" cy="-52" r="6" fill="${LINE}"/>`;
+  g+=`<path d="M-14 -20 Q0 -14 14 -20" ${st} fill="none"/>`;
+ }
+ if(mus) g+=`<path d="M-30 -32 Q-14 -40 0 -32 Q14 -40 30 -32" ${st} fill="none"/>`;
+ g+=`<circle cx="-40" cy="-34" r="10" fill="#e88" opacity="0.35"/><circle cx="40" cy="-34" r="10" fill="#e88" opacity="0.35"/>`;
+ return g+`</g>`;
+}
+// 後ろ姿の子ども
+function kidBack(x,y,s,hair,kimono,tilt=0){
+ return `<g transform="translate(${x},${y}) scale(${s}) rotate(${tilt})">
+  <path d="M-60 120 Q-66 30 -34 6 L34 6 Q66 30 60 120 Z" fill="${kimono}" ${st}/><path d="M-60 120 Q-66 30 -34 6 L34 6 Q66 30 60 120 Z" fill="url(#scrib)"/>
+  <circle cx="0" cy="-44" r="54" fill="${hair}" ${st}/><circle cx="0" cy="-44" r="50" fill="url(#scribL)"/>
+  <path d="M-52 -20 Q-60 4 -40 10 M52 -20 Q60 4 40 10" ${st} fill="none"/>
+ </g>`;
+}
+// 机（奥行きつき）
+function desk(x,y,s){
+ return `<g transform="translate(${x},${y}) scale(${s})">
+  ${sh(0,96,150,22,0.25)}
+  <path d="M-130 0 L130 0 L150 30 L-150 30 Z" fill="#a8774a" ${st}/>
+  <path d="M-150 30 L150 30 L150 48 L-150 48 Z" fill="#7d5434" ${st}/>
+  <path d="M-136 48 L-136 96 M136 48 L136 96" ${st}/>
+ </g>`;
+}
+
+// ---------- カット1：明治の教室（教室の後ろから） ----------
+function cut1(t,seed){
+ const k=ease(t/4.2);
+ const z=lerp(1.0,1.18,k), cx=lerp(960,1010,k), cy=lerp(560,520,k);
+ // 部屋の奥行き：奥の壁の四隅
+ const bx0=560,bx1=1360,by0=250,by1=720;
+ let s=`<rect width="1920" height="1080" fill="#7d7361"/>`;
+ // 天井・床・左右の壁
+ s+=`<polygon points="0,0 1920,0 ${bx1},${by0} ${bx0},${by0}" fill="#6a604f"/>`;
+ s+=`<polygon points="0,1080 1920,1080 ${bx1},${by1} ${bx0},${by1}" fill="#8a6a46"/>`;
+ // 床板の線（消失点に向かう）
+ for(let i=-6;i<=6;i++){const fx=960+i*330, bx=960+i*(bx1-bx0)/13; s+=`<path d="M${fx} 1080 L${bx} ${by1}" stroke="#4e3a26" stroke-width="4" opacity="0.6"/>`;}
+ s+=`<polygon points="0,0 ${bx0},${by0} ${bx0},${by1} 0,1080" fill="#a09379"/>`;
+ s+=`<polygon points="1920,0 ${bx1},${by0} ${bx1},${by1} 1920,1080" fill="#928670"/>`;
+ // 奥の壁
+ s+=`<rect x="${bx0}" y="${by0}" width="${bx1-bx0}" height="${by1-by0}" fill="#b3a68a"/>`;
+ // 黒板
+ s+=`<rect x="700" y="300" width="520" height="210" fill="#2f4a3a" ${st}/>`;
+ s+=`<text x="960" y="420" font-family="Hiragino Maru Gothic ProN" font-size="56" fill="#e8efe6" text-anchor="middle" opacity="0.85">しょうか</text>`;
+ // 左の壁の窓（斜め）
+ s+=`<polygon points="120,180 420,268 420,560 120,620" fill="#cfe0e6" ${st}/>`;
+ s+=`<path d="M270 224 L270 590 M120 400 L420 414" ${st}/>`;
+ // 差しこむ光
+ s+=`<polygon points="120,180 420,268 1150,1080 300,1080" fill="url(#shaft)" opacity="0.6"/><polygon points="120,180 420,268 1150,1080 300,1080" fill="url(#hatchL)" opacity="0.35"/>`;
+ // オルガン（奥の壁の前）
+ s+=sh(960,725,220,26,0.35);
+ s+=`<g><path d="M820 520 L1100 520 L1100 720 L820 720 Z" fill="url(#wood)" ${st}/>
+   <path d="M800 500 L1120 500 L1100 540 L820 540 Z" fill="#8b5c36" ${st}/>
+   <rect x="845" y="560" width="230" height="34" fill="#f4eee0" ${st}/>
+   ${[...Array(9)].map((_,i)=>`<rect x="${857+i*24}" y="560" width="12" height="20" fill="${LINE}"/>`).join('')}
+   <path d="M850 640 L1070 640" ${st}/></g>`;
+ // 先生（困っている）
+ const bob=Math.sin(t*3.2)*4;
+ s+=sh(1210,740,90,16,0.35);
+ s+=person({x:1210,y:470,s:0.95,coat:'#e9e0ce',bottom:'#6a3c63',bun:true,expr:'worry',bob,lean:Math.sin(t*1.7)*2});
+ // 「？」
+ s+=`<text x="1290" y="${330+bob}" font-family="Hiragino Maru Gothic ProN" font-size="70" fill="#f4eee0" stroke="${LINE}" stroke-width="5" paint-order="stroke">？</text>`;
+ // 机と子ども（手前ほど大きい）
+ const rows=[{y:760,s:0.55,xs:[620,900,1300]},{y:860,s:0.8,xs:[400,1090,1520]},{y:1010,s:1.15,xs:[130,1790]}];
+ const hairs=['#2b211c','#3a2a20','#241c18'], kim=['#5d7a99','#a35d4b','#6f8a57','#8a6a9a','#4f6f73','#b07a43','#5d7a99','#a35d4b','#6f8a57'];
+ let n=0;
+ rows.forEach(r=>r.xs.forEach(x=>{
+   const tilt=Math.sin(t*2+n)*3;
+   s+=desk(x,r.y,r.s);
+   s+=kidBack(x,r.y-70*r.s,r.s*1.35,hairs[n%3],kim[n],tilt);
+   n++;
+ }));
+ return `<g transform="translate(960,540) scale(${z}) translate(${-cx},${-cy})"><g filter="url(#ink)"><g filter="url(#wob)">${s}</g></g></g>`;
+}
+
+// ---------- カット2：オルガンの中から見上げる ----------
+function cut2(t,seed){
+ const k=ease(t/3.6);
+ const z=lerp(1.0,1.12,k), cy=lerp(560,520,k);
+ let s=`<rect width="1920" height="1080" fill="#24170f"/>`;
+ // 中の壁（箱の内側を遠近で）
+ s+=`<polygon points="0,0 560,180 560,900 0,1080" fill="#3b2516"/>`;
+ s+=`<polygon points="1920,0 1360,180 1360,900 1920,1080" fill="#33200f"/>`;
+ s+=`<polygon points="0,1080 1920,1080 1360,900 560,900" fill="#2c1b10"/>`;
+ // 上の開いたふた（明るい）
+ s+=`<polygon points="560,180 1360,180 1600,-20 320,-20" fill="#f3d9a4"/>`;
+ // のぞきこむ顔
+ const peek=lerp(-60,150,ease(t/1.2));
+ s+=`<g transform="translate(960,${peek})">
+   <ellipse cx="0" cy="40" rx="250" ry="200" fill="#e9b98c" ${st}/>
+   <path d="M-250 20 Q-240 -170 0 -170 Q240 -170 250 20 Q160 -90 0 -86 Q-160 -90 -250 20Z" fill="#2b211c" ${st}/>
+   <circle cx="-80" cy="70" r="16" fill="${LINE}"/><circle cx="80" cy="70" r="16" fill="${LINE}"/>
+   <path d="M-120 20 L-50 34 M120 20 L50 34" ${st} fill="none"/>
+   <path d="M-90 150 Q-46 126 0 146 Q46 126 90 150" stroke="${LINE}" stroke-width="12" fill="none" stroke-linecap="round"/>
+ </g>`;
+ // ランプの光
+ const fl=0.85+Math.sin(t*17)*0.06+Math.sin(t*7)*0.05;
+ s+=`<circle cx="1180" cy="190" r="${330*fl}" fill="url(#lamp)" opacity="${fl}"/>`;
+ s+=`<g transform="translate(1180,170)"><path d="M-30 -60 L30 -60 L40 30 L-40 30Z" fill="#b5893d" ${st}/><ellipse cx="0" cy="-10" rx="18" ry="30" fill="#fff4c4"/></g>`;
+ // 光の筋が下へ
+ s+=`<polygon points="1060,220 1300,220 1180,900 700,900" fill="#ffd27a" opacity="0.12"/>`;
+ // リードの板（奥へ向かって細くなる）
+ s+=`<polygon points="380,1080 1540,1080 1260,760 660,760" fill="#6e4a2c" ${st}/>`;
+ for(let i=0;i<13;i++){
+   const xb=380+i*(1160/12), xt=660+i*(600/12);
+   const w0=34, w1=16;
+   s+=`<polygon points="${xb-w0/2},1070 ${xb+w0/2},1070 ${xt+w1/2},775 ${xt-w1/2},775" fill="${i%4==1?'#e0b85a':'#c49a3e'}" ${st} stroke-width="5"/>`;
+ }
+ // ほこり
+ for(let i=0;i<26;i++){const px=(i*157)%1200+360, py=(i*263+t*40*(1+i%3))%700+200; s+=`<circle cx="${px}" cy="${py}" r="${3+i%3}" fill="#ffe6a8" opacity="0.5"/>`;}
+ return `<g transform="translate(960,540) scale(${z}) translate(-960,${-cy})"><g filter="url(#ink)"><g filter="url(#wob)">${s}</g></g></g>`;
+}
+
+// ---------- カット3：バネ一つ（スポットライト） ----------
+function cut3(t,seed){
+ const k=ease(t/3.2);
+ const z=lerp(1.15,1.0,k), rot=lerp(-3,0,k);
+ let s=`<rect width="1920" height="1080" fill="#1c2230"/>`;
+ // 作業台（遠近）
+ s+=`<polygon points="-200,1080 2120,1080 1500,560 420,560" fill="#6b4529"/>`;
+ for(let i=0;i<7;i++){const y=560+i*i*14; s+=`<path d="M${420-(y-560)*1.1} ${y} L${1500+(y-560)*1.1} ${y}" stroke="#55361f" stroke-width="5" opacity="0.7"/>`;}
+ // スポット
+ s+=`<polygon points="860,-20 1060,-20 1420,900 500,900" fill="url(#spot)" opacity="0.7"/><polygon points="860,-20 1060,-20 1420,900 500,900" fill="url(#hatchL)" opacity="0.3"/>`;
+ s+=`<ellipse cx="960" cy="820" rx="460" ry="110" fill="#fff1c2" opacity="0.28" filter="url(#soft)"/>`;
+ // 影
+ s+=sh(1010,850,250,36,0.45);
+ // バネ（ちぎれている）
+ const pop=ease((t-0.2)/0.5);
+ const coil=(n)=>{let b='',f='';for(let i=0;i<n;i++){const x=i*40;
+   b+=`<path d="M${x} -70 A26 70 0 0 0 ${x} 70" fill="none" stroke="${LINE}" stroke-width="20" stroke-linecap="round"/><path d="M${x} -70 A26 70 0 0 0 ${x} 70" fill="none" stroke="#8d939c" stroke-width="9" stroke-linecap="round"/>`;
+   f+=`<path d="M${x} -70 A26 70 0 0 1 ${x+40} 70" fill="none" stroke="${LINE}" stroke-width="20" stroke-linecap="round"/><path d="M${x} -70 A26 70 0 0 1 ${x+40} 70" fill="none" stroke="#dde2ea" stroke-width="9" stroke-linecap="round"/>`;}
+   return b+f;};
+ s+=`<g transform="translate(640,${760-30*pop}) rotate(${-8*pop})">${coil(6)}</g>`;
+ s+=`<g transform="translate(1030,${760-60*pop}) rotate(${12*pop})">${coil(5)}</g>`;
+ // ちぎれた所のギザギザ
+ s+=`<path d="M960 ${700-40*pop} l14 -22 l10 18 l14 -24" stroke="#ffde6b" stroke-width="8" fill="none" opacity="${pop}"/>`;
+ // 文字（1文字ずつ）
+ const label='バネが、一つ。'; const nch=Math.floor(Math.max(0,(t-0.9))/0.16);
+ s+=`<text x="960" y="300" font-family="Hiragino Maru Gothic ProN" font-size="120" fill="#fff6dc" text-anchor="middle" stroke="${LINE}" stroke-width="10" paint-order="stroke">${label.slice(0,nch)}</text>`;
+ if(nch>=label.length) s+=`<path d="M560 330 Q960 ${352} 1360 326" stroke="#ffde6b" stroke-width="14" fill="none" opacity="0.85" stroke-linecap="round"/>`;
+ return `<g transform="translate(960,540) rotate(${rot}) scale(${z}) translate(-960,-540)"><g filter="url(#ink)"><g filter="url(#wob)">${s}</g></g></g>`;
+}
+
+const CUTS=[{f:cut1,d:4.2,sub:'「アメリカから買ったオルガンが、壊れてしまった」'},
+            {f:cut2,d:3.6,sub:'寅楠は、中を開け、仕組みを一つひとつ調べた。'},
+            {f:cut3,d:3.2,sub:'壊れていたのは、バネが一つ。'}];
+window.TOTAL=CUTS.reduce((a,c)=>a+c.d,0);
+window.render=function(T){
+ let t=T, i=0; while(i<CUTS.length-1 && t>=CUTS[i].d){t-=CUTS[i].d;i++;}
+ const seed=1+Math.floor(T*30/4)%6;  // 4コマごとに線がふるえる
+ const c=CUTS[i];
+ const sub=`<text x="960" y="1010" font-family="Hiragino Kaku Gothic ProN" font-weight="700" font-size="46" fill="#fff" text-anchor="middle" stroke="#1a1410" stroke-width="10" paint-order="stroke">${c.sub}</text>`;
+ document.getElementById('v').innerHTML=defs(seed)+c.f(t,seed)
+  +`<rect width="1920" height="1080" fill="url(#vig)"/>`+sub;
+};
+render(0);
+</script></body></html>
