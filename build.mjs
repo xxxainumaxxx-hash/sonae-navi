@@ -30,3 +30,8 @@ writeFileSync('public/sitemap.xml',`<?xml version="1.0" encoding="UTF-8"?><urlse
 writeFileSync('public/robots.txt',`User-agent: *\nDisallow: /design-preview/\nSitemap: ${SITE.origin}/sitemap.xml\n`);
 writeFileSync('public/favicon.svg','<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="10" fill="#242629"/><text x="32" y="46" font-size="42" text-anchor="middle" fill="white">備</text></svg>');
 console.log(`Built 備えニキHP: ${pages.length} pages`);
+// Shopping-first homepage; all existing guide and work URLs stay available.
+const {simpleHome}=await import('./src/simple-home.mjs');
+const simplified=simpleHome(readFileSync('public/index.html','utf8'));
+writeFileSync('public/index.html',simplified);
+writeFileSync('public/design-preview/index.html',simplified.replace('</head>','<meta name="robots" content="noindex"></head>'));
