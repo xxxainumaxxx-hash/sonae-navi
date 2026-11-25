@@ -15,3 +15,9 @@
 .simple-home .priority-label{font-size:10px;font-weight:700;color:#735716;margin:4px 0 6px;line-height:1.5}
 .secondary .priority-row{background:#fff4c7;border-left:4px solid #e5b82e;padding-left:9px;padding-right:5px}
 .priority-row .row-title strong{font-weight:900;color:#342d13;font-size:15px}
+
+/* Official preparedness guidance: visible attribution, compact emphasis. */
+.intro .gov-message{margin:9px 0 0;padding:10px 12px;border:1px solid #d9b64c;background:#fff9e4;border-radius:4px;color:#202b27}
+.gov-authority{display:block;font-size:12px;font-weight:800;letter-spacing:.03em;margin-bottom:4px}
+.gov-recommendation{display:block;font-size:18px;line-height:1.4;font-weight:900;letter-spacing:-.02em}
+.gov-message a{display:inline-block;font-size:10px;margin:5px 0 0;color:#39594b;text-decoration:underline}
