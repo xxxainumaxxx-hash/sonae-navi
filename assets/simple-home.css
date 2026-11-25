@@ -34,3 +34,5 @@
 /* User-approved copy above the two featured products. */
 .simple-home .priority-ribbon{background:#182d3e;color:#fff;font-size:13px;font-weight:800;line-height:1.45;margin:9px 0 0;padding:7px 10px;border-radius:4px 4px 0 0;letter-spacing:.015em}
 .secondary .priority-ribbon:first-child{margin-top:0}
+
+.simple-home .power-ribbon{white-space:nowrap;font-size:12px;letter-spacing:0}@media(max-width:380px){.simple-home .power-ribbon{font-size:11px;padding-left:8px;padding-right:8px}}@media(max-width:350px){.simple-home .power-ribbon{font-size:10px}}
