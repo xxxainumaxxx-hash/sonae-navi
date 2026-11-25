@@ -65,3 +65,5 @@
 .featured-product .priority-row .buy-cta{right:8px;margin-right:0}
 
 .buy-tools{justify-content:flex-start;gap:12px}.buy-tools>span{margin-left:auto}.buy-tools label{white-space:nowrap}.buy-tools .days-label select{margin-left:4px}@media(max-width:620px){.buy-tools{gap:8px}.buy-tools>span{font-size:8px}.buy-tools select{padding-left:5px;padding-right:5px}}
+
+@media(max-width:620px){.intro .safety-heading h1{font-size:20px}}@media(max-width:350px){.intro .safety-heading h1{font-size:18px}}
