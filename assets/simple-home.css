@@ -36,3 +36,7 @@
 .secondary .priority-ribbon:first-child{margin-top:0}
 
 .simple-home .power-ribbon{white-space:nowrap;font-size:12px;letter-spacing:0}@media(max-width:380px){.simple-home .power-ribbon{font-size:11px;padding-left:8px;padding-right:8px}}@media(max-width:350px){.simple-home .power-ribbon{font-size:10px}}
+/* Align featured buy buttons with all rows; match the official-guidance palette. */
+.secondary .priority-row{border-left:0;padding-left:0;padding-right:0;box-shadow:inset 4px 0 #e5b82e}
+.priority-row .row-info{padding-left:12px}
+.simple-home .priority-ribbon{background:#fff9e4;color:#202b27;border:1px solid #d9b64c;border-bottom:0}
