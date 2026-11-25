@@ -67,3 +67,11 @@
 .buy-tools{justify-content:flex-start;gap:12px}.buy-tools>span{margin-left:auto}.buy-tools label{white-space:nowrap}.buy-tools .days-label select{margin-left:4px}@media(max-width:620px){.buy-tools{gap:8px}.buy-tools>span{font-size:8px}.buy-tools select{padding-left:5px;padding-right:5px}}
 
 @media(max-width:620px){.intro .safety-heading h1{font-size:20px}}@media(max-width:350px){.intro .safety-heading h1{font-size:18px}}
+
+/* A single semantic link makes every product row a full tap target. */
+a.purchase-row{color:inherit;text-decoration:none;cursor:pointer}
+a.purchase-row:hover{background-color:#f0f5ef}
+a.purchase-row:focus-visible{outline:2px solid #237443;outline-offset:2px}
+.featured-product a.priority-row::before{content:"";position:absolute;inset:0;z-index:1}
+.featured-product a.priority-row:focus-visible{outline-offset:-2px}
+.purchase-row .buy-cta{display:flex;align-items:center;color:#fff;background:#237443;font-weight:700}
