@@ -60,3 +60,6 @@
 .featured-product .priority-row .buy-cta{position:absolute;right:0;top:50%;transform:translateY(-50%);width:62px;min-height:34px;box-sizing:border-box;border-radius:5px}
 @media(max-width:620px){.featured-product .priority-row .buy-cta{width:58px}.simple-home .featured-product .power-ribbon{font-size:9px;letter-spacing:-.04em;padding-right:63px}.simple-home .featured-product .priority-ribbon{padding-left:8px}.featured-product .priority-row .row-info{padding-left:8px}}
 @media(max-width:350px){.simple-home .featured-product .power-ribbon{font-size:8px}}
+/* Shared right inset for every purchase button, including featured rows. */
+.purchase-row .buy-cta{margin-right:8px}
+.featured-product .priority-row .buy-cta{right:8px;margin-right:0}
